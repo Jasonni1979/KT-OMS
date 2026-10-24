@@ -57,7 +57,7 @@ Redis-DB 余额对账每 5 分钟抽样+每小时全量：任务声明 `timeout=
 ## 3. 功能需求
 
 ### FR-D01.02-01 任务注册与白名单声明（继承商派 taskmgr whitelist）
-- FR-01a 注册方式：各域实现 `ScheduledTaskInterface { name(); handle(TaskContext): TaskResult; }` 并以 DI 标签注册；白名单声明随代码配置化（PHP 配置数组/注解），**新增任务=实现接口+声明注册，不改调度器代码**（模块自声明插件化，逆向文档 05 §7.7）。
+- FR-01a 注册方式：各域实现 `ScheduledTask` Protocol/ABC（`name() / handle(ctx) -> result`）并以注册表/entry_points 注册；白名单声明随代码配置化（APScheduler/Celery Beat 配置 + Pydantic 声明），**新增任务=实现接口+声明注册，不改调度器代码**（模块自声明插件化，逆向文档 05 §7.7）。
 - FR-01b 白名单声明项（配置模型）：
 
 | 声明项 | 商派对应 | 说明 |

@@ -98,7 +98,7 @@
 
 ### FR-D10.03-04 行级过滤注入机制（全域横切契约核心，业务域无感知接入）
 
-- FR-04a **统一数据权限中间件**（Hyperf 中间件 + ORM 全局 Scope）：每个请求进入时从 AuthContext 解析 scope → 注入协程上下文；所有注册了「可过滤实体」的 ORM 查询**自动追加** `tenant_id = ? AND owner_id IN (...) AND shop_id IN (...) AND branch_id IN (...) AND brand_id IN (...)`（仅注入该实体声明拥有的维度列，见 FR-04b）。
+- FR-04a **统一数据权限中间件**（FastAPI middleware/Depends + SQLAlchemy 全局过滤 `with_loader_criteria`/ORM 事件）：每个请求进入时从 AuthContext 解析 scope → 注入 contextvars 请求上下文；所有注册了「可过滤实体」的 ORM 查询**自动追加** `tenant_id = ? AND owner_id IN (...) AND shop_id IN (...) AND branch_id IN (...) AND brand_id IN (...)`（仅注入该实体声明拥有的维度列，见 FR-04b）。
 - FR-04b **实体过滤声明表**（filterable_entity_registry）：各业务域在模块注册时声明实体与维度列映射（如 `oms_order.orders → {tenant_id, owner_id, shop_id}`、`oms_stock.stock_ledger → {tenant_id, owner_id, branch_id}`）；未声明实体默认**只注入 tenant_id**（保底隔离）+ 开发期告警（提醒补声明）。
 - FR-04c **业务域无感知**：业务查询代码不写任何权限条件（写了也不冲突，取交集）；各业务域 SRS「数据权限」小节只需一句「查询统一注入 D10.03 四维行级过滤」即完成契约接入（现行 21 处引用均此口径）；新模块接入=注册实体声明+权限点，零过滤代码。
 - FR-04d **豁免通道（受控）**：系统级任务（MQ worker/调度/平台回传处理）无用户上下文 → 以 `system` 身份运行，走白名单豁免（豁免代码块显式 `withoutDataScope()`，登记调用点清单，CI 静态检查豁免滥用）；跨货主聚合任务（D08 结算生成、D11 报表）用豁免通道+专用系统角色，输出结果仍按消费方权限二次过滤（报表查询侧照常注入）。
@@ -344,7 +344,7 @@ assertWritable(entity_row, account):
 
 | 编号 | 接口 | 消费方 | 说明 |
 |---|---|---|---|
-| IF-D10.03-01 | 数据权限中间件（Hyperf middleware+ORM 全局 Scope，框架级自动生效） | **全域所有 HTTP/API 查询** | 行级过滤注入唯一通道（FR-04）；业务域无感知接入 |
+| IF-D10.03-01 | 数据权限中间件（FastAPI middleware+SQLAlchemy 全局过滤，框架级自动生效） | **全域所有 HTTP/API 查询** | 行级过滤注入唯一通道（FR-04）；业务域无感知接入 |
 | IF-D10.03-02 | `PermissionService::can(account, perm_code, resource?)` | 全域控制器（注解 `#[RequirePermission]`）/D10.05 发起校验 | 功能+数据联合判定 |
 | IF-D10.03-03 | `PermissionService::getScope(account)` / `getScopeDetail(account)` | 中间件/诊断工具/审计 | scope 快照与带来源明细展开（FR-07b/09b） |
 | IF-D10.03-04 | `GrantService::grantOrg/grantDim/revoke/list(account)` | 授权管理界面/D10.01 组织管理员 | 授权维护（审计+失效联动） |

@@ -423,8 +423,8 @@ LFK：event_name→bas_event_dict。
 
 #### 3.4.1 bas_entity_meta 实体元数据（P0，配置表）
 
-用途：实体元数据注册中心 DB 镜像（FR-01b：内存注册表+本表供跨进程与前端契约服务读取）：注解扫描注册（PHP8 注解声明），启动期与物理表一致性校验 fail-fast（防元数据漂移）；实体级声明（行级过滤维度=D10.03 注入依据、软删/回收站开关、权限点前缀自动注册推送、默认排序、列表/表单契约 JSON）；元数据版本化（代码版本+内容 hash，前端契约响应携带版本=缓存失效依据，304 协商）；覆盖 60% 配置类/档案类后台页面零前端开发；**元数据不生成 DDL**（建表权归 DB-Dxx 数据字典与迁移文件——与商派 dbschema 安装自动建表的关键差异）。
-溯源：← 商派 ECOS dbschema PHP 数组+desktop.xml 菜单权限+dbeav EAV 改造：注解声明+JSON 契约+版本化 CI 兼容检查（EAV 值表→JSON 扩展列）。
+用途：实体元数据注册中心 DB 镜像（FR-01b：内存注册表+本表供跨进程与前端契约服务读取）：元数据扫描注册（SQLAlchemy 声明式模型 + Pydantic），启动期与物理表一致性校验 fail-fast（防元数据漂移）；实体级声明（行级过滤维度=D10.03 注入依据、软删/回收站开关、权限点前缀自动注册推送、默认排序、列表/表单契约 JSON）；元数据版本化（代码版本+内容 hash，前端契约响应携带版本=缓存失效依据，304 协商）；覆盖 60% 配置类/档案类后台页面零前端开发；**元数据不生成 DDL**（建表权归 DB-Dxx 数据字典与迁移文件——与商派 dbschema 安装自动建表的关键差异）。
+溯源：← 商派 ECOS dbschema PHP 数组+desktop.xml 菜单权限+dbeav EAV 改造：SQLAlchemy 声明式+Pydantic JSON 契约+版本化 CI 兼容检查（EAV 值表→JSON 扩展列）。
 
 | 字段 | 类型 | 约束 | 默认 | 注释 |
 |---|---|---|---|---|
@@ -903,7 +903,7 @@ erDiagram
 | bas_rule_test_log | （商派无试算能力，规则验证靠生产试错） | 沙箱 dry-run 四层副作用守护+对比报告+发布评审引用（Agent 草案硬约束） |
 | bas_plugin_registry | omeauto_auto_group::getPluginNames 硬编码链 + lib/split 静态数组注册表 + services.xml servicelist 多播 | 插件+策略统一注册表：chain_id 隔离/段级短路配置化/config_schema 托管/DI 标签（新增插件零引擎改动） |
 | bas_rule_dict | omeauto 条件维度硬编码 SQL 拼接 | 维度字典+枚举字典（原因码可扩展不发版+级别+默认路由扩展属性） |
-| bas_entity_meta / bas_field_meta | ECOS dbschema PHP 数组+desktop.xml+dbeav EAV/modifier | 注解声明描述既有表（**不生成 DDL**，DBA 治理解耦）+JSON 契约+版本化 CI 兼容检查+权限点同源生成 |
+| bas_entity_meta / bas_field_meta | ECOS dbschema PHP 数组+desktop.xml+dbeav EAV/modifier | SQLAlchemy声明式+Pydantic描述既有表（**不生成 DDL**，DBA 治理解耦）+JSON 契约+版本化 CI 兼容检查+权限点同源生成 |
 | bas_pipl_policy | shop.config AES 凭证加密（单一密钥硬编码）+modifier 展示脱敏 | 分级字典驱动全链路保护（L0-L3+L2P 平台密文）+信封加密 KMS+盲索引+留存策略版本化（商派无 PIPL 体系） |
 | bas_pipl_consent | （商派无授权管理） | append-only 哈希链+文本版本化+单独授权硬阻断（跨境申报） |
 | bas_pipl_ds_request | （商派无权利响应） | DSR 工作台：扫描/限制处理 restricted/匿名化/15 工作日 SLA/双人复核 |

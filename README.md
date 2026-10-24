@@ -1,13 +1,17 @@
 # KT-OMS · 凯淳自研订单管理系统（OMS）
 
 > 凯淳股份 / WISE 技术交付中心 · 基于商派 ONEX OMS 逆向分析 + 41 问需求澄清 + 四轮质量闭环编制的完整需求与数据设计
-> 技术路线：路径 B —— PHP（Hyperf 优先）新架构自研，商派代码仅作参考实现（Apache-2.0 合规）
+> 技术路线：路径 B —— 新架构自研，商派代码仅作参考实现（Apache-2.0 合规）
+> **技术栈（V2.1，2026-10-24 定案）**：后端 Python 3.11+ / FastAPI（SQLAlchemy 2.0 async + Alembic + Pydantic v2 + Celery/arq + APScheduler）· 前端 Vue 3 + TypeScript + Element Plus · MySQL 8 + Redis 7（Lua 预占）+ RabbitMQ · K8s 容器化
 
 ## 仓库结构
 
 ```
 KT-OMS/
 ├── docs/
+│   ├── 技术栈变更决策报告V2.1.md            # Python+Vue 换栈决策（动因/机制映射表/风险回退）
+│   ├── 07-新架构设计书.md                   # 目标架构：7 域划分 + 三大模型地基改造（V2.1）
+│   ├── 08-MVP实施计划.md                    # M0-M4 里程碑与团队配置（V2.1）
 │   ├── requirements/          # 需求文档（83 份）
 │   │   ├── SRS-00-需求文档总纲.md          # 入口①：11 域 67 模块地图 + 跨模块契约
 │   │   ├── README-文档库总索引.md           # 入口②：全部文档导航 + 决策留痕 + 边界声明
@@ -22,7 +26,7 @@ KT-OMS/
 │       │   └── DB-D01 ~ DB-D11 分域字典
 │       └── sql/               # 建库脚本（11 份，MySQL 8.0 实测 373 表零错误）
 │           └── DB-DXX-oms_xxx.sql           # 按 D01→D11 顺序执行
-└── （后续：src/ 代码骨架、tests/、deploy/ 随 M0 启动加入）
+└── （后续：backend/ FastAPI 工程、frontend/ Vue3 工程、tests/、deploy/ 随 M0 spike 启动加入）
 ```
 
 ## 关键设计决策（速览）
@@ -38,7 +42,7 @@ KT-OMS/
 
 ## 里程碑
 
-M0 技术验证（2-4 周：框架 spike + gateway 打通淘宝拉单 + 三元库存 Lua 预占原型）→ M1 正向履约+库存 → M2 售后+6平台+多WMS → M3 采购+财务+门户+价格 → M4 迁移灰度（按品牌切换）。4-6 人 × 7-8 个月。
+M0 技术验证（2-4 周：FastAPI+Vue3 spike（审单吞吐/异步ORM数据权限/worker选型）+ gateway 打通淘宝拉单 + 三元库存 Lua 预占原型）→ M1 正向履约+库存 → M2 售后+6平台+多WMS → M3 采购+财务+门户+价格 → M4 迁移灰度（按品牌切换）。4-6 人 × 7-8 个月。
 
 ## 文档维护约定
 

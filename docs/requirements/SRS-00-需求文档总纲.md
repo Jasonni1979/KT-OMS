@@ -79,7 +79,8 @@ DB-D<N>           分域数据字典（表 DDL、字段、索引、表间关系�
 - 横向：与金蝶（记账）、泛微 OA（审批）、BI（分析）、K-AIDE（Agent）集成；
 - 核心改造（相对商派模型）：**三元库存记账（仓×SKU×货主）**、**货主维度贯穿全域单据**、**租户级行隔离（品牌方门户）**。
 
-架构风格：模块化单体（7+ 域严格边界）· PHP 8.2+（Hyperf 优先，spike 定型）· MySQL 8 按域分 schema · Redis（库存预占）· MQ 全链路异步。
+架构风格：模块化单体（7+ 域严格边界）· **Python 3.11+ / FastAPI 异步栈**（SQLAlchemy 2.0 async + Alembic + Pydantic v2；Celery/arq worker + APScheduler 调度；pluggy/注册表承载插件链与策略）· **前端 Vue 3 + TypeScript + Element Plus** · MySQL 8 按域分 schema · Redis（库存预占 Lua）· RabbitMQ 全链路异步。
+> 技术栈变更（V2.1，2026-10-24）：原 PHP(Hyperf)→Python(FastAPI)+Vue3，动因与机制映射见《技术栈变更决策报告V2.1.md》；业务契约/数据模型/373 表 DDL 零改动。
 
 ---
 

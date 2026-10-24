@@ -86,13 +86,13 @@
 
 ### FR-D02.02-03 适配器注册机制
 - FR-03a 目录约定：`app/Gateway/adapters/{platform}/`，内含 `Adapter.php`（五能力实现）、`Inbound.php`（消息解析）、`capability.php`（白名单声明）、`mapping/`（映射规则文件）、`errcode.php`（错误码字典条目）。
-- FR-03b 注册发现：Hyperf DI 标签（`#[AdapterTag('taobao')]`）自动注册；platform 标识与 shop_auth.shop_type、platform_app.platform 三处一致。
+- FR-03b 注册发现：适配器注册表（装饰器 `@register_adapter('taobao')` 或 entry_points）自动注册；platform 标识与 shop_auth.shop_type、platform_app.platform 三处一致。
 - FR-03c 纯增量约束：适配器之间禁止相互依赖；公共逻辑放 `adapters/_abstract/` 基类（分页游标处理、批量分片、重试参数组装等），平台目录只做差异覆写。
 - FR-03d 平台归一化映射：店铺 shop_type 别名归一（如 taobao+B→tmall 语义、xhs/xiaohongshu 双标识），在适配器工厂层处理（商派 channel/shop.php shop_mapping 思想）。
 - FR-03e 即时零售平台适配器（V1.2 友商对标 G1，P1 随 D03.15/D09.06）：美团闪购/饿了么零售/京东到家秒送/抖音小时达/淘宝小时达按同一注册机制增量接入（`#[AdapterTag('meituan_sg')]` 等），订单报文含配送时效约束（期望送达时间）写入 canonical 扩展；商派参考：erpapi matrix 已有 meituan4sg/meituan4medicine/meituan4bulkpurchasing 等 5 个美团适配目录可作报文语义参考。能力矩阵特殊点：即时零售订单跳过审单缓冲（下单即锁定即履约，D03.15）、库存回写秒级通道（D04.08 高频模式）、配送状态回传（骑手状态经 D09.06 回传平台）。
 
 ### FR-D02.02-04 报文映射规则管理
-- FR-04a 映射表 `field_mapping`：统一方法名 × 平台 → 字段映射规则集（平台字段路径 → canonical 字段、转换函数、默认值、必填校验）。**代码内映射为主、配置化为辅**：常规字段映射写在各适配器 mapping/ 目录（PHP 数组声明，随代码评审），仅「高频变更的枚举映射」（订单状态、物流公司编码、售后原因）落库配置化，提供后台维护界面。
+- FR-04a 映射表 `field_mapping`：统一方法名 × 平台 → 字段映射规则集（平台字段路径 → canonical 字段、转换函数、默认值、必填校验）。**代码内映射为主、配置化为辅**：常规字段映射写在各适配器 mapping/ 目录（Python dict/Pydantic 模型声明，随代码评审），仅「高频变更的枚举映射」（订单状态、物流公司编码、售后原因）落库配置化，提供后台维护界面。
 - FR-04b 状态映射表：每平台维护「平台状态 → canonical 状态」映射（如淘系 WAIT_SELLER_SEND_GOODS→待发货；抖音 2→待发货），映射未命中 → 订单进「未知状态」缓冲并告警（不静默丢弃）。
 - FR-04c 物流公司编码映射：canonical 物流公司编码 ↔ 各平台编码对照表（D09.04 物流档案的编码为 canonical 基准），发货回传时翻译；未配置编码 → 拒绝回传并提示补配置（错编码会导致平台判虚假发货）。
 - FR-04d platform_extra JSON 扩展列：平台特有字段不进 canonical 主结构，按 `{平台标识:{字段:值}}` 存扩展列；扩展列关键字段（如淘系预售阶段、抖音区域库存类型）建生成列索引供查询。

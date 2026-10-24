@@ -191,7 +191,7 @@ stateDiagram-v2
 
 ### 5.3 主从延迟防护
 
-- 回传指令组装的所有读操作走主库连接标记（Hyperf 读写分离中间件的 force-master hint）；
+- 回传指令组装的所有读操作走主库连接标记（SQLAlchemy 读写分离 bind / force-master hint）；
 - 「查无数据」不报错：返回 `DATA_NOT_READY`，延时任务 30s×3 轮重查；第 3 轮仍无 → 告警人工（可能是事件与数据不一致的 bug，不静默）；
 - 事件 payload 自带关键字段快照（运单号/物流公司），payload 完整时可跳过回查直接组装（快路径），快照与主库数据以主库为准校验一次。
 

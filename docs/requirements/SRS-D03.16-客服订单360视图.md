@@ -254,7 +254,7 @@ search(key, type?, filter, account):
 openView(order_id, account):
     cache_key = "cs360:view:{order_id}"
     if hit = Redis.get(cache_key) and 权限指纹一致: return hit      # 权限指纹=scope哈希，防越权读缓存
-    首屏 = coroutine.all(                                            # Hyperf 协程并发
+    首屏 = asyncio.gather(                                           # FastAPI asyncio 并发
         D03.01 get(order_id),              # 头/行/收货人(脱敏)/状态日志
         D03.01 getDualAmount(order_id),    # 双口径金额+分摊
         D03.01 协同标记读取(order_id),      # 旗帜/备注/留言/催单(V1.4)

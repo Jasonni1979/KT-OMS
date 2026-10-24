@@ -64,7 +64,7 @@ O2O 平台派单后投递 `delivery.timeout.accept` 延迟消息（TTL=接单时
 ## 3. 功能需求
 
 ### FR-D01.01-01 MQ 统一封装与命名规范
-- FR-01a 客户端封装：业务代码只依赖 `EventPublisher` / `TaskPublisher` 接口，禁止直连 AMQP 客户端；封装内含连接池（Swoole 协程通道池）、JSON 序列化、发布确认（publisher confirm）、失败本地降级（FR-03e）。
+- FR-01a 客户端封装：业务代码只依赖 `EventPublisher` / `TaskPublisher` 接口，禁止直连 AMQP 客户端；封装内含连接池（asyncio + aio-pika/aiokafka 异步连接池）、JSON 序列化、发布确认（publisher confirm）、失败本地降级（FR-03e）。
 - FR-01b 拓扑命名规范（对齐 SRS-00 §4.2 事件字典）：
   - 交换机：topic 类型，命名 `oms.{域}.events`（如 `oms.order.events`、`oms.stock.events`）；
   - 路由键 = 事件名：`域.实体.动作`（小写点分，如 `order.delivery.shipped`）；
@@ -100,7 +100,7 @@ O2O 平台派单后投递 `delivery.timeout.accept` 延迟消息（TTL=接单时
 - FR-03f outbox 清理：已投递记录保留 7 天（轨迹查询窗口）后归档删除（分区表按日滚动）。
 
 ### FR-D01.01-04 消费机制（常驻 worker + 幂等 + 重试 + 死信）
-- FR-04a 消费框架：业务方实现 `ConsumerInterface { name(); queue(); concurrency(); handle(Envelope): void; }` 并以 DI 标签注册（继承商派白名单声明思想，07 架构书 §4）；worker 进程由 Hyperf `Process` 常驻，按声明的 concurrency 启动协程消费池；**消费者直连业务代码，不 HTTP 回调**（逆向文档 05 §7.7 重写建议）。
+- FR-04a 消费框架：业务方实现 `Consumer` Protocol/ABC（`name() / queue() / concurrency() / async handle(envelope)`）并以注册表/entry_points 注册（继承商派白名单声明思想，07 架构书 §4）；worker 进程由 Celery/arq 常驻（或 uvicorn 独立 worker），按声明的 concurrency 启动 asyncio 并发消费；**消费者直连业务代码，不 HTTP 回调**（逆向文档 05 §7.7 重写建议）。
 - FR-04b 任务白名单声明（配置模型，继承 taskmgr whitelist）：
 
 | 声明项 | 对应商派 | 说明 |
