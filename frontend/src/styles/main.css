@@ -1,0 +1,17 @@
+:root {
+  /* 品牌色（Q39 决策：UI 业界主流风格，品牌色 #185FA5 用于主色调） */
+  --kt-primary: #185fa5;
+}
+
+body {
+  margin: 0;
+  font-family: 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--kt-primary);
+  --el-button-border-color: var(--kt-primary);
+  --el-button-hover-bg-color: #2a70b5;
+  --el-button-hover-border-color: #2a70b5;
+}

@@ -1,0 +1,31 @@
+{
+  "name": "ktoms-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "凯淳自研 OMS 前端（Vue3 + TS + Element Plus）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
+    "gen:api": "openapi-typescript http://localhost:8000/openapi.json -o src/api/schema.d.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "element-plus": "^2.8.4",
+    "@element-plus/icons-vue": "^2.3.1",
+    "pinia": "^2.2.4",
+    "vue": "^3.5.11",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "openapi-typescript": "^7.4.1",
+    "typescript": "~5.6.2",
+    "unplugin-auto-import": "^0.18.3",
+    "unplugin-vue-components": "^0.27.4",
+    "vite": "^5.4.8",
+    "vue-tsc": "^2.1.6"
+  }
+}

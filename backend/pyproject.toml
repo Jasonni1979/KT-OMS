@@ -1,0 +1,44 @@
+[project]
+name = "ktoms-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp",
+    "aiomysql",
+    "cryptography",  # aiomysql caching_sha2_password 认证必需
+    "alembic>=1.13",
+    "fastapi",
+    "pydantic>=2.7",
+    "pydantic-settings",
+    "python-multipart",
+    "redis>=5.0",
+    "sqlalchemy[asyncio]>=2.0",
+    "structlog",
+    "uvicorn[standard]",
+]
+
+[dependency-groups]
+dev = [
+    "httpx",
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
