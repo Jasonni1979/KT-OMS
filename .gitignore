@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# PHP（研发阶段启用）
+/vendor/
+composer.lock
+.env
+.env.local
+.phpunit.result.cache
+
+# 运行时
+runtime/
+*.log
+
+# 临时/工作底稿（不入库）
+_research/
+tmp/
