@@ -176,22 +176,23 @@ flowchart LR
 
 | 域字典 | schema | 表数 | SQL |
 |---|---|---|---|
-| DB-00 总册 | 全局契约 | 373(总控) | — |
-| DB-00 附录A 事件字典 | bas_event_dict | 191事件 | 见DB-D01 |
-| DB-D01 平台底座 | oms_base | 29 | sql/DB-D01-oms_base.sql |
-| DB-D02 平台Gateway | oms_gateway | 24 | sql/DB-D02-oms_gateway.sql |
-| DB-D03 订单履约 | oms_order | 62 | sql/DB-D03-oms_order.sql |
-| DB-D04 库存 | oms_stock | 55 | sql/DB-D04-oms_stock.sql |
-| DB-D05 售后 | oms_aftersale | 23 | sql/DB-D05-oms_aftersale.sql |
-| DB-D06 采购 | oms_purchase | 25 | sql/DB-D06-oms_purchase.sql |
-| DB-D07 经销(P2) | oms_dealer | 14 | sql/DB-D07-oms_dealer.sql |
-| DB-D08 财务对账 | oms_finance | 42 | sql/DB-D08-oms_finance.sql |
-| DB-D09 履约集成 | oms_fulfill | 41 | sql/DB-D09-oms_fulfill.sql |
-| DB-D10 组织权限 | oms_org+oms_audit | 28+6 | sql/DB-D10-oms_org.sql |
-| DB-D11 报表 | oms_report | 24 | sql/DB-D11-oms_report.sql |
+| [DB-00 总册](../database/dictionaries/DB-00-数据库设计总册.md) | 全局契约 | 373(总控) | — |
+| [DB-00 附录A 事件字典](../database/dictionaries/DB-00-附录A-领域事件字典.md) | bas_event_dict | 191事件 | 见DB-D01 |
+| [DB-D01 平台底座](../database/dictionaries/DB-D01-平台底座域数据字典.md) | oms_base | 29 | [DB-D01-oms_base.sql](../database/sql/DB-D01-oms_base.sql) |
+| [DB-D02 平台Gateway](../database/dictionaries/DB-D02-平台Gateway域数据字典.md) | oms_gateway | 24 | [DB-D02-oms_gateway.sql](../database/sql/DB-D02-oms_gateway.sql) |
+| [DB-D03 订单履约](../database/dictionaries/DB-D03-订单域数据字典.md) | oms_order | 62 | [DB-D03-oms_order.sql](../database/sql/DB-D03-oms_order.sql) |
+| [DB-D04 库存](../database/dictionaries/DB-D04-库存域数据字典.md) | oms_stock | 55 | [DB-D04-oms_stock.sql](../database/sql/DB-D04-oms_stock.sql) |
+| [DB-D05 售后](../database/dictionaries/DB-D05-售后域数据字典.md) | oms_aftersale | 23 | [DB-D05-oms_aftersale.sql](../database/sql/DB-D05-oms_aftersale.sql) |
+| [DB-D06 采购](../database/dictionaries/DB-D06-采购域数据字典.md) | oms_purchase | 25 | [DB-D06-oms_purchase.sql](../database/sql/DB-D06-oms_purchase.sql) |
+| [DB-D07 经销(P2)](../database/dictionaries/DB-D07-经销域数据字典.md) | oms_dealer | 14 | [DB-D07-oms_dealer.sql](../database/sql/DB-D07-oms_dealer.sql) |
+| [DB-D08 财务对账](../database/dictionaries/DB-D08-财务对账域数据字典.md) | oms_finance | 42 | [DB-D08-oms_finance.sql](../database/sql/DB-D08-oms_finance.sql) |
+| [DB-D09 履约集成](../database/dictionaries/DB-D09-履约集成域数据字典.md) | oms_fulfill | 41 | [DB-D09-oms_fulfill.sql](../database/sql/DB-D09-oms_fulfill.sql) |
+| [DB-D10 组织权限](../database/dictionaries/DB-D10-组织权限域数据字典.md) | oms_org+oms_audit | 28+6 | [DB-D10-oms_org.sql](../database/sql/DB-D10-oms_org.sql) |
+| [DB-D11 报表](../database/dictionaries/DB-D11-报表域数据字典.md) | oms_report | 24 | [DB-D11-oms_report.sql](../database/sql/DB-D11-oms_report.sql) |
 | **合计** | **12 schema** | **373** | **11 脚本** |
 
 > SQL 建库脚本按 D01→D11 顺序执行即可（无物理外键，域间独立）；已在 MySQL 8.0 容器实测全量建库成功、初始字典数据落库正确（V1.5 全库 373 表零错误）。
+> **脚本实际位置**：`docs/database/sql/`（本表链接已指向该目录）；CI 复演按此顺序导入（11 份 → 373 表）。
 
 ---
 
