@@ -18,8 +18,8 @@ echo "=== Job 1/4: Backend (ruff + mypy) ==="
 echo "=== Job 2/4: Backend (pytest + MySQL/Redis) ==="
 # 用独立 CI 库（自动选空闲端口），避免污染开发库 3308
 docker rm -f ci_ci_mysql ci_test_mysql >/dev/null 2>&1
-CI_PORT=3309
-for p in 3309 3311 3312 3313; do
+CI_PORT=13306
+for p in 13306 13307 13308 13309; do
   if ! lsof -nP -iTCP:$p -sTCP:LISTEN >/dev/null 2>&1 && ! docker ps --format "{{.Ports}}" | grep -q ":$p->"; then
     CI_PORT=$p; break
   fi
@@ -45,7 +45,14 @@ TABLES=$(docker exec ci_ci_mysql mysql -h 127.0.0.1 -uroot -pktoms_dev_2026 -N -
   "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';" 2>/dev/null | tr -d '\r')
 if [ "$TABLES" = "373" ]; then ok "表数 373"; else bad "表数 ${TABLES:-0}（预期 373）"; fi
 
-export KTOMS_MYSQL_HOST=127.0.0.1 KTOMS_MYSQL_PORT=$CI_PORT KTOMS_REDIS_URL="redis://127.0.0.1:6380/0"
+CI_REDIS_PORT=16379
+docker rm -f ci_ci_redis >/dev/null 2>&1
+docker run -d --name ci_ci_redis -p ${CI_REDIS_PORT}:6379 docker.1ms.run/redis:7-alpine >/dev/null
+for i in $(seq 1 30); do
+  docker exec ci_ci_redis redis-cli ping 2>/dev/null | grep -q PONG && break
+  sleep 2
+done
+export KTOMS_MYSQL_HOST=127.0.0.1 KTOMS_MYSQL_PORT=$CI_PORT KTOMS_REDIS_URL="redis://127.0.0.1:$CI_REDIS_PORT/0"
 (cd "$ROOT/backend" && "$PY" -m app.scripts.seed_org >/tmp/ci_seed1.log 2>&1) \
   && ok "seed_org" || { bad "seed_org"; tail -5 /tmp/ci_seed1.log; }
 (cd "$ROOT/backend" && "$PY" -m app.scripts.seed_auth >/tmp/ci_seed2.log 2>&1) \
@@ -65,7 +72,7 @@ echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc -b >/tmp/ci_tsb.log 2>&1 && ./node_modules/.bin/vite build >/tmp/ci_vite.log 2>&1) \
   && ok "build（vue-tsc -b + vite build）" || { bad "build"; tail -8 /tmp/ci_tsb.log; tail -5 /tmp/ci_vite.log; }
 
-docker rm -f ci_ci_mysql >/dev/null 2>&1
+docker rm -f ci_ci_mysql ci_ci_redis >/dev/null 2>&1
 echo "=========================================="
 echo "通过 $PASS 项 / 失败 $FAIL 项"
 [ "$FAIL" = "0" ] && echo "✅ CI 等价流程全绿，可安全推送" || echo "❌ 存在失败项，推送前必须修复"

@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [main]
 
+# 端口说明：GitHub 的 ubuntu-latest runner 预装 MySQL(3306) 与 Redis(6379)，
+# 用 services: 声明 3306/6379 会与 runner 自身服务抢占端口 → 容器创建失败 → job 秒挂。
+# 因此本工作流不用 services:，改为 job 内自起容器 + 冷门端口（13306/16379），
+# 步骤与 deploy/ci-local-rehearsal.sh 保持 1:1 等价（本地能过 = CI 能过）。
+# 镜像源：用 1ms.run 代理（Docker Hub 官方源在 GitHub runner 上有匿名拉取限流，
+# 共享 IP 极易触发 toomanyrequests；1ms.run 无此问题，上一轮 CI 已验证可用）。
+env:
+  CI_MYSQL_PORT: "13306"
+  CI_REDIS_PORT: "16379"
+  CI_MYSQL_PASSWORD: ktoms_dev_2026
+
 jobs:
   backend:
     name: Backend (ruff + mypy)
@@ -27,53 +38,86 @@ jobs:
         run: uv run mypy app --ignore-missing-imports
 
   backend-with-db:
-    name: Backend (pytest + MySQL/Redis services)
+    name: Backend (pytest + MySQL/Redis)
     runs-on: ubuntu-latest
     needs: backend
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: ktoms_dev_2026
-        ports: ["3306:3306"]
-        options: >-
-          --health-cmd="mysqladmin ping -uroot -pktoms_dev_2026"
-          --health-interval=5s --health-timeout=5s --health-retries=30
-      redis:
-        image: redis:7-alpine
-        ports: ["6379:6379"]
-        options: >-
-          --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=3s --health-retries=20
     defaults:
       run:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
+
+      - name: Start MySQL & Redis containers
+        run: |
+          docker rm -f ktoms-ci-mysql ktoms-ci-redis >/dev/null 2>&1 || true
+          docker run -d --name ktoms-ci-mysql \
+            -e MYSQL_ROOT_PASSWORD="$CI_MYSQL_PASSWORD" \
+            -p ${CI_MYSQL_PORT}:3306 \
+            docker.1ms.run/mysql:8.0 \
+            --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+          docker run -d --name ktoms-ci-redis \
+            -p ${CI_REDIS_PORT}:6379 \
+            docker.1ms.run/redis:7-alpine
+
+      - name: Wait for MySQL（TCP 就绪探测）
+        run: |
+          for i in $(seq 1 60); do
+            if docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N -e "SELECT 1" >/dev/null 2>&1; then
+              echo "MySQL 就绪（第${i}次探测）"; break
+            fi
+            if [ "$i" = "60" ]; then echo "::error::MySQL 启动超时"; exit 1; fi
+            sleep 3
+          done
+
+      - name: Wait for Redis
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec ktoms-ci-redis redis-cli ping 2>/dev/null | grep -q PONG; then
+              echo "Redis 就绪（第${i}次探测）"; break
+            fi
+            if [ "$i" = "30" ]; then echo "::error::Redis 启动超时"; exit 1; fi
+            sleep 2
+          done
+
       - name: Load DDL（373 表）
         run: |
           for f in ../docs/database/sql/*.sql; do
-            mysql -h 127.0.0.1 -uroot -pktoms_dev_2026 < "$f"
+            docker exec -i ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" < "$f"
           done
-          mysql -h 127.0.0.1 -uroot -pktoms_dev_2026 -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';"
+          docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N \
+            -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v3
         with:
           python-version: "3.12"
+
       - name: Seed 基础数据（组织树 + 超管）
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
-          KTOMS_MYSQL_PORT: 3306
-          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+          KTOMS_MYSQL_PORT: ${{ env.CI_MYSQL_PORT }}
+          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.CI_REDIS_PORT }}/0
         run: |
           uv sync --all-extras
           uv run python -m app.scripts.seed_org
           uv run python -m app.scripts.seed_auth
+
       - name: Pytest
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
-          KTOMS_MYSQL_PORT: 3306
-          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+          KTOMS_MYSQL_PORT: ${{ env.CI_MYSQL_PORT }}
+          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.CI_REDIS_PORT }}/0
         run: uv run pytest tests/ -q
+
+      - name: Container logs on failure
+        if: failure()
+        run: |
+          docker logs ktoms-ci-mysql 2>&1 | tail -30 || true
+          docker logs ktoms-ci-redis 2>&1 | tail -10 || true
+
+      - name: Cleanup containers
+        if: always()
+        run: docker rm -f ktoms-ci-mysql ktoms-ci-redis >/dev/null 2>&1 || true
 
   mock-platform:
     name: Mock Platform (模拟器 pytest)
