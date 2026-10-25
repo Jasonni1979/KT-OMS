@@ -5,7 +5,21 @@
 """
 from app.core.permission import register_filterable
 from app.models.branch import FulBranch
+from app.models.gateway import (
+    GwApiLog,
+    GwOrderBuffer,
+    GwPullWatermark,
+    GwShopAuth,
+)
 from app.models.material import InvBarcode, InvMaterial
+from app.models.order import (
+    OrdOrder,
+    OrdOrderFail,
+    OrdOrderItem,
+    OrdOrderPmt,
+    OrdReceiver,
+    OrdStatusLog,
+)
 from app.models.org import OrgOwner
 from app.models.shop import GwShop
 from app.models.stock import InvIoBill, InvIoBillItem, InvStockLedger
@@ -58,4 +72,50 @@ register_filterable(InvIoBill, {
 register_filterable(InvIoBillItem, {
     "tenant_id": InvIoBillItem.tenant_id,
     "owner_id": InvIoBillItem.owner_id,
+})
+
+# ============ D02 网关域（D02.03 缓冲池 + 水位 + 授权 + api_log）============
+register_filterable(GwOrderBuffer, {
+    "tenant_id": GwOrderBuffer.tenant_id,
+    "owner_id": GwOrderBuffer.owner_id,
+    "shop_id": GwOrderBuffer.shop_id,
+})
+register_filterable(GwPullWatermark, {
+    "tenant_id": GwPullWatermark.tenant_id,
+})
+register_filterable(GwShopAuth, {
+    "tenant_id": GwShopAuth.tenant_id,
+    "owner_id": GwShopAuth.owner_id,
+    "shop_id": GwShopAuth.shop_id,
+})
+register_filterable(GwApiLog, {
+    "tenant_id": GwApiLog.tenant_id,
+})
+
+# ============ D03 订单域（D03.01 订单接入）============
+# 注：订单头 owner_id 取「店铺归属货主」（跨货主订单的货主归属在行级 owner_id）
+register_filterable(OrdOrder, {
+    "tenant_id": OrdOrder.tenant_id,
+    "owner_id": OrdOrder.owner_id,
+    "shop_id": OrdOrder.shop_id,
+})
+register_filterable(OrdOrderItem, {
+    "tenant_id": OrdOrderItem.tenant_id,
+    "owner_id": OrdOrderItem.owner_id,
+})
+register_filterable(OrdReceiver, {
+    "tenant_id": OrdReceiver.tenant_id,
+    "owner_id": OrdReceiver.owner_id,
+})
+register_filterable(OrdOrderPmt, {
+    "tenant_id": OrdOrderPmt.tenant_id,
+    "owner_id": OrdOrderPmt.owner_id,
+})
+register_filterable(OrdStatusLog, {
+    "tenant_id": OrdStatusLog.tenant_id,
+    "owner_id": OrdStatusLog.owner_id,
+})
+register_filterable(OrdOrderFail, {
+    "tenant_id": OrdOrderFail.tenant_id,
+    "owner_id": OrdOrderFail.owner_id,
 })

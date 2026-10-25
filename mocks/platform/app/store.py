@@ -211,7 +211,8 @@ def build_trade(store: TradeStore, scenario: str, *, now: datetime | None = None
             num=num,
             price=price,
             total_fee=line_total,
-            divide_order_fee=line_total,
+            # 行级优惠分摊：稍后按各行原价比例回填（平台承担部分）
+            divide_order_fee=0.0,
             refund_status="NO_REFUND",
         ))
 
@@ -222,8 +223,14 @@ def build_trade(store: TradeStore, scenario: str, *, now: datetime | None = None
         total = sum(s.total_fee for s in subs)
 
     post_fee = 0.0 if total > 99 else 10.0
-    buyer_pay = round(total + post_fee, 2)
+    # 金额口径自洽（SRS-D03.01 FR-06a 恒等式）：
+    #   paid = list − shop_discount − platform_subsidy + freight
+    # 本场景：5% 平台承担优惠，商家无优惠 → 行级分摊按各行原价比例
     platform_bear = round(total * 0.05, 2)
+    buyer_pay = round(total - platform_bear + post_fee, 2)
+    if total > 0:
+        for sub in subs:
+            sub.divide_order_fee = round(platform_bear * sub.total_fee / total, 2)
 
     if scenario == "unbound_item":
         subs[0].item_id = "ITEM_NOT_ONBOARD_999"

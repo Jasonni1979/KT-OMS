@@ -107,6 +107,29 @@ engine = create_async_engine(
 SessionFactory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
+def check_driver_compat() -> tuple[bool, str]:
+    """驱动兼容性自检：pymysql 2.x 与 aiomysql 0.3.x 不兼容会导致 varbinary 写入炸
+
+    pymysql 2.x 把 `converters.escape_bytes_prefixed` 改成占位字符串
+    （"DO NOT IMPORT THIS!!!"），而 aiomysql 仍 import 它并当函数调用 →
+    任何 varbinary 列写入报 `TypeError: 'str' object is not callable`。
+
+    这里在启动期检查一次，把「运行时才炸」提前为「启动即告警」。
+    """
+    try:
+        from pymysql.converters import escape_bytes_prefixed
+
+        if not callable(escape_bytes_prefixed):
+            return (
+                False,
+                "pymysql 2.x 与 aiomysql 0.3.x 不兼容：escape_bytes_prefixed 非可调用 → "
+                "varbinary 列写入会失败。修复：pyproject 锁 pymysql==1.1.2 并重新 uv sync",
+            )
+        return True, "ok"
+    except Exception as exc:  # pragma: no cover
+        return False, f"驱动自检异常: {exc}"
+
+
 def install_scope_injection() -> None:
     """安装行级过滤注入（D10.03 FR-04a）
 

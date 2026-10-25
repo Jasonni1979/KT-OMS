@@ -34,6 +34,19 @@ class Settings(BaseSettings):
     secret_key: str = "dev-only-change-me-ktoms-2026-secret-key"
     access_token_expire_minutes: int = 480
 
+    # PIPL 个人信息加密（D01.05 信封加密主密钥；生产走 KMS，dev 用派生密钥）
+    #   pipl_data_key: 数据加密密钥（32 字节，AES-GCM）
+    #   pipl_index_key: 盲索引 HMAC 密钥（等值检索用，与数据密钥必须分离）
+    pipl_data_key: str = "dev-only-pipl-data-key-32bytes!!"
+    pipl_index_key: str = "dev-only-pipl-index-key-32bytes!!"
+    pipl_key_version: str = "v1"
+
+    # 平台接入（D02.01/D02.02）：driver=simulator 时对接 mock-platform，taobao 时走真实 TOP
+    platform_driver: str = "simulator"
+    platform_gateway_url: str = "http://127.0.0.1:9000"
+    platform_app_key: str = "mock_app_key"
+    platform_app_secret: str = "mock_app_secret"
+
     @property
     def sqlalchemy_uri(self) -> str:
         return (

@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
-from app.core.db import engine, install_scope_injection
+from app.core.db import check_driver_compat, engine, install_scope_injection
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import get_logger, setup_logging
 from app.core.middleware import AuthContextMiddleware, TraceMiddleware
@@ -25,6 +25,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging("DEBUG" if settings.debug else "INFO")
     # D10.03 FR-04a：行级过滤注入已在模块加载期安装（此处仅确认日志）
     install_scope_injection()
+    # 驱动兼容性自检（pymysql 2.x × aiomysql → varbinary 写入炸）
+    ok, msg = check_driver_compat()
+    if not ok:
+        logger.error("driver_incompatible", detail=msg)
+    else:
+        logger.info("driver_compat", detail=msg)
     logger.info("startup", app=settings.app_name, env=settings.env)
     yield
     await engine.dispose()

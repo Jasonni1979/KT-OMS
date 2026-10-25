@@ -163,7 +163,11 @@ def _logistics_online_send(params: dict) -> dict:
         "logistics_no": params.get("logistics_no"),
         "received_at": datetime.now().isoformat(timespec="seconds"),
     })
-    return {"logistics_online_send_response": {"shipping": {"tid": tid, "status": "WAIT_BUYER_CONFIRM_GOODS"}}}
+    return {
+        "logistics_online_send_response": {
+            "shipping": {"tid": tid, "status": "WAIT_BUYER_CONFIRM_GOODS"}
+        }
+    }
 
 
 def _refund_get(params: dict) -> dict:

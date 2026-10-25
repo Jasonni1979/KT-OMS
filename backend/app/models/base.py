@@ -129,3 +129,18 @@ class BaseImportTemplate(Base, TimestampMixin, TenantMixin):
     status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
     is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
     # 注：bas_ie_template 无 version 列（模板以 template_version 管理版本）
+
+
+class BaseSeq(Base, TimestampMixin, TenantMixin, VersionMixin):
+    """单号序列/号段（D03.01 FR-03c：Redis 故障降级发号）"""
+
+    __tablename__ = "bas_seq"
+    __table_args__ = {"schema": "oms_base"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    seq_domain: Mapped[str] = mapped_column(String(32), nullable=False, comment="域码(OD=订单等)")
+    seq_date: Mapped[date] = mapped_column(Date, nullable=False, comment="序列日期(每日重置)")
+    current_value: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    step_size: Mapped[int] = mapped_column(Integer, nullable=False, default=1000)
+    max_value: Mapped[int] = mapped_column(BigInteger, nullable=False, default=10000000)
+    remark: Mapped[str] = mapped_column(String(255), nullable=False, default="")

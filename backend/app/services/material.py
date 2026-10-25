@@ -1022,3 +1022,86 @@ class BarcodeService:
         if not bc:
             raise NotFoundError(f"条码未登记: {barcode}")
         return await self._to_out(bc)
+
+
+class BomExpandItem:
+    """BOM 展开结果行（D03.01 FR-04d 快照）"""
+
+    __slots__ = (
+        "bm_id", "bm_number", "bm_name", "owner_id", "qty",
+        "rate", "fixed_price", "is_virtual", "is_combo_member",
+    )
+
+    def __init__(
+        self,
+        bm_id: int,
+        bm_number: str,
+        bm_name: str,
+        owner_id: int,
+        qty: int,
+        rate: float,
+        fixed_price: float,
+        is_virtual: bool,
+        is_combo_member: bool,
+    ):
+        self.bm_id = bm_id
+        self.bm_number = bm_number
+        self.bm_name = bm_name
+        self.owner_id = owner_id
+        self.qty = qty
+        self.rate = rate
+        self.fixed_price = fixed_price
+        self.is_virtual = is_virtual
+        self.is_combo_member = is_combo_member
+
+    def as_dict(self) -> dict:
+        return {
+            "bm_id": self.bm_id,
+            "bm_number": self.bm_number,
+            "bm_name": self.bm_name,
+            "owner_id": self.owner_id,
+            "qty": self.qty,
+            "rate": self.rate,
+            "fixed_price": self.fixed_price,
+            "is_virtual": self.is_virtual,
+            "is_combo_member": self.is_combo_member,
+        }
+
+
+async def bom_expand(
+    session: AsyncSession, sm_id: int, qty: int
+) -> tuple[list[BomExpandItem], int]:
+    """BOM 展开快照（D03.01 FR-04d）
+
+    返回 (展开明细, BOM 版本号)。组合装展开为多行基础物料（子行数量 = bind_num × qty）；
+    未绑定 BOM 返回空列表（调用方按 parse_status=pending 软失败处理）。
+
+    **快照固化**：档案后续变更不回溯（D04.01 §5.3 审计要求）。
+    """
+    bom = BomService(session)
+    cur = await bom.current_version(sm_id)
+    if not cur:
+        return [], 0
+    items = await bom._items_of(cur.id)
+    if not items:
+        return [], cur.version_no
+    materials = await bom._load_materials({i.bm_id for i in items})
+    out: list[BomExpandItem] = []
+    for i in items:
+        mat = materials.get(i.bm_id)
+        if not mat:
+            continue
+        out.append(
+            BomExpandItem(
+                bm_id=mat.id,
+                bm_number=mat.material_bn,
+                bm_name=mat.material_name,
+                owner_id=mat.owner_id,
+                qty=int(i.bind_num) * qty,
+                rate=float(i.rate),
+                fixed_price=float(i.fixed_price),
+                is_virtual=bool(i.is_virtual),
+                is_combo_member=bool(i.is_virtual) or int(i.bind_num) > 1,
+            )
+        )
+    return out, cur.version_no
