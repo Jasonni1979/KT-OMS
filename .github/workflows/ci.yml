@@ -107,13 +107,41 @@ jobs:
           KTOMS_MYSQL_HOST: 127.0.0.1
           KTOMS_MYSQL_PORT: ${{ env.CI_MYSQL_PORT }}
           KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.CI_REDIS_PORT }}/0
-        run: uv run pytest tests/ -q
+        run: |
+          set -o pipefail
+          uv run pytest tests/ -q 2>&1 | tee /tmp/pytest.log
 
       - name: Container logs on failure
         if: failure()
         run: |
           docker logs ktoms-ci-mysql 2>&1 | tail -30 || true
           docker logs ktoms-ci-redis 2>&1 | tail -10 || true
+
+      - name: Self-diagnose to ci-dbg branch（失败时回写现场，供无 API 凭证环境排障）
+        if: always()
+        permissions:
+          contents: write
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          rm -rf /tmp/ci-dbg && mkdir -p /tmp/ci-dbg
+          {
+            echo "# CI self-diagnose (commit ${GITHUB_SHA})"
+            echo "--- container ps ---"; docker ps -a --format "{{.Names}} {{.Status}} {{.Ports}}" || true
+            echo "--- mysql tables ---"
+            docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N \
+              -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';" 2>&1 || true
+            echo "--- pytest tail ---"; tail -60 /tmp/pytest.log 2>/dev/null || echo "(无 pytest 日志)"
+          } > /tmp/ci-dbg/status.txt
+          cat /tmp/ci-dbg/status.txt
+          cd /tmp/ci-dbg
+          git init -q
+          git config user.name "ktoms-ci"
+          git config user.email "ci@ktoms.local"
+          git add -A
+          git commit -q -m "ci-dbg: ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/ci-dbg
 
       - name: Cleanup containers
         if: always()
@@ -201,6 +229,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
           R_BACKEND: ${{ needs.backend.result }}
           R_BACKEND_DB: ${{ needs.backend-with-db.result }}
           R_MOCK: ${{ needs.mock-platform.result }}
@@ -218,7 +247,7 @@ jobs:
             {
               if [ "${R_BACKEND_DB}" = "failure" ] || [ "${R_BACKEND}" = "failure" ] \
                  || [ "${R_MOCK}" = "failure" ] || [ "${R_FRONTEND}" = "failure" ]; then
-                gh run view "$RUN_ID" --log-failed 2>&1 | tail -120 || echo "(日志拉取失败)"
+                gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>&1 | tail -150 || echo "(日志拉取失败)"
               fi
             } >> /tmp/ci-logs/status.txt
           } > /tmp/ci-logs/status.txt
