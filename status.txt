@@ -1,0 +1,7 @@
+# CI failure log digest (run 40152908843)
+
+===== backend: success =====
+===== backend-with-db: failure =====
+===== mock-platform: success =====
+===== frontend: success =====
+run 40152908843 is still in progress; logs will be available when it is complete
