@@ -240,6 +240,11 @@ class IoBillItemIn(BaseModel):
     """单据明细行"""
 
     bm_id: int = Field(gt=0, description="基础物料")
+    source_item_id: int = Field(
+        default=0,
+        ge=0,
+        description="来源订单行ID（D03.07 追溯链；销售出库核销预占时按此定位预占台账）",
+    )
     issued_num: int = Field(default=0, ge=0, description="下发数量")
     confirmed_num: int = Field(default=0, ge=0, description="确认记账数量")
     defect_num: int = Field(default=0, ge=0, description="不良数量")

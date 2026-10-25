@@ -72,6 +72,12 @@ echo "=== Job 5/5: 测试用例清单与代码同步（交付文档防脱节）=
 (cd "$ROOT" && "$PY" tools/gen_test_doc.py --check >/tmp/ci_testdoc.log 2>&1) \
   && ok "测试用例清单与代码同步" || { bad "测试用例清单与代码不同步"; tail -20 /tmp/ci_testdoc.log; }
 
+echo "=== Job 6/6: 业务场景端到端（跨域契约衔接门禁）==="
+# 场景自起模拟器 → 主数据→期初→下单→拉单→预占→出库→记账 全链路断言
+(cd "$ROOT/backend" && "$PY" -m app.scripts.scenario_e2e --with-mock >/tmp/ci_scenario.log 2>&1) \
+  && ok "业务场景端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_scenario.log | tail -1)）" \
+  || { bad "业务场景端到端"; tail -25 /tmp/ci_scenario.log; }
+
 echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc --noEmit >/tmp/ci_tsc.log 2>&1) \
   && ok "type-check" || { bad "type-check"; tail -8 /tmp/ci_tsc.log; }

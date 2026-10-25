@@ -112,6 +112,7 @@ class IoBillService:
                     bill_id=bill.id,
                     bill_bn=bill.bill_bn,
                     bm_id=it.bm_id,
+                    source_item_id=it.source_item_id,
                     issued_num=it.issued_num or num,
                     returned_num=0,
                     confirmed_num=it.confirmed_num,
@@ -234,11 +235,13 @@ class IoBillService:
                 action = eff.get("action")
                 if action == "settle":
                     # 销售出库必须经 D04.03 转扣减（§5.5）
+                    # 定位键用**来源订单行 ID**（source_item_id）——预占台账按订单行登记，
+                    # 用单据行 ID 会定位不到预占记录（跨模块行 ID 口径不一致的真实缺口）
                     await self.freeze.settle(
                         sc.FreezeSettleRequest(
                             obj_type=1,
                             obj_bn=bill.source_bill_bn or bill.bill_bn,
-                            obj_item_id=item.id,
+                            obj_item_id=item.source_item_id or item.id,
                             num=num,
                             bill_type=bill.bill_type,
                             bill_bn=bill.bill_bn,

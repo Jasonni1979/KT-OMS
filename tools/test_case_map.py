@@ -23,6 +23,7 @@ MODULES = [
     ("FRZ", "预占/释放/转扣减", "SRS-D04.03 预占与释放", "backend/tests/test_freeze.py"),
     ("BILL", "出入库单据中心", "SRS-D04.04 出入库单据与流水", "backend/tests/test_io_bill.py"),
     ("OI", "订单接入与拉单", "SRS-D02.03 拉单 + D03.01 订单接入", "backend/tests/test_order_intake.py"),
+    ("SCN", "业务场景端到端", "跨域契约衔接（M1c-5 避免返工门禁）", "backend/tests/test_scenario_e2e.py"),
     ("IMP", "导入中心与期初建账", "SRS-D01.06 + D04.01 FR-02d + D04.04 §5.4", "backend/tests/test_import.py"),
     ("SEED", "初始化脚本护栏", "SRS-D10.03 FR-04d 豁免通道", "backend/tests/test_scripts_guard.py"),
     ("MOCK", "天猫平台模拟器", "SRS-D02.03/D02.02 契约保真", "mocks/platform/tests/test_mock.py"),
@@ -344,6 +345,13 @@ CASES: dict[str, tuple[str, str, str]] = {
     "test_end_to_end_pull_to_order": ("D02.03 FR-03d 七步管线 + D03.01 FR-01a 端到端",
                                       "模拟器造单→拉单→canonical→缓冲→建单→重拉",
                                       "订单落库（17位单号+状态正确）；缓冲投递状态=accepted；水位推进；重拉不重复建单；api_log 有留痕"),
+    # ---------- SCN（业务场景端到端）----------
+    "test_business_scenario_end_to_end": ("跨域契约衔接（主数据→期初→下单→拉单→预占→出库→记账）",
+                                         "一条命令跑完整业务链路",
+                                         "11 项断言全过：BOM 快照落行、预占 freeze=2/可用98、出库单确认后 store=98、freeze 归零、流水完整"),
+    "test_scenario_is_idempotent": ("场景脚本可重复执行",
+                                   "连续跑两次场景",
+                                   "两次结果一致（清理→重跑，库存回到同一基准 store=98/freeze=0）"),
     # ---------- MOCK ----------
     "test_sign_verify_rejects_unsigned": ("D02.02 TOP 签名", "请求不带 sign",
                                           "返回 isv.invalid-signature"),
