@@ -6,10 +6,13 @@ on:
   pull_request:
     branches: [main]
 
-# 端口说明：GitHub 的 ubuntu-latest runner 预装 MySQL(3306) 与 Redis(6379)，
-# 用 services: 声明 3306/6379 会与 runner 自身服务抢占端口 → 容器创建失败 → job 秒挂。
-# 因此本工作流不用 services:，改为 job 内自起容器 + 冷门端口（13306/16379），
-# 步骤与 deploy/ci-local-rehearsal.sh 保持 1:1 等价（本地能过 = CI 能过）。
+# 环境方案（依据三轮 CI 实测证据确定）：
+#   · GitHub 的 ubuntu-latest runner **预装并运行 MySQL 8.0(3306) 与 Redis(6379)**
+#     → services: 声明同名端口会抢占 → 容器创建失败 → job 秒挂（最初 25 秒挂的真凶）
+#   · 1ms.run 是国内代理，GitHub runner 在美国不可达 → 不能依赖该镜像源
+#   结论：**不使用 services 与任何容器镜像**，直接用 runner 自带的 MySQL/Redis
+#   （systemctl start，零镜像拉取、零端口冲突、零速率限制）——GitHub 官方推荐做法。
+#   本地等价验证见 deploy/ci-local-rehearsal.sh（用本地容器模拟，本机 3306/6379 空闲故无冲突）。
 # 镜像源：用 1ms.run 代理（Docker Hub 官方源在 GitHub runner 上有匿名拉取限流，
 # 共享 IP 极易触发 toomanyrequests；1ms.run 无此问题，上一轮 CI 已验证可用）。
 env:
@@ -43,36 +46,49 @@ jobs:
     needs: backend
     permissions:
       contents: write   # 供失败时回写 ci-dbg 诊断分支
-    services:
-      # 不声明 ports → GitHub 分配随机宿主端口，避开 runner 预装 MySQL(3306)/Redis(6379) 的抢占
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ env.CI_MYSQL_PASSWORD }}
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -p${{ env.CI_MYSQL_PASSWORD }}"
-          --health-interval=5s --health-timeout=5s --health-retries=30
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=5s --health-timeout=3s --health-retries=20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+      - name: Sync dependencies
+        run: uv sync --all-extras
+      - name: Ruff lint
+        run: uv run ruff check app tests
+      - name: Mypy
+        run: uv run mypy app --ignore-missing-imports
+
+  backend-with-db:
+    name: Backend (pytest + MySQL/Redis)
+    runs-on: ubuntu-latest
+    needs: backend
+    permissions:
+      contents: write   # 供失败时回写 ci-dbg 诊断分支
     defaults:
       run:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
-      - name: Wait for MySQL（TCP 就绪探测）
+      - name: Setup MySQL & Redis（使用 runner 自带服务）
         run: |
-          # services 用「不指定端口映射」方式 → GitHub 分配随机宿主端口，
-          # 彻底避开 ubuntu-latest runner 预装 MySQL(3306) 的抢占（这是之前 job 秒挂的真因）。
-          # 实际端口通过 ${{ job.services.mysql.ports['3306'] }} 取得。
-          MYSQL_PORT="${{ job.services.mysql.ports['3306'] }}"
-          REDIS_PORT="${{ job.services.redis.ports['6379'] }}"
-          echo "MySQL 实际端口: $MYSQL_PORT / Redis: $REDIS_PORT"
+          # GitHub 的 ubuntu-latest runner **预装并运行 MySQL 8.0（3306）与 Redis（6379）**
+          # ——这正是最初 services.ports=["3306:3306"] 与之抢占导致 job 秒挂的根因。
+          # 官方推荐做法：直接用 runner 自带服务（零镜像拉取、无限流、无端口冲突）。
+          # 本仓库用官方源之外的镜像（1ms.run）在本机可用、在 runner 不可达 → 不可依赖。
+          sudo systemctl start mysql || sudo service mysql start
+          sudo systemctl start redis-server || sudo service redis-server start
+          echo "--- 服务状态 ---"
+          sudo systemctl is-active mysql || true
+          sudo systemctl is-active redis-server || true
+          MYSQL_PORT=3306
+          REDIS_PORT=6379
           for i in $(seq 1 60); do
-            if mysqladmin ping -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -p"$CI_MYSQL_PASSWORD" --silent >/dev/null 2>&1; then
+            if mysqladmin ping -h 127.0.0.1 -P "$MYSQL_PORT" --silent >/dev/null 2>&1; then
               echo "MySQL 就绪（第${i}次探测）"; break
             fi
             if [ "$i" = "60" ]; then echo "::error::MySQL 启动超时"; exit 1; fi
@@ -85,25 +101,13 @@ jobs:
             if [ "$i" = "30" ]; then echo "::error::Redis 启动超时"; exit 1; fi
             sleep 2
           done
-          echo "MYSQL_PORT=$MYSQL_PORT" >> "$GITHUB_ENV"
-          echo "REDIS_PORT=$REDIS_PORT" >> "$GITHUB_ENV"
-
-      - name: Container start snapshot（启动后立即留现场）
-        run: |
-          {
-            echo "--- docker ps ---"
-            docker ps -a --format "{{.Names}} | {{.Status}} | {{.Ports}} | {{.Image}}"
-            echo "--- image inspect ---"
-            docker images --format "{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}"
-          } 2>&1 | tee /tmp/ci-start.log
-          cat /tmp/ci-start.log
 
       - name: Load DDL（373 表）
         run: |
           for f in ../docs/database/sql/*.sql; do
-            mysql -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -p"$CI_MYSQL_PASSWORD" < "$f"
+            mysql -h 127.0.0.1 -P "$MYSQL_PORT" -uroot < "$f"
           done
-          mysql -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -p"$CI_MYSQL_PASSWORD" -N \
+          mysql -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -N \
             -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';"
 
       - name: Install uv
@@ -114,8 +118,8 @@ jobs:
       - name: Seed 基础数据（组织树 + 超管）
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
-          KTOMS_MYSQL_PORT: ${{ env.MYSQL_PORT }}
-          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.REDIS_PORT }}/0
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
         run: |
           uv sync --all-extras
           uv run python -m app.scripts.seed_org
@@ -124,8 +128,8 @@ jobs:
       - name: Pytest
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
-          KTOMS_MYSQL_PORT: ${{ env.MYSQL_PORT }}
-          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.REDIS_PORT }}/0
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
         run: |
           set -o pipefail
           uv run pytest tests/ -q 2>&1 | tee /tmp/pytest.log
@@ -148,7 +152,7 @@ jobs:
             echo "# CI self-diagnose (commit ${GITHUB_SHA})"
             echo "--- container ps ---"; docker ps -a --format "{{.Names}} {{.Status}} {{.Ports}}" || true
             echo "--- mysql tables ---"
-            mysql -h 127.0.0.1 -P "${MYSQL_PORT:-3306}" -uroot -p"$CI_MYSQL_PASSWORD" -N \
+            mysql -h 127.0.0.1 -P 3306 -uroot -N \
               -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';" 2>&1 || true
             echo "--- start snapshot ---"; cat /tmp/ci-start.log 2>/dev/null || echo "(无启动快照)"
             echo "--- pytest tail ---"; tail -60 /tmp/pytest.log 2>/dev/null || echo "(无 pytest 日志)"
@@ -164,7 +168,7 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: echo "service 容器由 GitHub 自动清理"
+        run: echo "runner 自带服务，job 结束自动回收"
 
   mock-platform:
     name: Mock Platform (模拟器 pytest)
