@@ -261,3 +261,31 @@ class InvFreezeLog(Base):
         DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class InvIoBillType(Base):
+    """出入库单据类型（D04.04 FR-01：口径影响模板驱动记账，扩展不改代码）"""
+
+    __tablename__ = "inv_io_bill_type"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    type_code: Mapped[str] = mapped_column(String(32), nullable=False, comment="类型码,唯一")
+    type_name: Mapped[str] = mapped_column(String(64), nullable=False)
+    direction: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1, comment="1入库,2出库")
+    effect_template: Mapped[list | None] = mapped_column(
+        JSON, nullable=True,
+        comment="口径影响模板:[{field:store,sign:1}]；销售出库为[{action:settle}]",
+    )
+    need_wms: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    need_approval: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    settle_rel: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=0, comment="0无,1应付,2应收"
+    )
+    status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+    is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)

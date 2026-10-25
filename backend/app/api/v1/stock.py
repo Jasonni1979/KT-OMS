@@ -9,6 +9,7 @@ from app.core.db import get_session
 from app.core.response import ok
 from app.schemas import stock as sc
 from app.services.freeze import FreezeService
+from app.services.io_bill import IoBillService
 from app.services.master import get_redis
 from app.services.stock_ledger import StockLedgerService
 from app.services.stock_recon import ReconService
@@ -171,3 +172,105 @@ async def freeze_age(session: AsyncSession = Depends(get_session)):
     redis = await get_redis()
     age = await FreezeService(session, redis).age_analysis()
     return ok(age)
+
+
+# ============ 出入库单据（SRS-D04.04）============
+
+@router.get("/bill/types", summary="单据类型目录（口径影响模板）")
+async def list_bill_types(session: AsyncSession = Depends(get_session)):
+    redis = await get_redis()
+    types = await IoBillService(session, redis).list_types()
+    return ok(
+        [
+            {
+                "type_code": t.type_code,
+                "type_name": t.type_name,
+                "direction": t.direction,
+                "effect_template": t.effect_template,
+                "need_wms": t.need_wms,
+                "need_approval": t.need_approval,
+                "settle_rel": t.settle_rel,
+            }
+            for t in types
+        ]
+    )
+
+
+@router.get("/bills", summary="单据列表（多维）")
+async def list_bills(
+    bill_type: str | None = Query(default=None, max_length=32),
+    branch_id: int | None = Query(default=None, ge=1),
+    status: int | None = Query(default=None, ge=1, le=7),
+    source_bill_bn: str | None = Query(default=None, max_length=64),
+    limit: int = Query(default=100, ge=1, le=500),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    bills = await IoBillService(session, redis).query(
+        bill_type, branch_id, status, source_bill_bn, limit
+    )
+    return ok(bills)
+
+
+@router.post("/bills", summary="创建单据（草稿）")
+async def create_bill(
+    data: sc.IoBillCreate, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).create(data))
+
+
+@router.get("/bills/{bill_id}", summary="单据详情")
+async def get_bill(bill_id: int, session: AsyncSession = Depends(get_session)):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).get_bill(bill_id))
+
+
+@router.post("/bills/{bill_id}/push-wms", summary="下发 WMS")
+async def push_bill(
+    bill_id: int,
+    wms_bill_no: str = Query(default="", max_length=64),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).push_to_wms(bill_id, wms_bill_no))
+
+
+@router.post("/bills/{bill_id}/callback", summary="WMS 回传（分批累计）")
+async def callback_bill(
+    bill_id: int, data: sc.IoBillCallback, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).receive_callback(bill_id, data))
+
+
+@router.post("/bills/{bill_id}/confirm", summary="确认即记账（按类型口径模板）")
+async def confirm_bill(
+    bill_id: int,
+    operator: str = Query(default="", max_length=64),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).confirm(bill_id, operator))
+
+
+@router.post("/bills/{bill_id}/red-flush", summary="红冲（反向记账）")
+async def red_flush_bill(
+    bill_id: int, data: sc.RedFlushRequest, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).red_flush(bill_id, data))
+
+
+@router.put("/bills/{bill_id}/settle", summary="结算状态回写")
+async def settle_bill(
+    bill_id: int, data: sc.SettleUpdateRequest, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).set_settle(bill_id, data))
+
+
+@router.get("/bills/{bill_id}/trace", summary="追溯链（单据→行→流水→余额）")
+async def trace_bill(bill_id: int, session: AsyncSession = Depends(get_session)):
+    redis = await get_redis()
+    return ok(await IoBillService(session, redis).trace(bill_id))

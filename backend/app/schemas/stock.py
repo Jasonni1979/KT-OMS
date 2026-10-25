@@ -225,3 +225,114 @@ class FreezeAgeOut(BaseModel):
     age_48h: int
     age_72h: int
     expired_pending: int
+
+
+# ============ 出入库单据（D04.04）============
+
+BILL_STATUS_LABEL = {
+    1: "草稿", 2: "已下发WMS", 3: "部分回传", 4: "全部回传",
+    5: "已确认", 6: "已红冲", 7: "已关闭",
+}
+SETTLE_STATUS_LABEL = {0: "无需结算", 1: "未结算", 2: "部分结算", 3: "已结算", 4: "结算锁定"}
+
+
+class IoBillItemIn(BaseModel):
+    """单据明细行"""
+
+    bm_id: int = Field(gt=0, description="基础物料")
+    issued_num: int = Field(default=0, ge=0, description="下发数量")
+    confirmed_num: int = Field(default=0, ge=0, description="确认记账数量")
+    defect_num: int = Field(default=0, ge=0, description="不良数量")
+    batch_no: str = Field(default="", max_length=64)
+    unit_cost: float = Field(default=0, ge=0)
+    remark: str = Field(default="", max_length=255)
+
+
+class IoBillCreate(BaseModel):
+    """创建出入库单据（FR-03a 源单自动生成 / FR-03b 人工创建）"""
+
+    bill_type: str = Field(min_length=1, max_length=32, description="单据类型码")
+    branch_id: int = Field(gt=0)
+    owner_id: int = Field(default=0, ge=0, description="行级货主（默认继承）")
+    shop_id: int = Field(default=0, ge=0)
+    source_bill_type: str = Field(default="", max_length=32)
+    source_bill_bn: str = Field(default="", max_length=64)
+    items: list[IoBillItemIn] = Field(min_length=1)
+    operator: str = Field(default="", max_length=64)
+    memo: str = Field(default="", max_length=512)
+
+
+class IoBillItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    bill_id: int
+    bill_bn: str
+    owner_id: int
+    bm_id: int
+    issued_num: int
+    returned_num: int
+    confirmed_num: int
+    defect_num: int
+    batch_no: str
+    unit_cost: float
+    amount: float
+
+
+class IoBillOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    owner_id: int
+    bill_bn: str
+    bill_type: str
+    direction: int
+    branch_id: int
+    source_bill_type: str
+    source_bill_bn: str
+    wms_bill_no: str
+    shop_id: int
+    status: int
+    red_flush_of: str
+    settle_status: int
+    settle_bn: str
+    settle_num: int
+    settle_money: float
+    operator: str
+    confirm_time: datetime | None
+    memo: str
+    source: str
+    version: int
+    create_time: datetime
+    items: list[IoBillItemOut] = Field(default_factory=list)
+
+
+class IoBillCallback(BaseModel):
+    """WMS 回传（FR-02c：分批回传累计）"""
+
+    wms_bill_no: str = Field(default="", max_length=64)
+    items: list[IoBillItemIn] = Field(min_length=1)
+    operator: str = Field(default="", max_length=64)
+
+
+class RedFlushRequest(BaseModel):
+    """红冲（FR-04a：原因必填，已结算禁止）"""
+
+    reason: str = Field(min_length=1, max_length=512)
+    operator: str = Field(default="", max_length=64)
+
+
+class SettleUpdateRequest(BaseModel):
+    """结算状态回写（FR-05a：由财务/采购对账流程回写）"""
+
+    settle_status: int = Field(ge=1, le=4)
+    settle_bn: str = Field(default="", max_length=32)
+    settle_num: int = Field(default=0, ge=0)
+    settle_money: float = Field(default=0, ge=0)
+    operator: str = Field(default="", max_length=64)
+
+
+class IoBillTraceOut(BaseModel):
+    """追溯链（FR-06a：单据 → 行 → 流水 → 记账行余额）"""
+
+    bill: IoBillOut
+    change_logs: list[dict] = Field(default_factory=list)
+    ledger: dict[str, int] = Field(default_factory=dict)

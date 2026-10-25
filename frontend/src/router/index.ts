@@ -20,6 +20,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'material/barcodes', name: 'barcodes', component: () => import('@/views/material/BarcodeView.vue'), meta: { title: '条码管理', icon: 'Postcard' } },
       { path: 'import/center', name: 'import-center', component: () => import('@/views/import/ImportCenterView.vue'), meta: { title: '导入中心', icon: 'Upload' } },
       { path: 'stock/ledger', name: 'stock-ledger', component: () => import('@/views/stock/StockLedgerView.vue'), meta: { title: '库存余额与对账', icon: 'Coin' } },
+      { path: 'stock/bills', name: 'stock-bills', component: () => import('@/views/stock/StockBillView.vue'), meta: { title: '出入库单据', icon: 'Tickets' } },
       { path: 'tenants', name: 'tenants', component: () => import('@/views/TenantListView.vue'), meta: { title: '租户列表(骨架演示)', icon: 'OfficeBuilding' } },
     ],
   },
