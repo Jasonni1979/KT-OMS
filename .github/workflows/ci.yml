@@ -164,12 +164,14 @@ jobs:
     if: always()
     permissions:
       contents: write
+      actions: read
     steps:
       - name: Publish status
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
           R_BACKEND: ${{ needs.backend.result }}
           R_BACKEND_DB: ${{ needs.backend-with-db.result }}
           R_MOCK: ${{ needs.mock-platform.result }}
@@ -193,3 +195,38 @@ jobs:
           git add -A
           git commit -q -m "ci: ${SHA}"
           git push -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/ci-status
+
+      - name: Collect failed logs（供无 API 凭证环境排障）
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+          R_BACKEND: ${{ needs.backend.result }}
+          R_BACKEND_DB: ${{ needs.backend-with-db.result }}
+          R_MOCK: ${{ needs.mock-platform.result }}
+          R_FRONTEND: ${{ needs.frontend.result }}
+        run: |
+          set -e
+          rm -rf /tmp/ci-logs && mkdir -p /tmp/ci-logs
+          {
+            echo "# CI failure log digest (run ${RUN_ID})"
+            echo "" >> /tmp/ci-logs/status.txt
+            echo "===== backend: ${R_BACKEND} =====" >> /tmp/ci-logs/status.txt
+            echo "===== backend-with-db: ${R_BACKEND_DB} =====" >> /tmp/ci-logs/status.txt
+            echo "===== mock-platform: ${R_MOCK} =====" >> /tmp/ci-logs/status.txt
+            echo "===== frontend: ${R_FRONTEND} =====" >> /tmp/ci-logs/status.txt
+            {
+              if [ "${R_BACKEND_DB}" = "failure" ] || [ "${R_BACKEND}" = "failure" ] \
+                 || [ "${R_MOCK}" = "failure" ] || [ "${R_FRONTEND}" = "failure" ]; then
+                gh run view "$RUN_ID" --log-failed 2>&1 | tail -120 || echo "(日志拉取失败)"
+              fi
+            } >> /tmp/ci-logs/status.txt
+          } > /tmp/ci-logs/status.txt
+          wc -l /tmp/ci-logs/status.txt
+          cd /tmp/ci-logs
+          git init -q
+          git config user.name "ktoms-ci"
+          git config user.email "ci@ktoms.local"
+          git add -A
+          git commit -q -m "ci-logs: ${RUN_ID}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:refs/heads/ci-logs
