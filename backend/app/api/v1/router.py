@@ -1,11 +1,17 @@
 """API v1 路由聚合（模块化单体：每域一个 router，按 SRS 域编号组织）"""
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from app.api.v1 import hello, master
+from app.api.v1 import auth, hello, master
+from app.core.deps import get_current_account
 
 api_router = APIRouter()
 api_router.include_router(hello.router, prefix="/hello")
-api_router.include_router(master.router, prefix="/master")  # D10.01 档案域
+api_router.include_router(auth.router, prefix="/auth")  # D10.02 认证
+# 档案域起全部业务路由默认需登录（dependencies 在 include 层统一挂）
+api_router.include_router(
+    master.router, prefix="/master",
+    dependencies=[Depends(get_current_account)],
+)  # D10.01 档案域
 
 # M1 起按域挂载：
 # api_router.include_router(org.router, prefix="/org")        # D10

@@ -24,11 +24,20 @@ const router = createRouter({
   routes,
 })
 
-// 路由守卫：未登录跳 login（public 路由除外）
-router.beforeEach((to) => {
+// 路由守卫：未登录跳 login；刷新后恢复会话（token 在但权限未加载 → fetchMe）
+router.beforeEach(async (to) => {
   const auth = useAuthStore()
-  if (!to.meta.public && !auth.token) {
+  if (to.meta.public) return true
+  if (!auth.token) {
     return { path: '/login', query: { redirect: to.fullPath } }
+  }
+  if (!auth.accountName) {
+    try {
+      const { fetchMe } = await import('@/api/auth')
+      auth.setMe(await fetchMe())
+    } catch {
+      return { path: '/login', query: { redirect: to.fullPath } }
+    }
   }
   return true
 })

@@ -30,8 +30,8 @@ class Settings(BaseSettings):
     # RabbitMQ（outbox 投递 / 事件消费）
     rabbitmq_url: str = "amqp://ktoms:ktoms_dev_2026@127.0.0.1:5673/"
 
-    # 安全
-    secret_key: str = "dev-only-change-me"   # 生产走 KMS（D01.05 信封加密主密钥）
+    # 安全（JWT HMAC 密钥 ≥32 字节，RFC 7518；生产走 KMS 注入 KTOMS_SECRET_KEY）
+    secret_key: str = "dev-only-change-me-ktoms-2026-secret-key"
     access_token_expire_minutes: int = 480
 
     @property

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 /**
- * 登录页（M0 骨架：mock 登录；M1 接 D10.02 账号体系——自建账号+企微扫码，
- * 品牌方门户走手机号+验证码，见 SRS-D10.02）
+ * 登录页（D10.02：内部 staff 账密通道已接通；企微扫码/门户验证码通道 MVP 后置）
  */
 import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
-import { get } from '@/api/http'
+import { fetchMe, login } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,7 +14,7 @@ const auth = useAuthStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 
-const form = reactive({ username: '', password: '' })
+const form = reactive({ username: 'admin', password: '' })
 const rules: FormRules = {
   username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
@@ -26,13 +25,18 @@ async function onSubmit() {
   if (!valid) return
   loading.value = true
   try {
-    // M0：先验证后端连通性（readyz），mock 发 token；M1 换成 POST /auth/login
-    await get('/hello/readyz')
-    auth.login(form.username, `mock-token-${Date.now()}`)
-    ElMessage.success('登录成功（M0 mock，M1 接真实认证）')
+    const res = await login(form.username, form.password)
+    auth.setSession(res)
+    // 拉取用户信息+权限点（动态菜单/按钮控制依据）
+    const me = await fetchMe()
+    auth.setMe(me)
+    if (res.must_change_pwd) {
+      ElMessage.warning('初始密码请尽快修改（改密功能 M1a 后续提供）')
+    }
+    ElMessage.success(`欢迎，${me.account_name}`)
     router.push((route.query.redirect as string) || '/')
   } catch {
-    ElMessage.error('后端未就绪，请先启动 backend（uv run uvicorn app.main:app --reload）')
+    // 错误提示已由 http 拦截器统一弹出（账号或密码错误/锁定/禁用）
   } finally {
     loading.value = false
   }
@@ -55,7 +59,7 @@ async function onSubmit() {
         </el-form-item>
         <el-button type="primary" class="submit" :loading="loading" @click="onSubmit">登 录</el-button>
       </el-form>
-      <p class="hint">M0 骨架：任意账号密码可登录（校验后端连通性）</p>
+      <p class="hint">开发环境账号 admin（初始密码见 seed_auth.py）· 企微扫码通道 M4+</p>
     </el-card>
   </div>
 </template>

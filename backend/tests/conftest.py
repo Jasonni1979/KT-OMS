@@ -19,3 +19,16 @@ async def client():
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
 
+
+@pytest.fixture
+async def auth_client(client):
+    """已登录 client（admin 超管，header 带 access token）——受保护业务域测试用"""
+    r = await client.post("/api/v1/auth/login", json={
+        "login_name": "admin", "password": "Ktoms@2026",
+    })
+    assert r.status_code == 200, r.text
+    token = r.json()["data"]["access_token"]
+    client.headers.update({"Authorization": f"Bearer {token}"})
+    yield client
+    client.headers.pop("Authorization", None)
+

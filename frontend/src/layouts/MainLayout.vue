@@ -15,7 +15,11 @@ const menus = computed(() =>
   (router.options.routes.find((r) => r.path === '/')?.children ?? []).filter((r) => r.meta?.title),
 )
 
-function onLogout() {
+async function onLogout() {
+  try {
+    const { logout } = await import('@/api/auth')
+    await logout()  // 后端删Redis+吊销refresh（失败也继续本地登出）
+  } catch { /* 忽略：本地登出优先 */ }
   auth.logout()
   router.push('/login')
 }
@@ -36,7 +40,7 @@ function onLogout() {
       <el-header class="header">
         <span class="title">{{ route.meta?.title ?? '凯淳自研 OMS' }}</span>
         <el-dropdown>
-          <span class="user">{{ auth.username || 'dev' }} ▾</span>
+          <span class="user">{{ auth.accountName || auth.username || 'dev' }} ▾</span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item @click="onLogout">退出登录</el-dropdown-item>
