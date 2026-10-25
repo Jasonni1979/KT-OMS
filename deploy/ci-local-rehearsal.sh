@@ -75,7 +75,8 @@ echo "=== Job 5/5: 测试用例清单与代码同步（交付文档防脱节）=
 echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc --noEmit >/tmp/ci_tsc.log 2>&1) \
   && ok "type-check" || { bad "type-check"; tail -8 /tmp/ci_tsc.log; }
-(cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc -b >/tmp/ci_tsb.log 2>&1 && ./node_modules/.bin/vite build >/tmp/ci_vite.log 2>&1) \
+# 构建前先清 dist：vite 会清空 outDir，本机偶发被占用导致误报（CI 全新 checkout 无此问题）
+(cd "$ROOT/frontend" && rm -rf dist >/dev/null 2>&1; ./node_modules/.bin/vue-tsc -b >/tmp/ci_tsb.log 2>&1 && ./node_modules/.bin/vite build >/tmp/ci_vite.log 2>&1) \
   && ok "build（vue-tsc -b + vite build）" || { bad "build"; tail -8 /tmp/ci_tsb.log; tail -5 /tmp/ci_vite.log; }
 
 docker rm -f ci_ci_mysql ci_ci_redis >/dev/null 2>&1
