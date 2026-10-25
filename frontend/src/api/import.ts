@@ -42,21 +42,21 @@ export const listImportTaskErrors = (id: number) => get<ImportError[]>(`/import/
 export const runImportTask = (id: number) => post(`/import/tasks/${id}/run`, {})
 
 /** 上传文件创建任务（multipart） */
-export async function createImportTask(file: File, templateCode: string, creator = ''): Promise<{ id: number }> {
+export function createImportTask(
+  file: File, templateCode: string, creator = '',
+): Promise<{ id: number }> {
   const form = new FormData()
   form.append('file', file)
   form.append('template_code', templateCode)
   form.append('creator', creator)
-  const res = await http.post('/import/tasks', form, {
+  return post<{ id: number }>('/import/tasks', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
-  return res
 }
 
-/** 模板下载（返回 blob） */
-export async function downloadTemplate(code: string): Promise<Blob> {
-  const res = await http.get(`/import/templates/${code}/file`, { responseType: 'blob' })
-  return res.data
+/** 模板下载（响应拦截器已解包 body → 直接返回 blob） */
+export function downloadTemplate(code: string): Promise<Blob> {
+  return http.get(`/import/templates/${code}/file`, { responseType: 'blob' }) as unknown as Promise<Blob>
 }
 
 export const IMPORT_STATUS_LABEL: Record<number, { text: string; type: string }> = {

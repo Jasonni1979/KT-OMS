@@ -57,6 +57,8 @@ export KTOMS_MYSQL_HOST=127.0.0.1 KTOMS_MYSQL_PORT=$CI_PORT KTOMS_REDIS_URL="red
   && ok "seed_org" || { bad "seed_org"; tail -5 /tmp/ci_seed1.log; }
 (cd "$ROOT/backend" && "$PY" -m app.scripts.seed_auth >/tmp/ci_seed2.log 2>&1) \
   && ok "seed_auth" || { bad "seed_auth"; tail -5 /tmp/ci_seed2.log; }
+(cd "$ROOT/backend" && "$PY" -m app.scripts.seed_import >/tmp/ci_seed3.log 2>&1) \
+  && ok "seed_import" || { bad "seed_import"; tail -5 /tmp/ci_seed3.log; }
 (cd "$ROOT/backend" && "$PY" -m pytest tests/ -q >/tmp/ci_pytest.log 2>&1) \
   && ok "pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_pytest.log | tail -1)）" \
   || { bad "pytest"; tail -20 /tmp/ci_pytest.log; }

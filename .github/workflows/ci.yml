@@ -124,6 +124,7 @@ jobs:
           uv sync --all-extras
           uv run python -m app.scripts.seed_org
           uv run python -m app.scripts.seed_auth
+          uv run python -m app.scripts.seed_import
 
       - name: Pytest
         env:
