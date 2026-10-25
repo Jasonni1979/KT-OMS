@@ -8,6 +8,7 @@ from app.models.branch import FulBranch
 from app.models.material import InvBarcode, InvMaterial
 from app.models.org import OrgOwner
 from app.models.shop import GwShop
+from app.models.stock import InvIoBill, InvIoBillItem, InvStockLedger
 
 # 货主档案：tenant_id + owner 维（货主维即主键）
 register_filterable(OrgOwner, {"tenant_id": OrgOwner.tenant_id, "owner_id": OrgOwner.id})
@@ -41,4 +42,20 @@ register_filterable(InvMaterial, {
 register_filterable(InvBarcode, {
     "tenant_id": InvBarcode.tenant_id,
     "owner_id": InvBarcode.owner_id,
+})
+
+# 库存域（SRS-D04.02/D04.04）：三元键 = 仓 + 物料 + 货主 → owner 维 + branch 维
+register_filterable(InvStockLedger, {
+    "tenant_id": InvStockLedger.tenant_id,
+    "owner_id": InvStockLedger.owner_id,
+    "branch_id": InvStockLedger.branch_id,
+})
+register_filterable(InvIoBill, {
+    "tenant_id": InvIoBill.tenant_id,
+    "owner_id": InvIoBill.owner_id,
+    "branch_id": InvIoBill.branch_id,
+})
+register_filterable(InvIoBillItem, {
+    "tenant_id": InvIoBillItem.tenant_id,
+    "owner_id": InvIoBillItem.owner_id,
 })

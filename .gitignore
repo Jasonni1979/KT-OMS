@@ -20,6 +20,9 @@ htmlcov/
 dist/
 build/
 
+# 后端运行时产物（导入源文件/错误报告等，本地存储不进库）
+backend/var/
+
 # Node / 前端
 node_modules/
 frontend/dist/
