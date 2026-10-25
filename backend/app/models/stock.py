@@ -167,3 +167,59 @@ class InvStockSnapshot(Base):
     unit_cost: Mapped[float] = mapped_column(Numeric(18, 4), nullable=False, default=0)
     inventory_cost: Mapped[float] = mapped_column(Numeric(18, 2), nullable=False, default=0)
     create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+
+
+class InvStockConfig(Base):
+    """库存配置（D04.02 FR-02c 负卖开关 / FR-04b 调整阈值 / FR-05 预占有效期）"""
+
+    __tablename__ = "inv_stock_config"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    config_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1,
+        comment="1负卖开关,2调整审批阈值,3预占有效期,4超收容差,5调拨在途可售默认",
+    )
+    scope_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1全局,2货主,3店铺,4仓库,5仓库x货主,6调整类型"
+    )
+    scope_ref: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    config_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+    is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+
+
+class InvStockReconDiff(Base):
+    """库存对账差异（D04.02 FR-05c/FR-06b：Redis vs DB / WMS vs OMS / 批次账 vs 数量账）"""
+
+    __tablename__ = "inv_stock_recon_diff"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    recon_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    recon_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1 Redis vs DB,2 WMS vs OMS,3 批次账 vs 数量账"
+    )
+    branch_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    bm_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    change_field: Mapped[str] = mapped_column(String(16), nullable=False, default="store")
+    oms_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    peer_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    diff_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1待处理,2已自动修复,3已人工处理,4误报忽略"
+    )
+    handle_remark: Mapped[str] = mapped_column(String(512), nullable=False, default="")
+    handler: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    handle_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )

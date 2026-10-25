@@ -1,7 +1,7 @@
 """API v1 路由聚合（模块化单体：每域一个 router，按 SRS 域编号组织）"""
 from fastapi import APIRouter, Depends
 
-from app.api.v1 import auth, hello, import_center, master, material
+from app.api.v1 import auth, hello, import_center, master, material, stock
 from app.core.deps import get_current_account
 
 api_router = APIRouter()
@@ -20,6 +20,10 @@ api_router.include_router(
     import_center.router, prefix="/import",
     dependencies=[Depends(get_current_account)],
 )  # D01.06 导入中心
+api_router.include_router(
+    stock.router, prefix="/stock",
+    dependencies=[Depends(get_current_account)],
+)  # D04.02 库存记账
 
 # M1 起按域挂载：
 # api_router.include_router(org.router, prefix="/org")        # D10
