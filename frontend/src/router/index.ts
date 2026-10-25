@@ -17,6 +17,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'material/categories', name: 'material-cats', component: () => import('@/views/material/CategoryView.vue'), meta: { title: '物料分类', icon: 'Folder' } },
       { path: 'material/brands', name: 'brands', component: () => import('@/views/material/BrandListView.vue'), meta: { title: '品牌档案', icon: 'Star' } },
       { path: 'material/sales', name: 'sales-materials', component: () => import('@/views/material/SalesMaterialView.vue'), meta: { title: '销售物料与BOM', icon: 'GoodsFilled' } },
+      { path: 'material/barcodes', name: 'barcodes', component: () => import('@/views/material/BarcodeView.vue'), meta: { title: '条码管理', icon: 'Postcard' } },
       { path: 'tenants', name: 'tenants', component: () => import('@/views/TenantListView.vue'), meta: { title: '租户列表(骨架演示)', icon: 'OfficeBuilding' } },
     ],
   },

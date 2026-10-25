@@ -202,3 +202,36 @@ async def bom_candidates(
 ):
     cands = await svc.BomService(session).suggest_candidates(sm_id, limit)
     return ok(cands)
+
+
+# ============ 条码（FR-04：一品多码）============
+
+@router.get("/barcodes", summary="条码列表")
+async def list_barcodes(
+    keyword: str | None = Query(default=None, max_length=64),
+    bm_id: int | None = Query(default=None, ge=1),
+    barcode_type: int | None = Query(default=None, ge=1, le=9),
+    session: AsyncSession = Depends(get_session),
+):
+    bcs = await svc.BarcodeService(session).list_all(keyword, bm_id, barcode_type)
+    return ok(bcs)
+
+
+@router.post("/barcodes", summary="登记条码（全局唯一，冲突提示归属物料）")
+async def create_barcode(data: sc.BarcodeCreate, session: AsyncSession = Depends(get_session)):
+    return ok(await svc.BarcodeService(session).create(data))
+
+
+@router.put("/barcodes/{barcode_id}", summary="修改条码（类型/店铺/状态）")
+async def update_barcode(
+    barcode_id: int, data: sc.BarcodeUpdate, session: AsyncSession = Depends(get_session)
+):
+    return ok(await svc.BarcodeService(session).update(barcode_id, data))
+
+
+@router.get("/barcodes/lookup", summary="条码反查（FR-04b：WMS回传/门店扫码/售后核销）")
+async def lookup_barcode(
+    barcode: str = Query(min_length=1, max_length=64),
+    session: AsyncSession = Depends(get_session),
+):
+    return ok(await svc.BarcodeService(session).lookup(barcode))

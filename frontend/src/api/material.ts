@@ -96,3 +96,16 @@ export const getBomCandidates = (smId: number, limit = 10) =>
 export const SALES_MATERIAL_TYPE_LABEL: Record<number, string> = {
   1: '普通', 2: '组合', 3: '赠品', 4: '多选一', 5: '礼盒', 6: '福袋',
 }
+
+// ============ 条码 ============
+export interface Barcode {
+  id: number; owner_id: number; barcode: string; bm_id: number
+  material_bn: string; material_name: string; barcode_type: number
+  shop_id: number; status: number; version: number; create_time: string
+}
+export const listBarcodes = (params?: { keyword?: string; bm_id?: number; barcode_type?: number }) =>
+  get<Barcode[]>('/material/barcodes', params)
+export const createBarcode = (data: object) => post<Barcode>('/material/barcodes', data)
+export const updateBarcode = (id: number, data: object) => http.put(`/material/barcodes/${id}`, data)
+export const lookupBarcode = (barcode: string) =>
+  get<Barcode>('/material/barcodes/lookup', { barcode })

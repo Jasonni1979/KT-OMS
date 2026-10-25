@@ -5,7 +5,7 @@
 """
 from app.core.permission import register_filterable
 from app.models.branch import FulBranch
-from app.models.material import InvMaterial
+from app.models.material import InvBarcode, InvMaterial
 from app.models.org import OrgOwner
 from app.models.shop import GwShop
 
@@ -35,4 +35,10 @@ register_filterable(FulBranch, {
 register_filterable(InvMaterial, {
     "tenant_id": InvMaterial.tenant_id,
     "owner_id": InvMaterial.owner_id,
+})
+
+# 条码（SRS-D04.01 FR-04）：tenant_id + owner 维（冗余自基础物料）
+register_filterable(InvBarcode, {
+    "tenant_id": InvBarcode.tenant_id,
+    "owner_id": InvBarcode.owner_id,
 })

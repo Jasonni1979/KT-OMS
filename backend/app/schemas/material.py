@@ -265,3 +265,34 @@ class BomCandidateOut(BaseModel):
     score: float
     reason: str
 
+
+
+# ============ 条码（FR-04：一品多码）============
+
+class BarcodeCreate(BaseModel):
+    barcode: str = Field(min_length=1, max_length=64, description="条码值,全局唯一")
+    bm_id: int = Field(gt=0, description="归属基础物料")
+    barcode_type: int = Field(default=1, ge=1, le=9, description="1厂商码,2店铺码,3WMS码,9其他")
+    shop_id: int = Field(default=0, ge=0, description="店铺码时必填")
+
+
+class BarcodeUpdate(BaseModel):
+    barcode_type: int | None = Field(default=None, ge=1, le=9)
+    shop_id: int | None = Field(default=None, ge=0)
+    status: int | None = Field(default=None, ge=1, le=2)
+    version: int
+
+
+class BarcodeOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    owner_id: int
+    barcode: str
+    bm_id: int
+    material_bn: str
+    material_name: str
+    barcode_type: int
+    shop_id: int
+    status: int
+    version: int
+    create_time: datetime
