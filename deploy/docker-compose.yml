@@ -57,6 +57,24 @@ services:
       timeout: 10s
       retries: 20
 
+  mock-platform:
+    # 淘系平台模拟器（V1.1 计划 §2.1/§2.2）：M1-M3 全程仿真开发，不依赖淘系测试环境
+    build:
+      context: ../mocks/platform
+      dockerfile: Dockerfile
+    container_name: ktoms-mock-platform
+    environment:
+      MOCK_TAOBAO_APP_KEY: mock_app_key
+      MOCK_TAOBAO_APP_SECRET: mock_app_secret
+      MOCK_TAOBAO_SESSIONS: sim_session_001
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:9000/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   mysql_data:
   redis_data:

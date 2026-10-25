@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend:
-    name: Backend (ruff + mypy + pytest)
+    name: Backend (ruff + mypy)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -25,8 +25,6 @@ jobs:
         run: uv run ruff check app tests
       - name: Mypy
         run: uv run mypy app --ignore-missing-imports
-      - name: Pytest（无 DB 用例；DB 用例需 services，见下方矩阵）
-        run: uv run pytest tests/ -q -m "not db"
 
   backend-with-db:
     name: Backend (pytest + MySQL/Redis services)
@@ -61,14 +59,39 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           python-version: "3.12"
-      - name: Sync + pytest (db marked)
+      - name: Seed 基础数据（组织树 + 超管）
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
           KTOMS_MYSQL_PORT: 3306
           KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
         run: |
           uv sync --all-extras
-          uv run pytest tests/ -q
+          uv run python -m app.scripts.seed_org
+          uv run python -m app.scripts.seed_auth
+      - name: Pytest
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: 3306
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run pytest tests/ -q
+
+  mock-platform:
+    name: Mock Platform (模拟器 pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mocks/platform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest httpx
+      - name: Pytest
+        run: pytest tests/ -q
 
   frontend:
     name: Frontend (type-check + build)
