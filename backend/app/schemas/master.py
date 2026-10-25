@@ -173,3 +173,29 @@ class BranchOut(BaseModel):
     status: str
     version: int
     create_time: datetime
+
+
+# ============ 仓 ↔ 可服务货主（D10.01 FR-07a：三元记账前提）============
+
+
+class BranchOwnerBind(BaseModel):
+    """批量绑定可服务货主（幂等：已存在的启用关系自动跳过）"""
+
+    owner_ids: list[int] = Field(min_length=1, description="待绑定的货主ID列表")
+    operator: str = Field(default="", max_length=64, description="操作人（写入 create_op）")
+
+
+class BranchOwnerRelOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    node_id: int
+    branch_id: int
+    branch_name: str
+    owner_id: int
+    owner_code: str
+    owner_name: str
+    owner_type: str
+    owner_status: int
+    is_primary: int
+    status: int
+    create_time: datetime

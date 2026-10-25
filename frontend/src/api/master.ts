@@ -25,6 +25,12 @@ export interface Branch {
   is_ctrl: number; countable_flag: number; cutoff_time: string | null
   org_node_id: number | null; status: string; version: number; create_time: string
 }
+/** 仓 ↔ 可服务货主关系（D10.01 FR-07a） */
+export interface BranchOwnerRel {
+  id: number; node_id: number; branch_id: number; branch_name: string
+  owner_id: number; owner_code: string; owner_name: string; owner_type: string
+  owner_status: number; is_primary: number; status: number; create_time: string
+}
 
 // ============ 组织树 ============
 export const listOrgNodes = (parent_id: number) => get<OrgNode[]>('/master/org-nodes', { parent_id })
@@ -48,6 +54,17 @@ export const updateShop = (id: number, data: object) => http.put(`/master/shops/
 export const listBranches = (keyword?: string) => get<Branch[]>('/master/branches', keyword ? { keyword } : undefined)
 export const createBranch = (data: object) => post<Branch>('/master/branches', data)
 export const updateBranch = (id: number, data: object) => http.put(`/master/branches/${id}`, data)
+
+// ============ 仓 ↔ 可服务货主 ============
+export const listBranchOwners = (branchId: number) =>
+  get<BranchOwnerRel[]>(`/master/branches/${branchId}/owners`)
+export const bindBranchOwners = (branchId: number, ownerIds: number[], operator?: string) =>
+  post<BranchOwnerRel[]>(`/master/branches/${branchId}/owners`, {
+    owner_ids: ownerIds, operator: operator || '',
+  })
+export const unbindBranchOwner = (relId: number) => http.delete(`/master/branch-owner-rels/${relId}`)
+export const listOwnerBranches = (ownerId: number) =>
+  get<BranchOwnerRel[]>(`/master/owners/${ownerId}/branches`)
 
 // ============ 枚举字典（前端展示） ============
 export const NODE_TYPE_LABEL: Record<string, string> = {

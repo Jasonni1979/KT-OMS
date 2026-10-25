@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_session
 from app.core.response import ok
 from app.schemas import master as sc
+from app.services import branch_owner as bo_svc
 from app.services import master as svc
 
 router = APIRouter(tags=["master-档案"])
@@ -148,3 +149,39 @@ async def update_branch(
     redis = await svc.get_redis()
     branch = await svc.BranchService(session, redis).update(branch_id, data)
     return ok(sc.BranchOut.model_validate(branch))
+
+
+# ============ 仓 ↔ 可服务货主（D10.01 FR-07a）============
+
+@router.get("/branches/{branch_id}/owners", summary="某仓的可服务货主")
+async def list_branch_owners(
+    branch_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    rels = await bo_svc.BranchOwnerService(session).list_by_branch(branch_id)
+    return ok(rels)
+
+
+@router.post("/branches/{branch_id}/owners", summary="绑定可服务货主（批量幂等）")
+async def bind_branch_owners(
+    branch_id: int,
+    data: sc.BranchOwnerBind,
+    session: AsyncSession = Depends(get_session),
+):
+    rels = await bo_svc.BranchOwnerService(session).bind(branch_id, data)
+    return ok(rels)
+
+
+@router.get("/owners/{owner_id}/branches", summary="某货主可服务的仓")
+async def list_owner_branches(
+    owner_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    rels = await bo_svc.BranchOwnerService(session).list_by_owner(owner_id)
+    return ok(rels)
+
+
+@router.delete("/branch-owner-rels/{rel_id}", summary="解绑可服务货主（关系置停用）")
+async def unbind_branch_owner(rel_id: int, session: AsyncSession = Depends(get_session)):
+    await bo_svc.BranchOwnerService(session).unbind(rel_id)
+    return ok(None)

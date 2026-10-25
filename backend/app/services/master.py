@@ -17,6 +17,7 @@ from app.models.branch import FulBranch
 from app.models.org import OrgNode, OrgOwner
 from app.models.shop import GwShop
 from app.schemas import master as sc
+from app.services.branch_owner import BranchOwnerService
 
 # ---------- FR-01b/§5.1 层级约束矩阵（父类型 → 允许子类型） ----------
 CHILD_MATRIX: dict[str, tuple[str, ...]] = {
@@ -397,6 +398,9 @@ class BranchService:
         await self.s.flush()
         node.cat_path = f"{root.cat_path}{node.id},"
         branch.org_node_id = node.id
+        await self.s.flush()
+        # 建仓联动：单一归属仓自动绑定其归属货主（D10.01 FR-07a；多货主仓留待人工配置）
+        await BranchOwnerService(self.s).bind_for_new_branch(branch, tenant_id)
         await self.s.commit()
         await self.s.refresh(branch)
         return branch
