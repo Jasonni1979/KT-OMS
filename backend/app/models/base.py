@@ -144,3 +144,31 @@ class BaseSeq(Base, TimestampMixin, TenantMixin, VersionMixin):
     step_size: Mapped[int] = mapped_column(Integer, nullable=False, default=1000)
     max_value: Mapped[int] = mapped_column(BigInteger, nullable=False, default=10000000)
     remark: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+
+
+class BaseRuleDict(Base, TimestampMixin, TenantMixin, SoftDeleteMixin):
+    """规则枚举字典（D01.03 FR-08：原因码/决策码/维度字典统一登记）
+
+    dict_category: dim=维度字典 / enum=枚举字典
+    dict_type: 字典类型名（如 audit_reason_code / order.audit）
+    ext_json: 扩展属性（原因码绑定 default_route + audit_group → D03.02 FR-04b）
+
+    注：bas_rule_dict 无 version 列（字典以 preset_flag + status 管理）。
+    """
+
+    __tablename__ = "bas_rule_dict"
+    __table_args__ = {"schema": "oms_base"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    dict_category: Mapped[str] = mapped_column(String(16), nullable=False, index=True)
+    dict_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    item_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    item_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    value_type: Mapped[str] = mapped_column(String(16), nullable=False, default="string")
+    ops_allowed_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    value_source: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    level: Mapped[str] = mapped_column(String(16), nullable=False, default="")
+    ext_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    preset_flag: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    sort_no: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)

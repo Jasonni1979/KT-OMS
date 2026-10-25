@@ -59,6 +59,10 @@ export KTOMS_MYSQL_HOST=127.0.0.1 KTOMS_MYSQL_PORT=$CI_PORT KTOMS_REDIS_URL="red
   && ok "seed_auth" || { bad "seed_auth"; tail -5 /tmp/ci_seed2.log; }
 (cd "$ROOT/backend" && "$PY" -m app.scripts.seed_import >/tmp/ci_seed3.log 2>&1) \
   && ok "seed_import" || { bad "seed_import"; tail -5 /tmp/ci_seed3.log; }
+# W5：审单域种子（原因码字典 + 审单规则 + 审核组 + 分派规则 + 仓物流绑定）
+# 缺它 → 审单链无候选仓/物流 → 场景与审单用例路径与开发库不一致
+(cd "$ROOT/backend" && "$PY" -m app.scripts.seed_audit >/tmp/ci_seed4.log 2>&1) \
+  && ok "seed_audit" || { bad "seed_audit"; tail -8 /tmp/ci_seed4.log; }
 (cd "$ROOT/backend" && "$PY" -m pytest tests/ -q >/tmp/ci_pytest.log 2>&1) \
   && ok "pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_pytest.log | tail -1)）" \
   || { bad "pytest"; tail -20 /tmp/ci_pytest.log; }

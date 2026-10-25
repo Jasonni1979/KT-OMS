@@ -4,6 +4,17 @@
 登记同时写入 org_filterable_entity 表（声明元数据存档与审计，由 seed 脚本同步）。
 """
 from app.core.permission import register_filterable
+from app.models.audit import (
+    OrdAuditBatchLog,
+    OrdAuditGroup,
+    OrdAuditPluginPerf,
+    OrdAuditReason,
+    OrdAuditRule,
+    OrdAuditTask,
+    OrdAuditWorkLog,
+    OrdDispatchRule,
+    OrdFulfillPlan,
+)
 from app.models.branch import FulBranch
 from app.models.gateway import (
     GwApiLog,
@@ -118,4 +129,46 @@ register_filterable(OrdStatusLog, {
 register_filterable(OrdOrderFail, {
     "tenant_id": OrdOrderFail.tenant_id,
     "owner_id": OrdOrderFail.owner_id,
+})
+
+# ============ D03 审单域（D03.02 审单引擎 + D03.03 人工审单工作台）============
+# 审单规则：tenant + owner 维（规则可按货主隔离）
+register_filterable(OrdAuditRule, {
+    "tenant_id": OrdAuditRule.tenant_id,
+    "owner_id": OrdAuditRule.owner_id,
+})
+# 结构化原因：tenant + owner + shop 维（工作台按店铺筛）
+register_filterable(OrdAuditReason, {
+    "tenant_id": OrdAuditReason.tenant_id,
+    "owner_id": OrdAuditReason.owner_id,
+    "shop_id": OrdAuditReason.shop_id,
+})
+# 履约方案：tenant + owner + shop 维
+register_filterable(OrdFulfillPlan, {
+    "tenant_id": OrdFulfillPlan.tenant_id,
+    "owner_id": OrdFulfillPlan.owner_id,
+    "shop_id": OrdFulfillPlan.shop_id,
+})
+# 审单任务：tenant + owner + shop 维
+register_filterable(OrdAuditTask, {
+    "tenant_id": OrdAuditTask.tenant_id,
+    "owner_id": OrdAuditTask.owner_id,
+    "shop_id": OrdAuditTask.shop_id,
+})
+# 审核组 / 分派规则：DDL 无 owner_id 列 → 仅 tenant 维
+register_filterable(OrdAuditGroup, {
+    "tenant_id": OrdAuditGroup.tenant_id,
+})
+register_filterable(OrdDispatchRule, {
+    "tenant_id": OrdDispatchRule.tenant_id,
+})
+# 插件耗时 / 批次日志：tenant 维（追加型日志无 owner/shop 维）
+register_filterable(OrdAuditPluginPerf, {
+    "tenant_id": OrdAuditPluginPerf.tenant_id,
+})
+register_filterable(OrdAuditBatchLog, {
+    "tenant_id": OrdAuditBatchLog.tenant_id,
+})
+register_filterable(OrdAuditWorkLog, {
+    "tenant_id": OrdAuditWorkLog.tenant_id,
 })
