@@ -197,6 +197,9 @@ class ScenarioRunner:
         # 仓（复用档案域建仓逻辑 → 自动联动组织树与归属货主绑定）
         branch = await self._make_branch(shop, owner)
 
+        # 店铺-发货仓绑定（可售计算的多仓聚合依据，FR-02c）
+        await self._bind_shop_branches(shop.id, [branch["id"]])
+
         material = InvMaterial(
             tenant_id=1,
             owner_id=owner.id,
@@ -242,6 +245,24 @@ class ScenarioRunner:
             "sm_ids": sm_ids,
             "sku": SIM_ITEM_POOL[0][1],
         }
+
+    async def _bind_shop_branches(self, shop_id: int, branch_ids: list[int]) -> None:
+        """配店铺-发货仓绑定（gw_shop_config.branch_bind_json）"""
+        import json
+
+        from sqlalchemy import text
+
+        binds = json.dumps([{"branch_id": b, "priority": i} for i, b in enumerate(branch_ids)])
+        await self.s.execute(
+            text(
+                "INSERT INTO oms_gateway.gw_shop_config "
+                "(tenant_id, owner_id, shop_id, branch_bind_json, create_time, update_time, version) "
+                "VALUES (1, 0, :sid, CAST(:binds AS JSON), NOW(3), NOW(3), 0) "
+                "ON DUPLICATE KEY UPDATE branch_bind_json = CAST(:binds AS JSON)"
+            ),
+            {"sid": shop_id, "binds": binds},
+        )
+        await self.s.commit()
 
     async def _owner_co_node_id(self) -> int:
         from app.models.org import OrgNode
@@ -405,6 +426,53 @@ class ScenarioRunner:
         confirmed = await bills.confirm(bill.id, operator="scenario")
         return {"bill": confirmed}
 
+    # ---------- ⑧ 可售计算与平台回写 ----------
+
+    async def sellable_and_writeback(self, ctx: dict, sm_id: int) -> dict:
+        """可售计算 → 平台回写（D04.08：可售=可用−安全库存，回写经适配器到平台）"""
+        from app.services.sellable import SellableService
+        from app.services.sync import StockSyncService
+
+        await self._set_strategy(ctx["shop_id"])
+        sellable = SellableService(self.s, self.r)
+        calc = await sellable.calc(ctx["shop_id"], sm_id, use_cache=False)
+        sync = StockSyncService(self.s, self.r, get_gateway(self.r))
+        wb = await sync.writeback(ctx["shop_id"], sm_id, trigger=4, force=True)
+        return {"calc": calc, "writeback": wb}
+
+    async def _set_strategy(self, shop_id: int) -> None:
+        """配可售同步策略（全量共享-安全库存）"""
+        from sqlalchemy import text
+
+        await self.s.execute(
+            text(
+                "INSERT INTO oms_stock.inv_sync_strategy "
+                "(tenant_id, shop_id, scope_type, strategy_type, safe_num, safe_ratio, "
+                " alloc_ratio, oversell_mode, quota_num, water_level, water_level_type, "
+                " min_sellable, max_sellable, writeback_mode, threshold_rate, status, "
+                " create_time, update_time, version) "
+                "VALUES (1, :sid, 1, 'shared_safe', 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, "
+                " NOW(3), NOW(3), 0) "
+                "ON DUPLICATE KEY UPDATE strategy_type = 'shared_safe', safe_num = 0"
+            ),
+            {"sid": shop_id},
+        )
+        await self.s.commit()
+
+    async def platform_writebacks(self) -> list[dict]:
+        """取模拟器收到的回写留档（断言平台侧确实收到）"""
+        import httpx
+
+        from app.core.config import settings
+
+        url = f"{settings.platform_gateway_url.rstrip('/')}/sim/writebacks"
+        async with httpx.AsyncClient() as hc:
+            r = await hc.get(url)
+            data = r.json().get("data") or {}
+            # 模拟器返回 {total, items:[...]}
+            items = data.get("items") if isinstance(data, dict) else data
+            return list(items or [])
+
     # ---------- ⑦ 账实核对 ----------
 
     async def balances(self, ctx: dict) -> dict:
@@ -492,6 +560,21 @@ async def run_scenario(gateway_url: str = "") -> ScenarioReport:
         bill = out["bill"]
         report.add("6", "出库单据（下发→回传→确认记账）", bill.status == 5,
                    f"单据={bill.bill_bn} 状态={bill.status}", status=bill.status)
+
+        # ⑧ 可售计算与平台回写（库存 98 → 可售 98 → 回写平台）
+        sellable_res = await runner.sellable_and_writeback(ctx, ctx["sm_id"])
+        calc = sellable_res["calc"]
+        wb = sellable_res["writeback"]
+        report.add("8", "可售计算（可用−安全库存）", calc.sellable == 98,
+                   f"可售={calc.sellable}（基础可用={calc.base_available}）",
+                   sellable=calc.sellable)
+        report.add("8b", "可售回写平台（模拟器断言）", wb.written and wb.calc_sellable == 98,
+                   f"回写={wb.calc_sellable} written={wb.written}",
+                   written=wb.written)
+        writebacks = await runner.platform_writebacks()
+        inv_wb = [w for w in writebacks if w.get("type") == "inventory"]
+        report.add("8c", "平台侧收到可售回写", bool(inv_wb),
+                   f"平台回写记录={inv_wb[-1] if inv_wb else '无'}")
 
         # ⑦ 账实核对
         bal = await runner.balances(ctx)

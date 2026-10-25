@@ -341,3 +341,91 @@ class IoBillTraceOut(BaseModel):
     bill: IoBillOut
     change_logs: list[dict] = Field(default_factory=list)
     ledger: dict[str, int] = Field(default_factory=dict)
+
+
+# ============ 可售计算与平台同步（D04.08）============
+
+STRATEGY_TYPE_LABEL = {
+    "independent": "分平台独立库存",
+    "shared_ratio": "共享池按比例分配",
+    "shared_safe": "全量共享-安全库存预留",
+    "activity_lock": "活动锁定",
+}
+SYNC_TRIGGER_LABEL = {1: "事件驱动", 2: "水位触发", 3: "定时全量", 4: "手动", 5: "对账强制"}
+
+
+class SyncStrategyIn(BaseModel):
+    """可售同步策略配置（D04.08 FR-01）"""
+
+    shop_id: int = Field(gt=0)
+    scope_type: int = Field(default=1, ge=1, le=4, description="1全店,2分类,3品牌,4指定物料")
+    scope_ref: list[int] = Field(default_factory=list, description="范围引用（分类/品牌/物料ID）")
+    strategy_type: str = Field(default="shared_safe", description="independent/shared_ratio/shared_safe")
+    safe_num: int = Field(default=0, ge=0, description="安全库存量")
+    safe_ratio: float = Field(default=0, ge=0, le=100, description="安全库存比例%")
+    alloc_ratio: float = Field(default=0, ge=0, description="分配比例%")
+    oversell_mode: int = Field(default=1, ge=1, le=2, description="1硬分配,2软超卖")
+    quota_num: int = Field(default=0, ge=0, description="独立配额")
+    water_level: int = Field(default=0, ge=0, description="水位线")
+    min_sellable: int = Field(default=0, ge=0, description="可售下限")
+    max_sellable: int = Field(default=0, ge=0, description="可售上限（0=不限）")
+    writeback_mode: int = Field(default=1, ge=1, le=3, description="1实时,2准实时批量,3定时")
+    threshold_rate: float = Field(default=0, ge=0, description="回写变化阈值率（防抖）")
+    status: int = Field(default=1, ge=1, le=2)
+
+
+class SyncStrategyOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    shop_id: int
+    scope_type: int
+    scope_ref: list | None = None
+    strategy_type: str
+    safe_num: int
+    safe_ratio: float
+    alloc_ratio: float
+    oversell_mode: int
+    quota_num: int
+    water_level: int
+    min_sellable: int
+    max_sellable: int
+    writeback_mode: int
+    threshold_rate: float
+    status: int
+    version: int
+
+
+class SellableOut(BaseModel):
+    """可售计算结果（IF-D04.08-01）"""
+
+    shop_id: int
+    sm_id: int
+    platform_sku: str
+    base_available: int
+    sellable: int
+    strategy_type: str
+    is_combo: bool
+    member_details: list[dict] = Field(default_factory=list)
+    branch_ids: list[int] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class WritebackResultOut(BaseModel):
+    """回写结果（FR-03）"""
+
+    shop_id: int
+    sm_id: int
+    platform_sku: str
+    calc_sellable: int
+    written: bool
+    reason: str = ""
+    error_code: str = ""
+
+
+class SellableReconOut(BaseModel):
+    """可售同步对账报告（FR-05b）"""
+
+    shop_id: int
+    checked: int
+    diff_count: int
+    diffs: list[dict] = Field(default_factory=list)

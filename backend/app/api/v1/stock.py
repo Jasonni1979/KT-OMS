@@ -3,16 +3,21 @@
 路由前缀 /api/v1/stock
 """
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
+from app.models.stock import InvSyncStrategy
 from app.schemas import stock as sc
 from app.services.freeze import FreezeService
+from app.services.gateway import get_gateway
 from app.services.io_bill import IoBillService
 from app.services.master import get_redis
+from app.services.sellable import SellableService
 from app.services.stock_ledger import StockLedgerService
 from app.services.stock_recon import ReconService
+from app.services.sync import StockSyncService
 
 router = APIRouter(tags=["stock-库存记账"])
 
@@ -274,3 +279,108 @@ async def settle_bill(
 async def trace_bill(bill_id: int, session: AsyncSession = Depends(get_session)):
     redis = await get_redis()
     return ok(await IoBillService(session, redis).trace(bill_id))
+
+
+# ============ 可售计算与平台同步（SRS-D04.08）============
+
+@router.get("/sellable/{shop_id}/{sm_id}", summary="可售计算（IF-D04.08-01）")
+async def calc_sellable(
+    shop_id: int,
+    sm_id: int,
+    refresh: bool = Query(default=False, description="跳过缓存强制重算"),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    svc = SellableService(session, redis)
+    result = await svc.calc(shop_id, sm_id, use_cache=not refresh)
+    return ok(sc.SellableOut(**result.as_dict()))
+
+
+@router.post("/sellable/{shop_id}/{sm_id}/writeback", summary="可售回写单个 SKU（FR-03）")
+async def writeback_sellable(
+    shop_id: int,
+    sm_id: int,
+    force: bool = Query(default=False, description="跳过阈值节流强制回写"),
+    trigger: int = Query(default=1, ge=1, le=5, description="1事件,2水位,3定时,4手动,5对账"),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    svc = StockSyncService(session, redis, get_gateway(redis))
+    strategy = await svc.sellable.get_strategy(shop_id)
+    rate = float(strategy.threshold_rate or 0) if strategy else 0.0
+    res = await svc.writeback(shop_id, sm_id, trigger=trigger, force=force, threshold_rate=rate)
+    return ok(sc.WritebackResultOut(**res.as_dict()))
+
+
+@router.post("/sellable/{shop_id}/writeback-all", summary="店铺全量回写（FR-03a③/FR-01d）")
+async def writeback_sellable_all(
+    shop_id: int,
+    force: bool = Query(default=False),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    svc = StockSyncService(session, redis, get_gateway(redis))
+    results = await svc.writeback_shop(shop_id, trigger=3, force=force)
+    written = sum(1 for r in results if r.written)
+    return ok({"total": len(results), "written": written, "results": [r.as_dict() for r in results]})
+
+
+@router.post("/sellable/{shop_id}/recon", summary="同步对账（FR-05a：差异强制回写）")
+async def recon_sellable(shop_id: int, session: AsyncSession = Depends(get_session)):
+    redis = await get_redis()
+    svc = StockSyncService(session, redis, get_gateway(redis))
+    report = await svc.recon_shop(shop_id)
+    return ok(sc.SellableReconOut(**report))
+
+
+@router.get("/sellable/{shop_id}/status", summary="同步状态查询（IF-D04.08-04）")
+async def sellable_status(
+    shop_id: int,
+    skus: str | None = Query(default=None, description="平台SKU列表（逗号分隔）"),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    svc = StockSyncService(session, redis, get_gateway(redis))
+    sku_list = [s for s in (skus or "").split(",") if s] or None
+    return ok(await svc.sync_status(shop_id, sku_list))
+
+
+@router.get("/sync-strategies", summary="可售同步策略列表（FR-01）")
+async def list_sync_strategies(
+    shop_id: int | None = Query(default=None, ge=1),
+    session: AsyncSession = Depends(get_session),
+):
+    q = select(InvSyncStrategy).where(InvSyncStrategy.is_deleted == 0)
+    if shop_id:
+        q = q.where(InvSyncStrategy.shop_id == shop_id)
+    rows = await session.scalars(q.order_by(InvSyncStrategy.id))
+    return ok([sc.SyncStrategyOut.model_validate(r) for r in list(rows)])
+
+
+@router.post("/sync-strategies", summary="配置可售同步策略（FR-01c：变更即时生效）")
+async def upsert_sync_strategy(
+    data: sc.SyncStrategyIn, session: AsyncSession = Depends(get_session)
+):
+    svc = SellableService(session, await get_redis())
+    existing = await session.scalar(
+        select(InvSyncStrategy).where(
+            InvSyncStrategy.shop_id == data.shop_id,
+            InvSyncStrategy.scope_type == data.scope_type,
+            InvSyncStrategy.is_deleted == 0,
+        )
+    )
+    if existing is None:
+        existing = InvSyncStrategy(shop_id=data.shop_id, scope_type=data.scope_type)
+        session.add(existing)
+    for field in (
+        "scope_ref", "strategy_type", "safe_num", "safe_ratio", "alloc_ratio",
+        "oversell_mode", "quota_num", "water_level", "min_sellable", "max_sellable",
+        "writeback_mode", "threshold_rate", "status",
+    ):
+        setattr(existing, field, getattr(data, field))
+    existing.version += 1
+    await session.commit()
+    await session.refresh(existing)
+    # FR-01d：策略变更即时生效 → 清缓存 + 全量重算回写
+    await svc.invalidate_all(data.shop_id)
+    return ok(sc.SyncStrategyOut.model_validate(existing))

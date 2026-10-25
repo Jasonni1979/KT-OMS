@@ -5,11 +5,11 @@
 import time
 
 import pytest
+from app.protocol import calc_sign
+from app.store import SCENARIOS
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.protocol import calc_sign
-from app.store import SCENARIOS
 
 client = TestClient(app)
 SECRET = "mock_app_secret"

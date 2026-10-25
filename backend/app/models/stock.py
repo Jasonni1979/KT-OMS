@@ -7,6 +7,7 @@
 - inv_stock_snapshot 库存快照（D04.02 FR-06 对账快照）
 """
 from datetime import date, datetime
+from typing import Any
 
 from sqlalchemy import (
     JSON,
@@ -289,3 +290,106 @@ class InvIoBillType(Base):
         DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )
     is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+
+
+class InvSyncStrategy(Base):
+    """可售同步策略（D04.08 FR-01：按店铺配置，可下探到分类/品牌/物料）"""
+
+    __tablename__ = "inv_sync_strategy"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    shop_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    scope_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1全店,2分类,3品牌,4指定物料"
+    )
+    scope_ref: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    strategy_type: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="shared_safe",
+        comment="independent独立/shared_ratio比例/shared_safe安全库存/activity_lock活动锁定",
+    )
+    safe_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    safe_ratio: Mapped[float] = mapped_column(Numeric(9, 4), nullable=False, default=0)
+    alloc_ratio: Mapped[float] = mapped_column(Numeric(9, 4), nullable=False, default=0)
+    oversell_mode: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1硬分配,2软超卖"
+    )
+    quota_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    water_level: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    water_level_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1绝对值,2销量天数"
+    )
+    min_sellable: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max_sellable: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="0=不限")
+    writeback_mode: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1实时,2准实时批量,3定时"
+    )
+    threshold_rate: Mapped[float] = mapped_column(
+        Numeric(9, 4), nullable=False, default=0, comment="回写变化阈值率(防抖)"
+    )
+    status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+
+
+class InvActivityLockPool(Base):
+    """活动锁定库存池（D04.08 FR-01e：渠道级预留，与订单级预占不同）"""
+
+    __tablename__ = "inv_activity_lock_pool"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    activity_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    activity_name: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    branch_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    bm_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    lock_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sold_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    remain_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    channel_scope: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    start_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    end_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    release_rule: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="active", comment="warmup/active/ended/released"
+    )
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+
+
+class InvSyncLog(Base):
+    """可售回写日志（D04.08 FR-03d：可追溯）"""
+
+    __tablename__ = "inv_sync_log"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    shop_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    sm_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    platform_sku: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    calc_sellable: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    writeback_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    trigger_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1事件,2水位,3定时,4手动,5对账强制"
+    )
+    sync_status: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1成功,2失败"
+    )
+    platform_response: Mapped[str] = mapped_column(String(1024), nullable=False, default="")
+    error_code: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    retry_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)

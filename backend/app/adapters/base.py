@@ -160,6 +160,7 @@ class AdapterInterface(Protocol):
 METHOD_TRADE_SOLD_GET = "taobao.trade.sold.get"
 METHOD_TRADE_DETAIL_GET = "taobao.trade.detail.get"
 METHOD_ITEM_GET = "taobao.item.get"
+METHOD_ITEM_UPDATE = "taobao.item.update"
 METHOD_LOGISTICS_SEND = "taobao.logistics.online.send"
 METHOD_REFUND_GET = "taobao.refund.get"
 METHOD_REFUND_LIST_GET = "taobao.refund.list.get"
@@ -172,6 +173,7 @@ class UnifiedMethod:
         METHOD_TRADE_SOLD_GET: METHOD_TRADE_SOLD_GET,
         METHOD_TRADE_DETAIL_GET: METHOD_TRADE_DETAIL_GET,
         METHOD_ITEM_GET: METHOD_ITEM_GET,
+        METHOD_ITEM_UPDATE: METHOD_ITEM_UPDATE,
         METHOD_LOGISTICS_SEND: METHOD_LOGISTICS_SEND,
         METHOD_REFUND_GET: METHOD_REFUND_GET,
         METHOD_REFUND_LIST_GET: METHOD_REFUND_LIST_GET,

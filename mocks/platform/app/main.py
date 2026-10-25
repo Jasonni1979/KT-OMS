@@ -45,7 +45,6 @@ async def top_router(request: Request) -> JSONResponse:
     params: dict[str, Any] = dict(await request.json())
     method = str(params.get("method", ""))
     ts = params.get("timestamp")
-    sign = params.get("sign")
     session = params.get("session")
 
     # ① 签名校验
@@ -121,10 +120,13 @@ def _trade_detail_get(params: dict) -> dict:
 
 
 def _item_get(params: dict) -> dict:
-    """taobao.item.get —— 商品查询（供未知商品自动建档）"""
+    """taobao.item.get —— 商品查询（未知商品自动建档 + 可售对账用）"""
     item_id = str(params.get("item_id", ""))
-    from app.store import ITEM_POOL
+    from app.store import ITEM_POOL, platform_stock
     hit = next((i for i in ITEM_POOL if i[0] == item_id), None)
+    if hit is None:
+        # 支持按平台 SKU 编码查询（OMS 侧只知 SKU 编码，可售对账用）
+        hit = next((i for i in ITEM_POOL if i[1] == item_id), None)
     if hit is None:
         raise TopError("isv.item-not-exist", "Item not exist", "isv.item-not-exist",
                        f"商品不存在: {item_id}")
@@ -137,12 +139,28 @@ def _item_get(params: dict) -> dict:
                     "sku": [{
                         "sku_id": hit[1], "num_iid": 100 + abs(hash(hit[0])) % 900,
                         "properties": "规格:" + hit[3], "price": "199.00",
-                        "quantity": 100, "outer_id": hit[1],
+                        "quantity": platform_stock(hit[1]), "outer_id": hit[1],
                     }]
                 },
             }
         }
     }
+
+
+def _item_update(params: dict) -> dict:
+    """taobao.item.update —— 平台库存（可售数）回写（D04.08 FR-03c）"""
+    sku_id = str(params.get("sku_id", ""))
+    num = int(params.get("num") or 0)
+    if not sku_id:
+        raise TopError("isv.item-not-exist", "Item not exist", "isv.item-not-exist",
+                       "缺少 sku_id")
+    from app.store import set_platform_stock
+    set_platform_stock(sku_id, num)
+    _writebacks.append({
+        "type": "inventory", "sku_id": sku_id, "num": num,
+        "received_at": datetime.now().isoformat(timespec="seconds"),
+    })
+    return {"item_update_response": {"item": {"sku_id": sku_id, "num": num}}}
 
 
 def _logistics_online_send(params: dict) -> dict:
@@ -197,6 +215,7 @@ _ROUTES = {
     "taobao.trade.sold.get": _trade_sold_get,
     "taobao.trade.detail.get": _trade_detail_get,
     "taobao.item.get": _item_get,
+    "taobao.item.update": _item_update,
     "taobao.logistics.online.send": _logistics_online_send,
     "taobao.refund.get": _refund_get,
     "taobao.refund.list.get": _refund_list_get,

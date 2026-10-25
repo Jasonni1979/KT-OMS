@@ -164,6 +164,20 @@ ADDR_POOL = [
     ("浙江省", "杭州市", "余杭区", "文一西路969号"),
     ("北京市", "北京市", "朝阳区", "建国路93号"),
 ]
+#: 平台侧库存（可售数）—— 可售同步回写的落地状态（key=sku_id）
+PLATFORM_STOCK: dict[str, int] = {}
+
+
+def platform_stock(sku_id: str, default: int = 100) -> int:
+    """取平台库存（未回写过则返回默认 100）"""
+    return PLATFORM_STOCK.get(sku_id, default)
+
+
+def set_platform_stock(sku_id: str, num: int) -> None:
+    """设置平台库存（可售回写）"""
+    PLATFORM_STOCK[sku_id] = int(num)
+
+
 ITEM_POOL = [
     ("ITEM_TSHIRT_001", "SKU_TSHIRT_S", "纯棉圆领T恤", "S/白色"),
     ("ITEM_TSHIRT_002", "SKU_TSHIRT_M", "纯棉圆领T恤", "M/黑色"),

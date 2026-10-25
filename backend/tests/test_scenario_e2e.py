@@ -62,7 +62,7 @@ async def test_business_scenario_end_to_end(mock_platform):
     print("\n" + report.render())
     failed = [s for s in report.steps if not s.passed]
     assert not failed, "场景断言失败: " + "; ".join(s.line() for s in failed)
-    assert len(report.steps) >= 11
+    assert len(report.steps) >= 14
 
 
 async def test_scenario_is_idempotent(mock_platform):
@@ -78,3 +78,5 @@ async def test_scenario_is_idempotent(mock_platform):
     v2 = {s.step: s.values for s in r2.steps}
     assert v1["7"]["store"] == v2["7"]["store"] == 98
     assert v1["7b"]["freeze"] == v2["7b"]["freeze"] == 0
+    assert v1["8"]["sellable"] == v2["8"]["sellable"] == 98
+    assert v1["8b"]["written"] is True
