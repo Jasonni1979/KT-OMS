@@ -18,7 +18,22 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REQ = ROOT.parent / "需求文档"
+
+
+def _req_dir() -> Path:
+    """需求文档目录（优先仓库内，回退仓库外）
+
+    仓库内 `docs/requirements/` 是 SRS 的**权威副本**（与仓库外 `需求文档/`
+    内容一致，已 md5 全量比对）；优先用仓库内 → clone 后工具仍可运行。
+    """
+    inner = ROOT / "docs" / "requirements"
+    if inner.exists():
+        return inner
+    return ROOT.parent / "需求文档"
+
+REQ = _req_dir()  # 见 _req_dir()：优先仓库内 docs/requirements/
+
+
 sys.path.insert(0, str(ROOT / "tools"))
 
 import test_case_map as M  # noqa: E402
@@ -132,6 +147,12 @@ def _fnames_of(prefix: str) -> set[str]:
 
 
 def main() -> int:
+    if not REQ.exists():
+        print(
+            f"[FAIL] 找不到需求文档目录：{REQ}\n"
+            "       应为仓库内 docs/requirements/（或仓库外 需求文档/）"
+        )
+        return 1
     detail = "--detail" in sys.argv
     as_json = "--json" in sys.argv
 
