@@ -291,13 +291,16 @@ class ShopService:
         )
         if not parent or parent.node_type not in ("brand", "owner_co"):
             raise ValidationError("店铺必须挂在 brand 或 owner_co 节点下（§5.1 层级矩阵）")
+        shop_bn = await self._next_bn("S", "seq:shop_bn")
         shop = GwShop(
             tenant_id=tenant_id,
             owner_id=data.owner_id,
-            shop_bn=await self._next_bn("S", "seq:shop_bn"),
+            shop_bn=shop_bn,
             shop_name=data.shop_name,
             platform=data.platform,
-            platform_shop_id=data.platform_shop_id,
+            # DDL 唯一键 uk_gw_shop_platform_shop(platform, platform_shop_id)：
+            # platform_shop_id 为空串时同平台第二家店必然冲突 → 手工建档未填时用内部编码占位
+            platform_shop_id=data.platform_shop_id or f"local_{shop_bn}",
             shop_type=data.shop_type,
             business_type=data.business_type,
         )

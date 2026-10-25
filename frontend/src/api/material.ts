@@ -52,3 +52,47 @@ export const MATERIAL_TYPE_LABEL: Record<number, string> = {
 export const BARCODE_TYPE_LABEL: Record<number, string> = {
   1: '厂商码', 2: '店铺码', 3: 'WMS码', 9: '其他',
 }
+
+// ============ 销售物料 ============
+export interface SalesMaterial {
+  id: number; owner_id: number; shop_id: number
+  sales_material_bn: string; sales_material_name: string; spec_text: string
+  sales_material_type: number; bind_status: number; class_id: number
+  tax_rate: number; tax_name: string; tax_code: string; org_id: number
+  visibled: number; status: number; source: string; version: number; create_time: string
+}
+export interface BomItem {
+  id: number; bm_id: number; material_bn: string; material_name: string
+  material_type: number; bind_num: number; rate: number; fixed_price: number; is_virtual: number
+}
+export interface BomVersion {
+  id: number; sm_id: number; version_no: number; status: number
+  effective_time: string | null; operator: string; create_time: string; items: BomItem[]
+}
+export interface BomCandidate {
+  bm_id: number; material_bn: string; material_name: string
+  owner_id: number; score: number; reason: string
+}
+
+// ============ 销售物料接口 ============
+export const listSalesMaterials = (params?: {
+  keyword?: string; shop_id?: number; bind_status?: number
+}) => get<SalesMaterial[]>('/material/sales-materials', params)
+export const listUnboundSalesMaterials = (shopId?: number) =>
+  get<SalesMaterial[]>('/material/sales-materials/unbound', shopId ? { shop_id: shopId } : undefined)
+export const createSalesMaterial = (data: object) => post<SalesMaterial>('/material/sales-materials', data)
+export const updateSalesMaterial = (id: number, data: object) =>
+  http.put(`/material/sales-materials/${id}`, data)
+
+// ============ BOM 接口 ============
+export const getCurrentBom = (smId: number) => get<BomVersion | null>(`/material/sales-materials/${smId}/bom`)
+export const getBomHistory = (smId: number) => get<BomVersion[]>(`/material/sales-materials/${smId}/bom/history`)
+export const bindBom = (smId: number, items: object[], operator?: string) =>
+  post<BomVersion>(`/material/sales-materials/${smId}/bom`, { items, operator: operator || '' })
+export const unbindBom = (smId: number) => http.delete(`/material/sales-materials/${smId}/bom`)
+export const getBomCandidates = (smId: number, limit = 10) =>
+  get<BomCandidate[]>(`/material/sales-materials/${smId}/bom/candidates`, { limit })
+
+export const SALES_MATERIAL_TYPE_LABEL: Record<number, string> = {
+  1: '普通', 2: '组合', 3: '赠品', 4: '多选一', 5: '礼盒', 6: '福袋',
+}

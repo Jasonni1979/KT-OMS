@@ -151,3 +151,117 @@ class MaterialOut(BaseModel):
     remark: str
     version: int
     create_time: datetime
+
+
+# ============ 销售物料（FR-01）============
+
+class SalesMaterialCreate(BaseModel):
+    shop_id: int = Field(gt=0, description="所属店铺")
+    sales_material_bn: str = Field(min_length=1, max_length=128, description="平台商品编码,店铺内唯一")
+    sales_material_name: str = Field(min_length=1, max_length=255)
+    spec_text: str = Field(default="", max_length=512, description="平台规格文本")
+    sales_material_type: int = Field(
+        default=1, ge=1, le=6, description="1普通,2组合,3赠品,4多选一,5礼盒,6福袋"
+    )
+    class_id: int = Field(default=0, ge=0, description="客户分类")
+    tax_rate: float = Field(default=0, ge=0, le=100)
+    tax_name: str = Field(default="", max_length=64)
+    tax_code: str = Field(default="", max_length=64)
+    org_id: int = Field(default=0, ge=0)
+    visibled: int = Field(default=1, ge=0, le=1, description="上下架")
+    source: str = Field(default="local", pattern="^(local|api|import|migration)$")
+
+
+class SalesMaterialAutoCreate(BaseModel):
+    """FR-01a 拉单自动建档入参（幂等：同店铺同编码只建一次）"""
+
+    shop_id: int = Field(gt=0)
+    sales_material_bn: str = Field(min_length=1, max_length=128)
+    sales_material_name: str = Field(default="", max_length=255)
+    spec_text: str = Field(default="", max_length=512)
+    sales_material_type: int = Field(default=1, ge=1, le=6)
+
+
+class SalesMaterialUpdate(BaseModel):
+    sales_material_name: str | None = Field(default=None, max_length=255)
+    spec_text: str | None = Field(default=None, max_length=512)
+    sales_material_type: int | None = Field(default=None, ge=1, le=6)
+    class_id: int | None = Field(default=None, ge=0)
+    tax_rate: float | None = Field(default=None, ge=0, le=100)
+    tax_name: str | None = Field(default=None, max_length=64)
+    tax_code: str | None = Field(default=None, max_length=64)
+    org_id: int | None = Field(default=None, ge=0)
+    visibled: int | None = Field(default=None, ge=0, le=1)
+    status: int | None = Field(default=None, ge=1, le=2)
+    version: int
+
+
+class SalesMaterialOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    owner_id: int
+    shop_id: int
+    sales_material_bn: str
+    sales_material_name: str
+    spec_text: str
+    sales_material_type: int
+    bind_status: int
+    class_id: int
+    tax_rate: float
+    tax_name: str
+    tax_code: str
+    org_id: int
+    visibled: int
+    status: int
+    source: str
+    version: int
+    create_time: datetime
+
+
+# ============ BOM 绑定（FR-03）============
+
+class BomItemIn(BaseModel):
+    bm_id: int = Field(gt=0, description="基础物料")
+    bind_num: int = Field(default=1, ge=1, description="数量≥1")
+    rate: float = Field(default=0, ge=0, le=100, description="价格贡献占比%,与fixed_price二选一")
+    fixed_price: float = Field(default=0, ge=0, description="固定价,与rate二选一")
+
+
+class BomBind(BaseModel):
+    items: list[BomItemIn] = Field(min_length=1, description="绑定明细（1:N）")
+    operator: str = Field(default="", max_length=64)
+
+
+class BomItemOut(BaseModel):
+    id: int
+    bm_id: int
+    material_bn: str
+    material_name: str
+    material_type: int
+    bind_num: int
+    rate: float
+    fixed_price: float
+    is_virtual: int
+
+
+class BomVersionOut(BaseModel):
+    id: int
+    sm_id: int
+    version_no: int
+    status: int
+    effective_time: datetime | None
+    operator: str
+    create_time: datetime
+    items: list[BomItemOut] = Field(default_factory=list)
+
+
+class BomCandidateOut(BaseModel):
+    """FR-03d 自动绑定建议候选"""
+
+    bm_id: int
+    material_bn: str
+    material_name: str
+    owner_id: int
+    score: float
+    reason: str
+

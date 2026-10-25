@@ -70,7 +70,7 @@ async def list_brands(
     keyword: str | None = Query(default=None, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    brands = await svc.BrandService(session).list(keyword)
+    brands = await svc.BrandService(session).list_all(keyword)
     return ok([sc.BrandOut.model_validate(b) for b in brands])
 
 
@@ -98,7 +98,7 @@ async def list_materials(
     brand_id: int | None = Query(default=None, ge=0),
     session: AsyncSession = Depends(get_session),
 ):
-    mats = await svc.MaterialService(session).list(keyword, owner_id, cat_id, brand_id)
+    mats = await svc.MaterialService(session).list_all(keyword, owner_id, cat_id, brand_id)
     return ok([sc.MaterialOut.model_validate(m) for m in mats])
 
 
@@ -116,3 +116,89 @@ async def update_material(
 ):
     mat = await svc.MaterialService(session).update(material_id, data)
     return ok(sc.MaterialOut.model_validate(mat))
+
+
+# ============ 销售物料（FR-01）============
+
+@router.get("/sales-materials", summary="销售物料列表")
+async def list_sales_materials(
+    keyword: str | None = Query(default=None, max_length=128),
+    shop_id: int | None = Query(default=None, ge=1),
+    bind_status: int | None = Query(default=None, ge=0, le=1),
+    session: AsyncSession = Depends(get_session),
+):
+    sms = await svc.SalesMaterialService(session).list_all(keyword, shop_id, bind_status)
+    return ok([sc.SalesMaterialOut.model_validate(s) for s in sms])
+
+
+@router.get("/sales-materials/unbound", summary="待绑定清单（FR-01c）")
+async def list_unbound_sales_materials(
+    shop_id: int | None = Query(default=None, ge=1),
+    session: AsyncSession = Depends(get_session),
+):
+    sms = await svc.SalesMaterialService(session).unbound_list(shop_id)
+    return ok([sc.SalesMaterialOut.model_validate(s) for s in sms])
+
+
+@router.post("/sales-materials", summary="手工建档销售物料（店铺内编码唯一）")
+async def create_sales_material(
+    data: sc.SalesMaterialCreate, session: AsyncSession = Depends(get_session)
+):
+    sm = await svc.SalesMaterialService(session).create(data)
+    return ok(sc.SalesMaterialOut.model_validate(sm))
+
+
+@router.post("/sales-materials/auto", summary="拉单自动建档（幂等，FR-01a）")
+async def auto_create_sales_material(
+    data: sc.SalesMaterialAutoCreate, session: AsyncSession = Depends(get_session)
+):
+    sm, created = await svc.SalesMaterialService(session).auto_create(data)
+    return ok({"material": sc.SalesMaterialOut.model_validate(sm), "created": created})
+
+
+@router.put("/sales-materials/{sm_id}", summary="修改销售物料")
+async def update_sales_material(
+    sm_id: int, data: sc.SalesMaterialUpdate, session: AsyncSession = Depends(get_session)
+):
+    sm = await svc.SalesMaterialService(session).update(sm_id, data)
+    return ok(sc.SalesMaterialOut.model_validate(sm))
+
+
+# ============ BOM 绑定（FR-03）============
+
+@router.get("/sales-materials/{sm_id}/bom", summary="当前生效 BOM")
+async def get_current_bom(sm_id: int, session: AsyncSession = Depends(get_session)):
+    bom_svc = svc.BomService(session)
+    cur = await bom_svc.current_version(sm_id)
+    if not cur:
+        return ok(None)
+    return ok(await bom_svc.get_version(cur.id))
+
+
+@router.get("/sales-materials/{sm_id}/bom/history", summary="BOM 版本历史（变更留痕）")
+async def get_bom_history(sm_id: int, session: AsyncSession = Depends(get_session)):
+    versions = await svc.BomService(session).history(sm_id)
+    return ok(versions)
+
+
+@router.post("/sales-materials/{sm_id}/bom", summary="绑定基础物料（生成新版本）")
+async def bind_bom(
+    sm_id: int, data: sc.BomBind, session: AsyncSession = Depends(get_session)
+):
+    return ok(await svc.BomService(session).bind(sm_id, data))
+
+
+@router.delete("/sales-materials/{sm_id}/bom", summary="解绑（影响面确认由上层做）")
+async def unbind_bom(sm_id: int, session: AsyncSession = Depends(get_session)):
+    await svc.BomService(session).unbind(sm_id)
+    return ok(None)
+
+
+@router.get("/sales-materials/{sm_id}/bom/candidates", summary="自动绑定建议（FR-03d）")
+async def bom_candidates(
+    sm_id: int,
+    limit: int = Query(default=10, ge=1, le=50),
+    session: AsyncSession = Depends(get_session),
+):
+    cands = await svc.BomService(session).suggest_candidates(sm_id, limit)
+    return ok(cands)
