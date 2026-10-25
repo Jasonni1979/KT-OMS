@@ -153,3 +153,43 @@ jobs:
       - run: npm ci
       - run: npm run type-check
       - run: npm run build
+
+  # CI 状态回写分支：把本轮各 job 结果写入 ci-status 分支的 status.txt。
+  # 用途：便于在无 GitHub API 凭证的环境下（如本机走 SSH 通道）用 `git fetch origin ci-status`
+  #       读到机器可读的 CI 结论，避免只能靠邮件判断。
+  ci-status:
+    name: CI Status (回写 ci-status 分支)
+    runs-on: ubuntu-latest
+    needs: [backend, backend-with-db, mock-platform, frontend]
+    if: always()
+    permissions:
+      contents: write
+    steps:
+      - name: Publish status
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          R_BACKEND: ${{ needs.backend.result }}
+          R_BACKEND_DB: ${{ needs.backend-with-db.result }}
+          R_MOCK: ${{ needs.mock-platform.result }}
+          R_FRONTEND: ${{ needs.frontend.result }}
+        run: |
+          set -e
+          rm -rf /tmp/ci-status && mkdir -p /tmp/ci-status
+          {
+            echo "commit=${SHA}"
+            echo "updated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "backend=${R_BACKEND}"
+            echo "backend_with_db=${R_BACKEND_DB}"
+            echo "mock_platform=${R_MOCK}"
+            echo "frontend=${R_FRONTEND}"
+          } > /tmp/ci-status/status.txt
+          cat /tmp/ci-status/status.txt
+          cd /tmp/ci-status
+          git init -q
+          git config user.name "ktoms-ci"
+          git config user.email "ci@ktoms.local"
+          git add -A
+          git commit -q -m "ci: ${SHA}"
+          git push -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/ci-status
