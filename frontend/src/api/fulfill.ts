@@ -250,6 +250,52 @@ export interface DeliveryDetail {
     handle_status: string
     memo: string | null
   }[]
+  /** W7：WMS 通道轨迹（D09.02 留痕下钻） */
+  channel: {
+    available: boolean
+    cmds: {
+      id: number
+      cmd_bn: string
+      cmd_type: string
+      status: string
+      wms_bill_no: string
+      fail_reason: string
+      source: string
+      push_round: number
+      waybill_no: string
+      create_time: string
+    }[]
+    callbacks: {
+      id: number
+      callback_type: string
+      wms_batch_no: string
+      process_status: string
+      reject_reason: string
+      receive_time: string
+      create_time: string
+    }[]
+    logs: {
+      id: number
+      cmd_bn: string
+      direction: number
+      action: string
+      err_class: string
+      err_code: string
+      spend_ms: number
+      create_time: string
+    }[]
+    fails: {
+      id: number
+      cmd_bn: string
+      err_class: string
+      err_code: string
+      err_msg: string
+      retry_times: number
+      next_retry_time: string
+      status: string
+      create_time: string
+    }[]
+  }
 }
 
 export const listDeliveries = (params: {

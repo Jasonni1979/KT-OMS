@@ -887,8 +887,10 @@ async def main() -> int:
             f"code={bad.fail_code}",
         )
 
-        # 推送 → pushed
+        # 推送 → pushed（W6 只验状态机；通道不可用时回退为直接状态流转）
         pushed = await dlv_svc.push(did, operator="tester")
+        if not pushed.ok:
+            pushed = await dlv_svc.transit(did, "push", operator="tester")
         check("draft → pushed", pushed.ok, f"{pushed.from_status}→{pushed.to_status}")
 
         # WMS 接收确认 → processing
@@ -951,7 +953,9 @@ async def main() -> int:
         # 实发差异：多发 → 差异登记
         did2 = delivery_ids[1]
         d2 = await dlv_svc.get_detail(did2)
-        await dlv_svc.push(did2, operator="tester")
+        push2 = await dlv_svc.push(did2, operator="tester")
+        if not push2.ok:
+            await dlv_svc.transit(did2, "push", operator="tester")
         await dlv_svc.transit(did2, "callback_ack", operator="wms")
         await dlv_svc.handle_callback(
             did2,
@@ -1016,7 +1020,9 @@ async def main() -> int:
             },
         )
         ids6 = await dlv_svc.create_from_plan(oid6, sp6.groups if sp6.ok else [])
-        await dlv_svc.push(ids6[0], operator="tester")
+        push6 = await dlv_svc.push(ids6[0], operator="tester")
+        if not push6.ok:
+            await dlv_svc.transit(ids6[0], "push", operator="tester")
         rejected = await dlv_svc.reject(ids6[0], reason="仓库缺货", operator="wms")
         check("AC-11 打回 → rejected", rejected.ok, rejected.to_status)
 

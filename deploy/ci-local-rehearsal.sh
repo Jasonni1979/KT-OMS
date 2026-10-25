@@ -66,6 +66,9 @@ export KTOMS_MYSQL_HOST=127.0.0.1 KTOMS_MYSQL_PORT=$CI_PORT KTOMS_REDIS_URL="red
 # W6：履约域种子（分仓规则 + 拆单规则）
 (cd "$ROOT/backend" && "$PY" -m app.scripts.seed_fulfill >/tmp/ci_seed5.log 2>&1) \
   && ok "seed_fulfill" || { bad "seed_fulfill"; tail -8 /tmp/ci_seed5.log; }
+# W7：WMS 档案 + 仓×WMS 绑定（推仓通道路由需要）
+(cd "$ROOT/backend" && "$PY" -m app.scripts.seed_wms >/tmp/ci_seed6.log 2>&1) \
+  && ok "seed_wms" || { bad "seed_wms"; tail -8 /tmp/ci_seed6.log; }
 (cd "$ROOT/backend" && "$PY" -m pytest tests/ -q >/tmp/ci_pytest.log 2>&1) \
   && ok "pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_pytest.log | tail -1)）" \
   || { bad "pytest"; tail -20 /tmp/ci_pytest.log; }
@@ -79,6 +82,12 @@ echo "=== Job 3/4: Mock Platform (pytest) ==="
 (cd "$ROOT/mocks/platform" && "$PY" -m pytest tests/ -q >/tmp/ci_mock.log 2>&1) \
   && ok "mock pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mock.log | tail -1)）" \
   || { bad "mock pytest"; tail -15 /tmp/ci_mock.log; }
+
+echo "=== Job 3b/4: Mock WMS (pytest) ==="
+# W7 新增：WMS 模拟器契约测试（指令下发/叫回/状态回放/回传幂等/错误注入）
+(cd "$ROOT/mocks/wms" && "$PY" -m pytest tests/ -q >/tmp/ci_mockwms.log 2>&1) \
+  && ok "mock-wms pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mockwms.log | tail -1)）" \
+  || { bad "mock-wms pytest"; tail -15 /tmp/ci_mockwms.log; }
 
 echo "=== Job 5/5: 测试用例清单与代码同步（交付文档防脱节）==="
 (cd "$ROOT" && "$PY" tools/gen_test_doc.py --check >/tmp/ci_testdoc.log 2>&1) \
@@ -95,6 +104,43 @@ echo "=== Job 7/7: 履约链路端到端（W6：分仓→拆单→发货单状�
 (cd "$ROOT/backend" && "$PY" -m app.scripts.fulfill_e2e >/tmp/ci_fulfill.log 2>&1) \
   && ok "履约链路端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_fulfill.log | tail -1)）" \
   || { bad "履约链路端到端"; tail -25 /tmp/ci_fulfill.log; }
+
+echo "=== Job 8/8: W7 通道端到端（推仓→WMS 回放→回传→settle→发货确认→平台回传）==="
+# 自起 mock-wms（9001）与 mock-platform（9000）——CI 库需要真实 WMS 才能跑通推仓链路
+MOCK_WMS_PID=""; MOCK_PLATFORM_PID=""
+if ! "$PY" -c "import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',9001)); s.close()" >/dev/null 2>&1; then
+  (cd "$ROOT/mocks/wms" && nohup "$PY" -m uvicorn app.main:app --host 127.0.0.1 --port 9001 >/tmp/ci_mockwms_srv.log 2>&1 &) 
+  MOCK_WMS_PID="started"
+  for i in $(seq 1 20); do
+    "$PY" -c "import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',9001)); s.close()" >/dev/null 2>&1 && break
+    sleep 1
+  done
+fi
+if ! "$PY" -c "import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',9000)); s.close()" >/dev/null 2>&1; then
+  (cd "$ROOT/mocks/platform" && nohup "$PY" -m uvicorn app.main:app --host 127.0.0.1 --port 9000 >/tmp/ci_mockplat_srv.log 2>&1 &)
+  MOCK_PLATFORM_PID="started"
+  for i in $(seq 1 20); do
+    "$PY" -c "import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',9000)); s.close()" >/dev/null 2>&1 && break
+    sleep 1
+  done
+fi
+MOCK_WMS_UP=0; MOCK_PLATFORM_UP=0
+"$PY" -c "import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',9001)); s.close()" >/dev/null 2>&1 && MOCK_WMS_UP=1
+"$PY" -c "import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',9000)); s.close()" >/dev/null 2>&1 && MOCK_PLATFORM_UP=1
+if [ "$MOCK_WMS_UP" = "1" ]; then
+  (cd "$ROOT/backend" && "$PY" -m app.scripts.wms_channel_e2e >/tmp/ci_wms.log 2>&1) \
+    && ok "W7 通道端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_wms.log | tail -1)）" \
+    || { bad "W7 通道端到端"; tail -25 /tmp/ci_wms.log; }
+else
+  echo "  ⚠ 跳过 W7 通道端到端（mock-wms 未启动）"
+fi
+if [ "$MOCK_PLATFORM_UP" = "1" ]; then
+  (cd "$ROOT/backend" && "$PY" -m app.scripts.writeback_e2e >/tmp/ci_wb.log 2>&1) \
+    && ok "W7 平台回传端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_wb.log | tail -1)）" \
+    || { bad "W7 平台回传端到端"; tail -25 /tmp/ci_wb.log; }
+else
+  echo "  ⚠ 跳过 W7 平台回传端到端（mock-platform 未启动）"
+fi
 
 echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc --noEmit >/tmp/ci_tsc.log 2>&1) \

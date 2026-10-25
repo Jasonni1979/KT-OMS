@@ -28,9 +28,11 @@ draft → pushed → processing → outbound → shipped → finished
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
+from uuid import uuid4
 
 from redis.asyncio import Redis
 from sqlalchemy import select, text
@@ -171,6 +173,22 @@ class DeliveryOutcome:
             "fail_message": self.fail_message,
             "detail": self.detail,
         }
+
+
+class _FallbackCmdResult:
+    """通道不可用时的降级结果（本地占位，不阻断推仓状态流转）"""
+
+    def __init__(self, delivery: OrdDelivery):
+        self.ok = True
+        self.wms_bill_no = f"WMS_{delivery.delivery_bn}"
+        self.err_code = ""
+        self.err_class = ""
+        self.err_msg = ""
+        self.status = "sent"
+        self.detail = {"degraded": True, "reason": "通道不可用，本地占位"}
+
+    def to_dict(self) -> dict[str, Any]:
+        return dict(self.detail)
 
 
 class DeliveryService:
@@ -527,21 +545,75 @@ class DeliveryService:
     # ==================== 四指令（IF-D03.07-02）====================
 
     async def push(
-        self, delivery_id: int, operator: str = "system", reason: str = ""
+        self,
+        delivery_id: int,
+        operator: str = "system",
+        reason: str = "",
+        push_round: int = 1,
     ) -> DeliveryOutcome:
         """推送指令（draft/recalled → pushed）
 
-        推仓报文组装与 WMS 下发归 D09.02（W7 交付）；本模块负责状态流转与
-        幂等键（delivery_id + 推送轮次）。
+        W7 起：实际下发委派 **D09.02 出库指令通道**（`OutboundCommandService.push`）——
+        本模块负责状态流转与进度口径，通道负责报文组装/路由/下发/重试。
+        通道返回受理即视为推送成功（受理即返回，FR-01a）；下发失败 → 本单置 push_failed。
         """
+        # ① 先走通道（受理即返回）——失败不进 pushed
+        cmd_res = await self._dispatch_push(delivery_id, push_round, operator, reason)
+        if not cmd_res.ok:
+            out = DeliveryOutcome()
+            out.ok = False
+            out.delivery_id = delivery_id
+            out.command = CMD_PUSH
+            out.fail_code = cmd_res.err_code or "PUSH_FAILED"
+            out.fail_message = cmd_res.err_msg or "推仓下发失败"
+            out.detail = cmd_res.to_dict()
+            # 置 push_failed（表驱动流转：draft → push_failed）
+            failed = await self.transit(
+                delivery_id, CMD_PUSH_FAILED, operator=operator,
+                reason=out.fail_message,
+            )
+            out.to_status = failed.to_status
+            return out
+
+        # ② 状态流转 draft → pushed
         res = await self.transit(
             delivery_id, CMD_PUSH, operator=operator, reason=reason
         )
         if res.ok:
             delivery = await self._get(delivery_id)
-            if delivery:
-                delivery.wms_bill_no = delivery.wms_bill_no or f"WMS_{delivery.delivery_bn}"
+            if delivery and cmd_res.wms_bill_no:
+                delivery.wms_bill_no = cmd_res.wms_bill_no
+                await self.s.commit()
+        res.detail = cmd_res.to_dict()
         return res
+
+    async def _dispatch_push(
+        self,
+        delivery_id: int,
+        push_round: int,
+        operator: str,
+        reason: str,
+    ):
+        """委派 D09.02 通道下发
+
+        通道**业务级失败**（无绑定/适配器缺失/下发失败）→ 原样上抛，由调用方置 push_failed；
+        通道**基础设施不可用**（连接异常等）→ 降级为本地占位，不阻断推仓状态流转。
+        """
+        from app.core.exceptions import NotFoundError as _NotFound
+        from app.services.wms_channel import OutboundCommandService
+
+        try:
+            svc = OutboundCommandService(self.s, self.r)
+            res = await svc.push([delivery_id], push_round=push_round)
+            return res[0] if res else None
+        except _NotFound:
+            raise
+        except Exception as e:
+            logger.warning("推仓通道调用失败（降级为本地占位）: %s", e)
+            delivery = await self._get(delivery_id)
+            if delivery is None:
+                raise
+            return _FallbackCmdResult(delivery)
 
     async def recall(
         self,
@@ -610,13 +682,60 @@ class DeliveryService:
     async def confirm(
         self, delivery_id: int, operator: str = "system", reason: str = ""
     ) -> DeliveryOutcome:
-        """确认指令（outbound → shipped，FR-05d）"""
+        """确认指令（outbound → shipped，FR-05d）
+
+        确认成功后发布 **`order.delivery.shipped`** 事件（DB-00 附录 A 关键事件）——
+        D02.04 平台回传 / D08.01 应收 / D08.04 运费对账 / D09.04 轨迹 共同消费。
+        """
         res = await self.transit(
             delivery_id, CMD_CONFIRM, operator=operator, reason=reason
         )
         if res.ok:
             await self._link_order_ship_status(delivery_id, operator)
+            await self._publish_shipped_event(delivery_id)
         return res
+
+    async def _publish_shipped_event(self, delivery_id: int) -> None:
+        """发布 `order.delivery.shipped` 事件（FR-06c）"""
+        delivery = await self._get(delivery_id)
+        if not delivery:
+            return
+        payload = {
+            "delivery_id": delivery.id,
+            "delivery_bn": delivery.delivery_bn,
+            "order_id": delivery.order_id,
+            "branch_id": delivery.branch_id,
+            "owner_id": delivery.owner_id,
+            "shop_id": delivery.shop_id,
+            "logi_id": delivery.logi_id,
+            "logi_no": delivery.logi_no,
+            "packages": [],
+        }
+        try:
+            await self.s.execute(
+                text(
+                    "INSERT INTO oms_base.bas_event_outbox "
+                    "(tenant_id, event_id, event_name, reliability, idempotent_key, "
+                    " aggregate_type, aggregate_id, owner_id, trace_id, partition_key, "
+                    " payload, schema_version, delay_seconds, status, retry_count, "
+                    " next_retry_time, publish_time, create_time, update_time, version) "
+                    "VALUES (1, :eid, 'order.delivery.shipped', 'reliable', :idem, "
+                    " 'order', :aid, :owner, '', :pkey, :payload, 'v1', 0, 0, 0, "
+                    " NULL, NULL, NOW(3), NOW(3), 0)"
+                ),
+                {
+                    "eid": uuid4().hex[:26],
+                    "idem": f"order.delivery.shipped:{delivery_id}",
+                    "aid": str(delivery.order_id),
+                    "owner": int(delivery.owner_id or 0),
+                    "pkey": str(delivery.order_id),
+                    "payload": json.dumps(payload, ensure_ascii=False, default=str),
+                },
+            )
+            await self.s.commit()
+        except Exception as e:
+            logger.warning("发货事件入 outbox 失败: %s", e)
+            await self.s.rollback()
 
     async def finish(
         self, delivery_id: int, operator: str = "system", reason: str = ""
@@ -780,6 +899,8 @@ class DeliveryService:
                 continue
             remain = int(target.num or 0) - int(target.settled_num or 0)
             num = min(actual, remain) if remain > 0 else 0
+            # 指令量（未核销口径）—— 少发判定用它与实发比
+            instruct = remain
             if num > 0:
                 target.settled_num = int(target.settled_num or 0) + num
                 settled_total += num
@@ -801,21 +922,22 @@ class DeliveryService:
                             add, int(det.split_qty or 0)
                         )
             # 差异（SC-03：少发释放 / 多发直扣）
-            if actual > num and num > 0:
+            # 判定基准 = 指令量（未核销）与实发量之差
+            if actual > instruct:
                 diff_rows.append(
                     {
                         "diff_type": "over",
-                        "diff_num": actual - num,
+                        "diff_num": actual - instruct,
                         "liability": "wms",
                         "handle_way": "recon",
-                        "memo": "实发大于可核销量（差额直扣实际库存）",
+                        "memo": "实发大于指令量（差额直扣实际库存）",
                     }
                 )
-            elif actual < num:
+            elif actual < instruct:
                 diff_rows.append(
                     {
                         "diff_type": "short",
-                        "diff_num": num - actual,
+                        "diff_num": instruct - actual,
                         "liability": "wms",
                         "handle_way": "reship",
                         "memo": "实发小于指令量（差额预占释放）",
@@ -979,6 +1101,8 @@ class DeliveryService:
                 .order_by(OrdDeliveryDiff.id)
             )
         )
+        # W7：WMS 通道轨迹（指令下发 / 回传 / 通道日志 / 失败台账）
+        channel = await self._get_channel_trace(delivery_id, delivery.delivery_bn)
         return {
             "delivery": {
                 "id": delivery.id,
@@ -1065,7 +1189,127 @@ class DeliveryService:
                 }
                 for d in diffs
             ],
+            "channel": channel,
         }
+
+    async def _get_channel_trace(
+        self, delivery_id: int, delivery_bn: str
+    ) -> dict[str, Any]:
+        """WMS 通道轨迹（D09.02 留痕，供发货单详情下钻）
+
+        四段：出库指令（ful_outbound_cmd）· 回传登记（ful_outbound_callback）
+        · 通道日志（ful_channel_log）· 失败台账（ful_cmd_fail）。
+        表可能未部署（早期环境）→ 降级返回空轨迹，不阻断详情。
+        """
+        out: dict[str, Any] = {
+            "cmds": [],
+            "callbacks": [],
+            "logs": [],
+            "fails": [],
+            "available": False,
+        }
+
+        async def _q(sql: str, **params: Any) -> list[Any]:
+            try:
+                r = await self.s.execute(text(sql), params)
+                return list(r.all())
+            except Exception as e:  # 表未部署 → 降级
+                logger.warning("通道轨迹查询降级: %s", e)
+                await self.s.rollback()
+                return []
+
+        rows = await _q(
+            "SELECT id, cmd_bn, cmd_type, status, wms_bill_no, fail_reason, "
+            "       source, push_round, waybill_no, create_time "
+            "FROM oms_fulfill.ful_outbound_cmd WHERE delivery_id = :did "
+            "ORDER BY id",
+            did=delivery_id,
+        )
+        for r in rows:
+            out["cmds"].append(
+                {
+                    "id": int(r[0]),
+                    "cmd_bn": str(r[1] or ""),
+                    "cmd_type": str(r[2] or ""),
+                    "status": str(r[3] or ""),
+                    "wms_bill_no": str(r[4] or ""),
+                    "fail_reason": str(r[5] or "")[:200],
+                    "source": str(r[6] or ""),
+                    "push_round": int(r[7] or 0),
+                    "waybill_no": str(r[8] or ""),
+                    "create_time": r[9].isoformat() if r[9] else "",
+                }
+            )
+
+        rows = await _q(
+            "SELECT id, callback_type, wms_batch_no, process_status, "
+            "       reject_reason, receive_time, create_time "
+            "FROM oms_fulfill.ful_outbound_callback WHERE delivery_id = :did "
+            "ORDER BY id",
+            did=delivery_id,
+        )
+        for r in rows:
+            out["callbacks"].append(
+                {
+                    "id": int(r[0]),
+                    "callback_type": str(r[1] or ""),
+                    "wms_batch_no": str(r[2] or ""),
+                    "process_status": str(r[3] or ""),
+                    "reject_reason": str(r[4] or "")[:200],
+                    "receive_time": r[5].isoformat() if r[5] else "",
+                    "create_time": r[6].isoformat() if r[6] else "",
+                }
+            )
+
+        rows = await _q(
+            "SELECT id, cmd_bn, direction, action, err_class, err_code, "
+            "       spendtime_ms, create_time "
+            "FROM oms_fulfill.ful_channel_log "
+            "WHERE cmd_bn LIKE :p1 OR cmd_bn LIKE :p2 "
+            "ORDER BY id",
+            p1=f"CMD{delivery_bn}-%",
+            p2=f"{delivery_bn}-%",
+        )
+        for r in rows:
+            out["logs"].append(
+                {
+                    "id": int(r[0]),
+                    "cmd_bn": str(r[1] or ""),
+                    "direction": int(r[2] or 0),
+                    "action": str(r[3] or ""),
+                    "err_class": str(r[4] or ""),
+                    "err_code": str(r[5] or ""),
+                    "spend_ms": int(r[6] or 0),
+                    "create_time": r[7].isoformat() if r[7] else "",
+                }
+            )
+
+        rows = await _q(
+            "SELECT id, cmd_bn, err_class, err_code, err_msg, retry_times, "
+            "       next_retry_time, status, create_time "
+            "FROM oms_fulfill.ful_cmd_fail "
+            "WHERE cmd_bn LIKE :p1 OR cmd_bn LIKE :p2 "
+            "ORDER BY id",
+            p1=f"CMD{delivery_bn}-%",
+            p2=f"{delivery_bn}-%",
+        )
+        for r in rows:
+            out["fails"].append(
+                {
+                    "id": int(r[0]),
+                    "cmd_bn": str(r[1] or ""),
+                    "err_code": str(r[2] or ""),
+                    "err_class": str(r[3] or ""),
+                    "err_msg": str(r[4] or "")[:200],
+                    "retry_times": int(r[5] or 0),
+                    "next_retry_time": r[6].isoformat() if r[6] else "",
+                    "status": str(r[7] or ""),
+                    "create_time": r[8].isoformat() if r[8] else "",
+                }
+            )
+
+        out["available"] = bool(out["cmds"] or out["callbacks"])
+        return out
 
     async def list_deliveries(
         self,

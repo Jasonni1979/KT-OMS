@@ -310,6 +310,61 @@ onMounted(async () => {
                 <el-table-column prop="reason" label="原因" min-width="180" />
               </el-table>
             </el-tab-pane>
+            <el-tab-pane label="WMS 通道轨迹" name="channel">
+              <div class="channel-block">
+                <div class="channel-title">出库指令（D09.02 · ful_outbound_cmd）</div>
+                <el-table :data="currentDetail.channel.cmds" border size="small" empty-text="未下发指令">
+                  <el-table-column prop="cmd_bn" label="指令单号" width="180" />
+                  <el-table-column prop="cmd_type" label="类型" width="80" />
+                  <el-table-column prop="status" label="状态" width="100" />
+                  <el-table-column prop="wms_bill_no" label="WMS单号" width="130" />
+                  <el-table-column prop="waybill_no" label="运单号" width="140" />
+                  <el-table-column prop="push_round" label="轮次" width="70" />
+                  <el-table-column prop="fail_reason" label="失败原因" min-width="160" />
+                  <el-table-column prop="create_time" label="下发时间" width="180" />
+                </el-table>
+
+                <div class="channel-title">回传登记（D09.02 · ful_outbound_callback）</div>
+                <el-table :data="currentDetail.channel.callbacks" border size="small" empty-text="暂无回传">
+                  <el-table-column prop="callback_type" label="回传类型" width="110" />
+                  <el-table-column prop="wms_batch_no" label="批次号" width="140" />
+                  <el-table-column prop="process_status" label="处理状态" width="110" />
+                  <el-table-column prop="reject_reason" label="拒收原因" min-width="140" />
+                  <el-table-column prop="receive_time" label="接收时间" width="180" />
+                </el-table>
+
+                <div class="channel-title">失败台账（D09.02 · ful_cmd_fail）</div>
+                <el-table :data="currentDetail.channel.fails" border size="small" empty-text="无失败记录">
+                  <el-table-column prop="cmd_bn" label="指令单号" width="180" />
+                  <el-table-column label="分级" width="110">
+                    <template #default="{ row }">
+                      <el-tag :type="row.err_class === 'RETRYABLE' ? 'warning' : 'danger'" size="small">
+                        {{ row.err_class || '—' }}
+                      </el-tag>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="err_code" label="错误码" width="160" />
+                  <el-table-column prop="err_msg" label="错误信息" min-width="180" />
+                  <el-table-column prop="retry_times" label="重试次数" width="90" />
+                  <el-table-column prop="next_retry_time" label="下次重试" width="180" />
+                  <el-table-column prop="status" label="状态" width="90" />
+                </el-table>
+
+                <div class="channel-title">通道日志（D09.02 · ful_channel_log）</div>
+                <el-table :data="currentDetail.channel.logs" border size="small" empty-text="无通道日志">
+                  <el-table-column prop="create_time" label="时间" width="180" />
+                  <el-table-column prop="cmd_bn" label="指令单号" width="180" />
+                  <el-table-column label="方向" width="80">
+                    <template #default="{ row }">
+                      {{ row.direction === 1 ? '下行' : '上行' }}
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="action" label="动作" width="150" />
+                  <el-table-column prop="err_code" label="错误码" width="150" />
+                  <el-table-column prop="spend_ms" label="耗时(ms)" width="100" />
+                </el-table>
+              </div>
+            </el-tab-pane>
             <el-tab-pane label="差异登记" name="diffs">
               <el-table :data="currentDetail.diffs" border size="small">
                 <el-table-column prop="diff_type" label="差异类型" width="100" />
@@ -334,4 +389,6 @@ onMounted(async () => {
 .filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .cmd-bar { display: flex; align-items: center; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
 .cmd-label { font-size: 13px; color: #606266; }
+.channel-block { display: flex; flex-direction: column; gap: 8px; }
+.channel-title { font-size: 13px; font-weight: 600; color: #409eff; margin-top: 6px; }
 </style>

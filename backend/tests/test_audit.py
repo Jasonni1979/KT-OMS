@@ -811,7 +811,7 @@ async def _make_order(auth_client) -> tuple[int, int]:
             )
             owner_id = owner.id if owner else 5
     r = await auth_client.post("/api/v1/material/materials", json={
-        "material_bn": f"T_AUDIT_{shop_id}_{__import__('time').time_ns() % 100000}",
+        "material_bn": f"T_AUDIT_{shop_id}_{__import__('time').time_ns() % 1000000000}",
         "material_name": "审单测试物料", "owner_id": owner_id, "type": 3,
     })
     body = r.json()
@@ -821,7 +821,8 @@ async def _make_order(auth_client) -> tuple[int, int]:
     # 注：用 engine.begin() 裸连接绕开 fail-closed 数据权限（测试造数豁免通道）
     from app.core.db import engine
 
-    order_bn = f"TAUDIT{__import__('time').time_ns() % 100000000}"
+    # order_bn 限 varchar(32)：时间戳后 8 位 + uuid 6 位足够唯一
+    order_bn = f"TA{__import__('time').time_ns() % 100000000:08d}{_uid()[:6]}"
     async with engine.begin() as conn:
         await conn.execute(
             text(
