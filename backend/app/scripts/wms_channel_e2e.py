@@ -30,7 +30,8 @@ from app.services.master import get_redis
 from app.services.wms_channel import OutboundCommandService
 from app.services.wms_events import WmsEventDispatcher
 
-MOCK_WMS = "http://127.0.0.1:9001"
+#: WMS 模拟器地址（可由 MOCK_WMS_ENDPOINT 覆盖——CI 自起模拟器时注入）
+MOCK_WMS = os.environ.get("MOCK_WMS_ENDPOINT", "http://127.0.0.1:9001")
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -766,4 +767,19 @@ async def _clean_e2e(s) -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
+    # 支持自起 WMS 模拟器（CI 无常驻模拟器时用 --with-mock）
+    _proc = None
+    if "--with-mock" in sys.argv:
+        from app.scripts._mockctl import start_mock, stop_mock
+
+        _proc, _url = start_mock("wms")
+        print(f"[wms-channel] mock-wms 已启动：{_url}")
+        # 端口在 import 时已解析 → 需重设模块级常量
+        globals()["MOCK_WMS"] = _url
+    try:
+        sys.exit(asyncio.run(main()))
+    finally:
+        if _proc is not None:
+            from app.scripts._mockctl import stop_mock
+
+            stop_mock(_proc)

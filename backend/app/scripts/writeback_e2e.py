@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 from typing import Any
 
@@ -25,7 +26,8 @@ from app.services.master import get_redis
 from app.services.wms_events import WmsEventDispatcher
 from app.services.writeback import WritebackService
 
-MOCK_PLATFORM = "http://127.0.0.1:9000"
+#: 平台模拟器地址（可由 MOCK_PLATFORM_ENDPOINT 覆盖——CI 自起模拟器时注入）
+MOCK_PLATFORM = os.environ.get("MOCK_PLATFORM_ENDPOINT", "http://127.0.0.1:9000")
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -60,27 +62,11 @@ async def main() -> int:
 
     async with SessionFactory() as s:
         # 清理上一轮残留（W7 幂等重跑）
-        await s.execute(
-            text(
-                "DELETE FROM oms_gateway.gw_writeback_task "
-                "WHERE biz_ref = 'W7WBDLV001'"
-            )
-        )
-        await s.execute(
-            text(
-                "DELETE FROM oms_order.ord_delivery WHERE delivery_bn = 'W7WBDLV001'"
-            )
-        )
-        await s.execute(
-            text(
-                "DELETE FROM oms_order.ord_order_item WHERE order_id IN "
-                "(SELECT id FROM oms_order.ord_order WHERE order_bn = 'W7WB_ORDER1')"
-            )
-        )
-        await s.execute(
-            text("DELETE FROM oms_order.ord_order WHERE order_bn = 'W7WB_ORDER1'")
-        )
-        await s.commit()
+        # ⚠ 统一走 _clean_e2e()：它按 **FK 顺序**（先子表后父表）删除。
+        #   本段原先先删 gw_writeback_task（父）→ gw_api_fail 外键报错 → 整段
+        #   rollback → 台账残留 → OMS 判「已回传过（幂等）」跳过真实下发 →
+        #   模拟器收不到 → 断言失败（且失败被伪装成"平台侧没留档"）。
+        await _clean_e2e(s)
 
         # 自造 OMS 订单 + 已发货发货单（platform_order_bn 对齐平台模拟器订单）
         await s.execute(
@@ -295,4 +281,18 @@ async def _clean_e2e(s) -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
+    # 支持自起平台模拟器（CI 无常驻模拟器时用 --with-mock）
+    _proc = None
+    if "--with-mock" in sys.argv:
+        from app.scripts._mockctl import start_mock, stop_mock
+
+        _proc, _url = start_mock("platform")
+        print(f"[writeback] mock-platform 已启动：{_url}")
+        globals()["MOCK_PLATFORM"] = _url
+    try:
+        sys.exit(asyncio.run(main()))
+    finally:
+        if _proc is not None:
+            from app.scripts._mockctl import stop_mock
+
+            stop_mock(_proc)

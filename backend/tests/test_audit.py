@@ -160,17 +160,22 @@ def test_condition_regex_and_time_window():
         {"items": [{"dim": "sku", "op": "regex", "value": "^SKU-.*"}]}), ctx).hit
     assert not evaluate(ConditionGroup.from_dict(
         {"items": [{"dim": "sku", "op": "regex", "value": "^XXX"}]}), ctx).hit
-    # 跨零点窗口 23:00-02:00：当前下午 → 不在窗口内
-    w = TimeWindow(start="23:00", end="02:00")
-    assert not w.matches()
-    # 全天窗口 → 在窗口内
-    w2 = TimeWindow(start="00:00", end="23:59")
-    assert w2.matches()
-    # 跨零点语义：01:00 落在 23:00-02:00 内
+    # 跨零点窗口 23:00-02:00
+    # ⚠ 必须注入固定时间——原用例用「当前下午」做假设，每天 23:00~02:00 之间
+    #   必然失败（时间炸弹测试）。CI 换时段跑就会出现"偶发红"。
     import datetime
 
+    w = TimeWindow(start="23:00", end="02:00")
+    assert not w.matches(datetime.datetime(2026, 10, 25, 15, 0))   # 下午 → 不在窗内
+    assert w.matches(datetime.datetime(2026, 10, 25, 23, 30))      # 23:30 → 在窗内
+    # 全天窗口 → 在窗口内
+    w2 = TimeWindow(start="00:00", end="23:59")
+    assert w2.matches(datetime.datetime(2026, 10, 25, 15, 0))
+    # 跨零点语义：01:00 落在 23:00-02:00 内
     w3 = TimeWindow(start="23:00", end="02:00")
     assert w3.matches(datetime.datetime(2026, 10, 25, 1, 0))
+    # 跨零点语义：03:00 不在 23:00-02:00 内
+    assert not w3.matches(datetime.datetime(2026, 10, 25, 3, 0))
 
 
 # ============ D01.03 插件链设施 ============

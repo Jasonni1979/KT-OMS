@@ -51,28 +51,6 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          python-version: "3.12"
-      - name: Sync dependencies
-        run: uv sync --all-extras
-      - name: Ruff lint
-        run: uv run ruff check app tests
-      - name: Mypy
-        run: uv run mypy app --ignore-missing-imports
-
-  backend-with-db:
-    name: Backend (pytest + MySQL/Redis)
-    runs-on: ubuntu-latest
-    needs: backend
-    permissions:
-      contents: write   # 供失败时回写 ci-dbg 诊断分支
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - uses: actions/checkout@v4
 
       - name: Setup MySQL & Redis（使用 runner 自带服务）
         run: |
@@ -194,6 +172,136 @@ jobs:
       - name: Pytest
         run: pytest tests/ -q
 
+  # ============ 以下门禁与本地 deploy/ci-local-rehearsal.sh 保持一致 ============
+  # 本地 12 项门禁 vs GitHub CI 原先只有 5 项 → 团队成员 PR 过的 CI 比本地松，
+  # 协作质量闸门形同虚设。此处补齐缺失的 7 项。
+
+  model-ddl:
+    name: 模型 ↔ DDL 列一致性（W5/W6/W7 连续多轮踩过 DDL 列名坑）
+    runs-on: ubuntu-latest
+    needs: backend
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+      - name: Sync dependencies
+        run: uv sync --all-extras
+      - name: Check ORM ↔ information_schema
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: |
+          sudo systemctl start mysql || sudo service mysql start
+          sudo systemctl start redis-server || sudo service redis-server start
+          for i in $(seq 1 60); do
+            mysqladmin ping -h 127.0.0.1 -P 3306 --silent >/dev/null 2>&1 && break
+            sleep 3
+          done
+          for f in ../docs/database/sql/*.sql; do
+            mysql -h 127.0.0.1 -P 3306 -uroot < "$f"
+          done
+          uv run python ../tools/check_model_ddl.py
+
+  mock-wms:
+    name: Mock WMS (模拟器 pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mocks/wms
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest httpx
+      - name: Pytest
+        run: pytest tests/ -q
+
+  e2e:
+    name: 端到端（场景矩阵 / 履约 / W7 通道 / 平台回传）
+    runs-on: ubuntu-latest
+    needs: backend-with-db
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup MySQL & Redis（runner 自带服务）
+        run: |
+          sudo systemctl start mysql || sudo service mysql start
+          sudo systemctl start redis-server || sudo service redis-server start
+          for i in $(seq 1 60); do
+            mysqladmin ping -h 127.0.0.1 -P 3306 --silent >/dev/null 2>&1 && break
+            if [ "$i" = "60" ]; then echo "::error::MySQL 启动超时"; exit 1; fi
+            sleep 3
+          done
+          for i in $(seq 1 30); do
+            redis-cli -h 127.0.0.1 -p 6379 ping 2>/dev/null | grep -q PONG && break
+            if [ "$i" = "30" ]; then echo "::error::Redis 启动超时"; exit 1; fi
+            sleep 2
+          done
+      - name: Load DDL（373 表）
+        run: |
+          for f in ../docs/database/sql/*.sql; do
+            mysql -h 127.0.0.1 -P 3306 -uroot < "$f"
+          done
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+      - name: Sync dependencies + seed
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: |
+          uv sync --all-extras
+          uv run python -m app.scripts.seed_org
+          uv run python -m app.scripts.seed_auth
+          uv run python -m app.scripts.seed_import
+          uv run python -m app.scripts.seed_fulfill
+          uv run python -m app.scripts.seed_wms
+      # ⚠ --with-mock：E2E 自行拉起模拟器（标准端口 9000 平台 / 9001 WMS）
+      - name: 业务场景端到端
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.scenario_e2e --with-mock
+      - name: 履约链路端到端
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.fulfill_e2e
+      - name: 造单场景矩阵端到端
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.scenario_matrix_e2e --with-mock
+      - name: W7 通道端到端
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.wms_channel_e2e --with-mock
+      - name: W7 平台回传端到端
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.writeback_e2e --with-mock
+
   frontend:
     name: Frontend (type-check + build)
     runs-on: ubuntu-latest
@@ -217,7 +325,7 @@ jobs:
   ci-status:
     name: CI Status (回写 ci-status 分支)
     runs-on: ubuntu-latest
-    needs: [backend, backend-with-db, mock-platform, frontend]
+    needs: [backend, backend-with-db, model-ddl, mock-platform, mock-wms, e2e, frontend]
     if: always()
     permissions:
       contents: write
@@ -234,6 +342,9 @@ jobs:
           R_BACKEND_DB: ${{ needs.backend-with-db.result }}
           R_MOCK: ${{ needs.mock-platform.result }}
           R_FRONTEND: ${{ needs.frontend.result }}
+        R_MODEL_DDL: ${{ needs.model-ddl.result }}
+        R_MOCK_WMS: ${{ needs.mock-wms.result }}
+        R_E2E: ${{ needs.e2e.result }}
         run: |
           set -e
           rm -rf /tmp/ci-status && mkdir -p /tmp/ci-status
@@ -244,6 +355,9 @@ jobs:
             echo "backend_with_db=${R_BACKEND_DB}"
             echo "mock_platform=${R_MOCK}"
             echo "frontend=${R_FRONTEND}"
+            echo "model_ddl=${R_MODEL_DDL}"
+            echo "mock_wms=${R_MOCK_WMS}"
+            echo "e2e=${R_E2E}"
           } > /tmp/ci-status/status.txt
           cat /tmp/ci-status/status.txt
           cd /tmp/ci-status
@@ -265,6 +379,9 @@ jobs:
           R_BACKEND_DB: ${{ needs.backend-with-db.result }}
           R_MOCK: ${{ needs.mock-platform.result }}
           R_FRONTEND: ${{ needs.frontend.result }}
+        R_MODEL_DDL: ${{ needs.model-ddl.result }}
+        R_MOCK_WMS: ${{ needs.mock-wms.result }}
+        R_E2E: ${{ needs.e2e.result }}
         run: |
           set -e
           rm -rf /tmp/ci-logs && mkdir -p /tmp/ci-logs
