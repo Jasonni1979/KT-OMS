@@ -1,0 +1,8 @@
+# CI self-diagnose (commit ba20c4dc85db7cb3e0de7a94253e8e637c85ce72)
+--- container ps ---
+--- mysql tables ---
+Error response from daemon: No such container: ktoms-ci-mysql
+--- start snapshot ---
+(无启动快照)
+--- pytest tail ---
+(无 pytest 日志)
