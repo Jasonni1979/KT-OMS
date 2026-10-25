@@ -1,4 +1,5 @@
-FROM python:3.12-slim
+# 基础镜像走 1ms.run 代理源（Docker Hub 直连在本机超时，参见项目记忆）
+FROM docker.1ms.run/library/python:3.12-slim
 
 WORKDIR /app
 
