@@ -213,7 +213,9 @@ class StockLedgerService:
         await self.s.commit()
 
         # ⑤ 同步 Redis（Lua 原子；miss → 回填；失败不影响 DB 权威，由对账兜底）
-        await self._sync_redis(req, planned)
+        #    预占/核销场景 Redis 已由 FreezeService 的 Lua 原子更新 → 跳过，避免重复累加
+        if not req.redis_synced:
+            await self._sync_redis(req, planned)
 
         fresh = await self.get_row(req.branch_id, req.bm_id, req.owner_id)
         balances = {

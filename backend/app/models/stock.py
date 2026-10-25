@@ -223,3 +223,41 @@ class InvStockReconDiff(Base):
     update_time: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )
+
+
+class InvFreezeLog(Base):
+    """预占台账（SRS-D04.03：Redis 实时口径 + DB 业务追溯双写）"""
+
+    __tablename__ = "inv_freeze_log"
+    __table_args__ = {"schema": "oms_stock"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1, index=True)
+    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    obj_type: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1订单,2售后换货,3调拨,4人工,5借调"
+    )
+    obj_bn: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    obj_item_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    branch_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    bm_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, index=True)
+    shop_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    num: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="预占数量>0")
+    settled_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="已核销数量")
+    released_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="已释放数量")
+    status: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, comment="1已生效,2部分核销,3已核销,4已释放"
+    )
+    expire_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
+    lend_owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    lend_ledger_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    source: Mapped[str] = mapped_column(String(32), nullable=False, default="audit")
+    is_compensated: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=0, comment="Saga补偿标记:0正常,1已补偿回滚"
+    )
+    idempotent_key: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

@@ -31,6 +31,10 @@ class StockChangeRequest(BaseModel):
     operator: str = Field(default="", max_length=64)
     source: str = Field(default="oms", max_length=32, description="manual/oms/wms/migration")
     remark: str = Field(default="", max_length=255)
+    redis_synced: bool = Field(
+        default=False,
+        description="Redis 已由调用方原子更新（预占/核销走 Lua 先行），跳过 Redis 同步避免重复累加",
+    )
 
 
 class StockLedgerOut(BaseModel):
@@ -127,3 +131,97 @@ class SnapshotOut(BaseModel):
     available_num: int
     unit_cost: float
     inventory_cost: float
+
+
+# ============ 预占（FR-D04.03）============
+
+FREEZE_OBJ_TYPES = {1: "订单", 2: "售后换货", 3: "调拨", 4: "人工", 5: "借调"}
+FREEZE_STATUS_LABEL = {1: "已生效", 2: "部分核销", 3: "已核销", 4: "已释放"}
+
+
+class FreezeReserveItem(BaseModel):
+    """单行预占请求"""
+
+    branch_id: int = Field(gt=0)
+    bm_id: int = Field(gt=0)
+    owner_id: int = Field(gt=0)
+    num: int = Field(gt=0, description="预占数量>0")
+    shop_id: int = Field(default=0, ge=0)
+    obj_item_id: int = Field(default=0, ge=0, description="对象行ID（幂等键成分）")
+
+
+class FreezeReserveRequest(BaseModel):
+    """统一预占入口（FR-01a：对象类型 + 单据引用 + 三元键 + 数量）"""
+
+    obj_type: int = Field(default=1, ge=1, le=5, description="1订单,2售后换货,3调拨,4人工,5借调")
+    obj_bn: str = Field(min_length=1, max_length=32, description="对象单号")
+    items: list[FreezeReserveItem] = Field(min_length=1, description="逐行预占（Saga）")
+    source: str = Field(default="audit", max_length=32, description="audit/manual/compensate/wms")
+    lend_owner_id: int = Field(default=0, ge=0, description="借出货主（借调预占必填）")
+    ttl_hours: int | None = Field(default=None, ge=1, le=720, description="覆盖默认有效期（小时）")
+
+
+class FreezeReleaseRequest(BaseModel):
+    """释放请求（FR-02a：按单据引用定位未核销流水）"""
+
+    obj_type: int = Field(default=1, ge=1, le=5)
+    obj_bn: str = Field(min_length=1, max_length=32)
+    obj_item_id: int | None = Field(default=None, ge=0, description="为空=释放该单全部未核销行")
+    num: int | None = Field(default=None, gt=0, description="为空=全额释放")
+    operator: str = Field(default="", max_length=64)
+
+
+class FreezeSettleRequest(BaseModel):
+    """转扣减请求（FR-03a：出库回传触发 freeze-N & store-N）"""
+
+    obj_type: int = Field(default=1, ge=1, le=5)
+    obj_bn: str = Field(min_length=1, max_length=32)
+    obj_item_id: int = Field(default=0, ge=0)
+    num: int = Field(gt=0, description="本次核销数量（支持部分核销）")
+    bill_type: str = Field(default="sale_out", max_length=32)
+    bill_bn: str = Field(default="", max_length=32)
+    bill_item_id: int = Field(default=0, ge=0)
+    operator: str = Field(default="", max_length=64)
+
+
+class FreezeLogOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    owner_id: int
+    obj_type: int
+    obj_bn: str
+    obj_item_id: int
+    branch_id: int
+    bm_id: int
+    shop_id: int
+    num: int
+    settled_num: int
+    released_num: int
+    status: int
+    expire_time: datetime | None
+    source: str
+    is_compensated: int
+    idempotent_key: str
+    create_time: datetime
+
+
+class FreezeResult(BaseModel):
+    """预占结果"""
+
+    idempotent: bool
+    obj_type: int
+    obj_bn: str
+    reserved_num: int = 0
+    available_after: int = 0
+    logs: list[FreezeLogOut] = Field(default_factory=list)
+    compensated: bool = Field(description="True=Saga 补偿回滚了部分行")
+
+
+class FreezeAgeOut(BaseModel):
+    """账龄分析（FR-04a：在途预占按时长分级）"""
+
+    total: int
+    age_24h: int
+    age_48h: int
+    age_72h: int
+    expired_pending: int

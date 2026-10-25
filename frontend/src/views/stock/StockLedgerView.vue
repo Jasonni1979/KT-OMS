@@ -21,6 +21,10 @@ const filterBranch = ref<number | undefined>(undefined)
 const filterOwner = ref<number | undefined>(undefined)
 const tab = ref<'balance' | 'diff'>('balance')
 
+const DIFF_STATUS_LABEL: Record<number, string> = {
+  1: '待处理', 2: '已自动修复', 3: '已人工处理', 4: '误报忽略',
+}
+
 const adjustDialog = reactive({
   visible: false,
   form: {
@@ -172,7 +176,7 @@ onMounted(() => { load(); loadRefs(); loadDiffs() })
           <el-table-column label="状态" width="110">
             <template #default="{ row }">
               <el-tag size="small" :type="row.status === 2 ? 'success' : row.status === 1 ? 'warning' : 'info'">
-                {{ { 1: '待处理', 2: '已自动修复', 3: '已人工处理', 4: '误报忽略' }[row.status] }}
+                {{ DIFF_STATUS_LABEL[row.status] ?? row.status }}
               </el-tag>
             </template>
           </el-table-column>

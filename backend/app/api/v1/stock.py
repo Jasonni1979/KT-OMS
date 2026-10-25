@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_session
 from app.core.response import ok
 from app.schemas import stock as sc
+from app.services.freeze import FreezeService
 from app.services.master import get_redis
 from app.services.stock_ledger import StockLedgerService
 from app.services.stock_recon import ReconService
@@ -109,3 +110,64 @@ async def make_snapshot(session: AsyncSession = Depends(get_session)):
     redis = await get_redis()
     count = await StockLedgerService(session, redis).make_snapshot()
     return ok({"created": count})
+
+
+# ============ 预占（SRS-D04.03）============
+
+@router.post("/freeze/reserve", summary="预占（Redis 原子防超卖 + 台账 + Saga 补偿）")
+async def freeze_reserve(
+    data: sc.FreezeReserveRequest, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    result = await FreezeService(session, redis).reserve(data)
+    return ok(result)
+
+
+@router.post("/freeze/release", summary="释放（取消/驳回；重复释放幂等）")
+async def freeze_release(
+    data: sc.FreezeReleaseRequest, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    result = await FreezeService(session, redis).release(data)
+    return ok(result)
+
+
+@router.post("/freeze/settle", summary="转扣减（出库回传：freeze-N & store-N，支持部分核销）")
+async def freeze_settle(
+    data: sc.FreezeSettleRequest, session: AsyncSession = Depends(get_session)
+):
+    redis = await get_redis()
+    result = await FreezeService(session, redis).settle(data)
+    return ok(result)
+
+
+@router.post("/freeze/expire-reclaim", summary="过期回收（FR-02b：超期未核销自动释放）")
+async def freeze_expire_reclaim(session: AsyncSession = Depends(get_session)):
+    redis = await get_redis()
+    result = await FreezeService(session, redis).expire_reclaim()
+    return ok(result)
+
+
+@router.get("/freeze/logs", summary="预占台账查询（多维）")
+async def freeze_logs(
+    obj_type: int | None = Query(default=None, ge=1, le=5),
+    obj_bn: str | None = Query(default=None, max_length=32),
+    branch_id: int | None = Query(default=None, ge=1),
+    bm_id: int | None = Query(default=None, ge=1),
+    owner_id: int | None = Query(default=None, ge=1),
+    status: int | None = Query(default=None, ge=1, le=4),
+    limit: int = Query(default=100, ge=1, le=500),
+    session: AsyncSession = Depends(get_session),
+):
+    redis = await get_redis()
+    logs = await FreezeService(session, redis).query_logs(
+        obj_type, obj_bn, branch_id, bm_id, owner_id, status, limit
+    )
+    return ok(logs)
+
+
+@router.get("/freeze/age", summary="在途预占账龄分析（FR-04a）")
+async def freeze_age(session: AsyncSession = Depends(get_session)):
+    redis = await get_redis()
+    age = await FreezeService(session, redis).age_analysis()
+    return ok(age)
