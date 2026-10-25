@@ -67,6 +67,10 @@ services:
       MOCK_TAOBAO_APP_KEY: mock_app_key
       MOCK_TAOBAO_APP_SECRET: mock_app_secret
       MOCK_TAOBAO_SESSIONS: sim_session_001
+      # 必须与 OMS 后端同时区：模拟器按本地时间生成/过滤订单时间戳（datetime.now()），
+      # 后端拉单水位窗口也是本地时间；容器默认 UTC 会与宿主 CST 差 8 小时，
+      # 导致订单永远落在窗口外 → 拉单取不到数据（CI 用 --with-mock 起宿主机进程故不复现）。
+      TZ: Asia/Shanghai
     ports:
       - "9000:9000"
     healthcheck:
