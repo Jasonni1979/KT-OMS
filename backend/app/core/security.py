@@ -43,8 +43,15 @@ def new_session_id() -> str:
 
 
 def create_access_token(*, account_id: int, tenant_id: int, roles_ver: int,
+                        session_id: str = "",
                         is_superuser: bool = False) -> str:
-    """access JWT 短期（默认 2h，FR-05b），不落库；每请求验签+Redis会话存在性校验"""
+    """access JWT 短期（默认 2h，FR-05b），不落库；每请求验签+Redis会话存在性校验
+
+    **payload 必须带 sid（会话标识）**：否则同一账号同秒签发的两个 token 完全相同，
+    且「同端互踢」（FR-05c）后被踢会话的 token 仍能通过校验——Redis 里只校验
+    「该账号有任一端会话存在」，无法区分是哪个会话。带 sid 后可精确校验
+    「本 token 对应的会话是否仍存活」。
+    """
     now = int(time.time())
     payload: dict[str, Any] = {
         "sub": str(account_id),
@@ -55,6 +62,8 @@ def create_access_token(*, account_id: int, tenant_id: int, roles_ver: int,
         "iat": now,
         "exp": now + settings.access_token_expire_minutes * 60,
     }
+    if session_id:
+        payload["sid"] = session_id
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
 
 

@@ -24,6 +24,19 @@ from dataclasses import dataclass
 #: 金额容差（元）
 TOLERANCE = 0.01
 
+#: 容差换算成「分」的整数（规避浮点尾数，见 _diff_cents）
+_TOLERANCE_CENTS = int(round(TOLERANCE * 100))
+
+
+def _diff_cents(a: float, b: float) -> int:
+    """两金额之差（以「分」为单位的整数）
+
+    ⚠ 不能直接用 `abs(a - b) > 0.01`：
+    33435.54 - 33435.53 = 0.010000000002037268 > 0.01，
+    「恰好差 1 分」会被浮点误差判成超差 → 金额正确的订单被误拒。
+    """
+    return abs(round(a * 100) - round(b * 100))
+
 
 @dataclass
 class LineAmount:
@@ -73,7 +86,9 @@ def allocate(
     platform_alloc: dict[int, float] = {}
     if platform_line:
         p_sum = round(sum(platform_line.values()), 2)
-        if abs(p_sum - platform_subsidy) <= TOLERANCE:
+        # ⚠ 按「分」整数比较：浮点下 1759.76 vs 1759.77 的差 = 0.010000000002037268
+        #    > 0.01 → 会把「恰好差 1 分」误判为不符而回退比例分摊（复盘发现的真实缺陷）
+        if _diff_cents(p_sum, platform_subsidy) <= _TOLERANCE_CENTS:
             platform_alloc = {no: float(v) for no, v in platform_line.items() if v}
         else:
             warnings.append(
@@ -92,7 +107,8 @@ def allocate(
         sa = round(shop_alloc.get(no, 0.0), 2)
         pa = round(platform_alloc.get(no, 0.0), 2)
         # 行优惠不得超过行原价（防负实付）
-        if sa + pa > list_amt + TOLERANCE:
+        # ⚠ 单边比较（sa+pa 是否**超过** list_amt），按「分」整数比较规避浮点尾数
+        if round((sa + pa) * 100) > round(list_amt * 100) + _TOLERANCE_CENTS:
             scale = list_amt / (sa + pa) if (sa + pa) > 0 else 0
             sa = round(sa * scale, 2)
             pa = round(pa * scale, 2)
@@ -136,12 +152,21 @@ def _proportional(
 def check_amount_consistency(
     lines: list[LineAmount], customer_paid: float, freight: float
 ) -> tuple[bool, str]:
-    """行实付勾稽校验（FR-04b：容差 0.01，超差拒单转人工）"""
+    """行实付勾稽校验（FR-04b：容差 0.01，超差拒单转人工）
+
+    ⚠ **必须按「分」的整数比较**：直接用浮点 `abs(sum_paid - expect) > 0.01`
+    会在「恰好差 0.01」时被浮点表示误差判成超差
+    （如 33435.54 - 33435.53 = 0.010000000002037268 > 0.01），
+    导致金额本身正确的订单被拒单——这是复盘发现的真实缺陷。
+    """
     sum_paid = round(sum(line.paid_amount for line in lines), 2)
     expect = round(customer_paid - freight, 2)
-    if abs(sum_paid - expect) > TOLERANCE:
+    # 换算成「分」做整数比较，规避浮点尾数
+    diff_cents = _diff_cents(sum_paid, expect)
+    if diff_cents > _TOLERANCE_CENTS:
         return (
             False,
-            f"金额勾稽超差: Σ行实付={sum_paid}，订单实付(不含运费)={expect}",
+            f"金额勾稽超差: Σ行实付={sum_paid}，订单实付(不含运费)={expect}"
+            f"（差 {diff_cents / 100:.2f} 元 > 容差 {TOLERANCE} 元）",
         )
     return True, ""

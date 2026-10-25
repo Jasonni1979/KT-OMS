@@ -245,6 +245,12 @@ def build_trade(store: TradeStore, scenario: str, *, now: datetime | None = None
     if total > 0:
         for sub in subs:
             sub.divide_order_fee = round(platform_bear * sub.total_fee / total, 2)
+        # 舍入残差补到金额最大的行 → 保证 Σ行级分摊 == 单级平台承担
+        # （真实平台必然满足该恒等式；否则 OMS 侧金额勾稽会判超差拒单）
+        residual = round(platform_bear - sum(s.divide_order_fee for s in subs), 2)
+        if residual and subs:
+            biggest = max(subs, key=lambda s: s.total_fee)
+            biggest.divide_order_fee = round(biggest.divide_order_fee + residual, 2)
 
     if scenario == "unbound_item":
         subs[0].item_id = "ITEM_NOT_ONBOARD_999"

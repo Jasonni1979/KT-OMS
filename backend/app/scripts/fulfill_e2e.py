@@ -1071,6 +1071,11 @@ async def main() -> int:
 
     passed = sum(1 for _, ok_, _ in RESULTS if ok_)
     print(f"\n合计：{passed}/{len(RESULTS)} 项通过")
+    # 结束时清理自造数据（**必须在结束时清**——只在开头清会让最后一次运行
+    # 的残留留在库里，污染其他测试。复盘实测：残留的 owner_co 根节点会让
+    # test_master 取错「第一条根节点」→ 层级矩阵校验被绕过）
+    async with SessionFactory() as s:
+        await _clean(s)
     await engine.dispose()
     return 0 if passed == len(RESULTS) else 1
 

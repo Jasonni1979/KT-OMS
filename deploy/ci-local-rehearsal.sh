@@ -9,6 +9,23 @@ PASS=0; FAIL=0
 ok()   { echo "  ✓ $1"; PASS=$((PASS+1)); }
 bad()  { echo "  ✗ $1"; FAIL=$((FAIL+1)); }
 
+
+# ============ 断言条数下限校验（复盘新增）============
+# 复盘实测：E2E 的断言可能因数据前置条件不满足而「静默不跑」——
+# 门禁显示通过，实际少了覆盖（W7 通道 E2E 开发库 23 条 / CI 库 21 条）。
+# 因此每个 E2E 门禁都要校验断言条数下限。
+assert_min() {
+  local log="$1" min="$2" label="$3"
+  local got
+  got=$(grep -oE '\[PASS\]' "$log" | wc -l | tr -d ' ')
+  if [ "$got" -ge "$min" ]; then
+    ok "$label 断言数 $got ≥ $min"
+  else
+    bad "$label 断言数 $got < $min（有断言被静默跳过）"
+    tail -15 "$log"
+  fi
+}
+
 echo "=== Job 1/4: Backend (ruff + mypy) ==="
 (cd "$ROOT/backend" && "$PY" -m ruff check app tests --output-format=concise >/tmp/ci_ruff.log 2>&1) \
   && ok "ruff" || { bad "ruff"; tail -5 /tmp/ci_ruff.log; }
@@ -98,12 +115,24 @@ echo "=== Job 6/6: 业务场景端到端（跨域契约衔接门禁）==="
 (cd "$ROOT/backend" && "$PY" -m app.scripts.scenario_e2e --with-mock >/tmp/ci_scenario.log 2>&1) \
   && ok "业务场景端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_scenario.log | tail -1)）" \
   || { bad "业务场景端到端"; tail -25 /tmp/ci_scenario.log; }
+assert_min /tmp/ci_scenario.log 14 "业务场景端到端"
 
 echo "=== Job 7/7: 履约链路端到端（W6：分仓→拆单→发货单状态机）==="
 # 43 项断言：整仓分配/多仓兜底/缺货分级/按货主拆/守恒校验/状态机全链路/回传幂等/差异登记
 (cd "$ROOT/backend" && "$PY" -m app.scripts.fulfill_e2e >/tmp/ci_fulfill.log 2>&1) \
   && ok "履约链路端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_fulfill.log | tail -1)）" \
   || { bad "履约链路端到端"; tail -25 /tmp/ci_fulfill.log; }
+assert_min /tmp/ci_fulfill.log 43 "履约链路端到端"
+
+echo "=== Job 7b/7: 造单场景矩阵端到端（7 场景 × 识别验证）==="
+# 复盘补齐：mock-platform 场景库有 10 个场景，此前仅 normal 被端到端验证
+# 覆盖 normal/multi_item/big_amount/out_of_stock/address_abnormal/unbound_item/buyer_message
+# ⚠ 必须排在「履约链路端到端」之后——场景矩阵会清理自己的基础数据，
+#    提前跑会删掉履约 E2E 依赖的仓/物料/库存
+(cd "$ROOT/backend" && "$PY" -m app.scripts.scenario_matrix_e2e --with-mock >/tmp/ci_scenariomatrix.log 2>&1) \
+  && ok "造单场景矩阵（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_scenariomatrix.log | tail -1)）" \
+  || { bad "造单场景矩阵"; tail -25 /tmp/ci_scenariomatrix.log; }
+assert_min /tmp/ci_scenariomatrix.log 35 "造单场景矩阵"
 
 echo "=== Job 8/8: W7 通道端到端（推仓→WMS 回放→回传→settle→发货确认→平台回传）==="
 # 自起 mock-wms（9001）与 mock-platform（9000）——CI 库需要真实 WMS 才能跑通推仓链路
@@ -131,6 +160,7 @@ if [ "$MOCK_WMS_UP" = "1" ]; then
   (cd "$ROOT/backend" && "$PY" -m app.scripts.wms_channel_e2e >/tmp/ci_wms.log 2>&1) \
     && ok "W7 通道端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_wms.log | tail -1)）" \
     || { bad "W7 通道端到端"; tail -25 /tmp/ci_wms.log; }
+assert_min /tmp/ci_wms.log 23 "W7 通道端到端"
 else
   echo "  ⚠ 跳过 W7 通道端到端（mock-wms 未启动）"
 fi
@@ -138,6 +168,7 @@ if [ "$MOCK_PLATFORM_UP" = "1" ]; then
   (cd "$ROOT/backend" && "$PY" -m app.scripts.writeback_e2e >/tmp/ci_wb.log 2>&1) \
     && ok "W7 平台回传端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_wb.log | tail -1)）" \
     || { bad "W7 平台回传端到端"; tail -25 /tmp/ci_wb.log; }
+assert_min /tmp/ci_wb.log 12 "W7 平台回传端到端"
 else
   echo "  ⚠ 跳过 W7 平台回传端到端（mock-platform 未启动）"
 fi

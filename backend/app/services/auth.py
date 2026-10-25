@@ -6,7 +6,7 @@
 - 登录成功/失败均落 org_session 审计（FR-05d，D10.06 投递 M4+ 补）
 """
 import hashlib
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from redis.asyncio import Redis
 from sqlalchemy import select, update
@@ -24,6 +24,19 @@ from app.models.account import (
     OrgRolePerm,
     OrgSession,
 )
+
+
+def _utcnow() -> datetime:
+    """当前 UTC 时间（naive）
+
+    ⚠ **认证链路的所有时间比较必须用 UTC**（复盘发现的真实隐患）：
+    `lock_until` / `expire_time` 是 MySQL DATETIME（**无时区**），若写入用本地
+    时区、比较用另一个时区（或 DB 容器与应用主机时区不同），会出现
+    「锁定中的账户被判为已过期 → 自动放行」这类**越权风险**。
+    统一用 UTC 后，与 DB 服务器时区无关。
+    """
+    return datetime.now(UTC).replace(tzinfo=None)
+
 
 MAX_FAIL = 5
 LOCK_MINUTES = 15
@@ -58,7 +71,7 @@ class AuthService:
         if account.status == 4:
             await self._audit_fail(account, device_type, login_ip, "disabled")
             raise PermissionDeniedError("账户已禁用", code="ACCOUNT_DISABLED", http_status=403)
-        now = datetime.now()
+        now = _utcnow()
         if account.status == 3:
             if account.lock_until and account.lock_until > now:
                 await self._audit_fail(account, device_type, login_ip, "locked")
@@ -107,13 +120,14 @@ class AuthService:
                              login_ip: str, device_fp: str, channel: str) -> dict:
         """签发 JWT + refresh 落库 + Redis 会话；同端互踢（FR-05c）"""
         is_super = await self._is_superuser(account.id)
+        session_id = sec.new_session_id()
         access = sec.create_access_token(
             account_id=account.id, tenant_id=account.tenant_id,
-            roles_ver=account.roles_ver, is_superuser=is_super,
+            roles_ver=account.roles_ver, session_id=session_id,
+            is_superuser=is_super,
         )
         refresh = sec.create_refresh_token()
-        session_id = sec.new_session_id()
-        expire = datetime.now() + timedelta(days=REFRESH_DAYS)
+        expire = _utcnow() + timedelta(days=REFRESH_DAYS)
 
         # 同端互踢：旧会话标记被踢 + 删 Redis
         old_rows = (await self.s.scalars(
@@ -160,7 +174,7 @@ class AuthService:
         self.s.add(OrgSession(
             tenant_id=account.tenant_id, session_id=sec.new_session_id(), account_id=account.id,
             device_type=device_type, login_ip=ip, channel="password",
-            expire_time=datetime.now(), status=2, login_result=2, fail_reason=reason,
+            expire_time=_utcnow(), status=2, login_result=2, fail_reason=reason,
         ))
         await self.s.commit()
 
@@ -183,6 +197,20 @@ class AuthService:
         keys = await self.r.keys(f"session:{account_id}:*")
         if not keys:
             raise PermissionDeniedError("会话已失效", code="SESSION_REVOKED", http_status=401)
+        # 精确校验：token 绑定的会话（sid）必须仍存活
+        # —— 否则「同端互踢」（FR-05c）后被踢会话的 token 仍可用（真实缺陷）
+        sid = str(payload.get("sid", "") or "")
+        if sid:
+            live = await self.r.mget(keys)
+            live_sids = {
+                (v.decode() if isinstance(v, (bytes, bytearray)) else str(v))
+                for v in live
+                if v is not None
+            }
+            if sid not in live_sids:
+                raise PermissionDeniedError(
+                    "会话已被终止，请重新登录", code="SESSION_REVOKED", http_status=401
+                )
         return {**payload, "account": account}
 
     # ---------- 刷新 / 登出 ----------
@@ -194,7 +222,7 @@ class AuthService:
             select(OrgSession).where(
                 OrgSession.refresh_token_hash == rt_hash,
                 OrgSession.status == 1,
-                OrgSession.expire_time > datetime.now(),
+                OrgSession.expire_time > _utcnow(),
             )
         )
         if not row:

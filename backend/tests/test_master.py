@@ -44,7 +44,11 @@ async def test_org_seed_ready(auth_client):
 
 async def test_hierarchy_matrix_violation(auth_client):
     """§5.1：group 下不允许直接挂 shop"""
-    root = (await auth_client.get("/api/v1/master/org-nodes", params={"parent_id": 0})).json()["data"][0]
+    # ⚠ 必须按 node_type=group 精确定位根节点——不能取「第一条」：
+    #    库里若残留其他 parent_id=0 的节点（如 E2E 自造的 owner_co），
+    #    会取错父节点 → 层级矩阵校验被绕过
+    nodes = (await auth_client.get("/api/v1/master/org-nodes", params={"parent_id": 0})).json()["data"]
+    root = next(n for n in nodes if n["node_type"] == "group")
     r = await auth_client.post("/api/v1/master/org-nodes", json={
         "org_code": "T_BAD_SHOP", "org_name": "违例店铺", "node_type": "shop",
         "parent_id": root["id"], "ref_id": 999,

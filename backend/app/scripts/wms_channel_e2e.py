@@ -58,7 +58,8 @@ async def _make_delivery(s, branch_id: int, owner_id: int, bm_id: int) -> int:
         ),
         {
             "owner": owner_id,
-            "bn": f"DLVW7{owner_id}{branch_id}{int(datetime_now().timestamp() * 1000) % 100000}",
+            # ⚠ 独立前缀 DLVE2E%（与演示数据 DLVW7DEMO% 不冲突）→ 结尾可精确清理
+            "bn": f"DLVE2E{owner_id}{branch_id}{int(datetime_now().timestamp() * 1000) % 100000}",
             "branch": branch_id,
         },
     )
@@ -423,7 +424,41 @@ async def main() -> int:
         # ============ SC-03 部分出库与多批次 ============
         print("\n▶ SC-03 部分出库与多批次回传")
         did3 = await _make_delivery(s, branch_id, owner_id, bm_id)
-        # 造 2 行
+        # 造第 2 个物料（保证存在；不能用 bm_id+1——空库（CI）无该物料
+        # → 指令组装整单失败 lines=[]；也不能与首行同物料——行匹配按 bm_id
+        # 会永远命中首行，尾批无法齐套）
+        bm2 = await s.scalar(
+            text(
+                "SELECT id FROM oms_stock.inv_material "
+                "WHERE owner_id = :o AND is_deleted = 0 AND id != :b1 "
+                "ORDER BY id LIMIT 1"
+            ),
+            {"o": owner_id, "b1": bm_id},
+        )
+        if not bm2:
+            await s.execute(
+                text(
+                    "INSERT INTO oms_stock.inv_material "
+                    "(tenant_id, owner_id, material_bn, material_name, type, cat_path, "
+                    " brand_id, color, size, same_code_group, kingdee_material_code, "
+                    " serial_number, storage_life_flag, is_ctrl_store, omnichannel, "
+                    " is_o2o_sales, tax_rate, tax_name, tax_code, cos_id, org_id, status, "
+                    " source, remark, create_time, update_time, version, is_deleted) "
+                    "VALUES (1, :owner, :bn, 'W7E2E第二物料', 3, '/', 0, '', '', '', '', 0, "
+                    "0, 1, 0, 0, 13, '增值税', '', 0, 0, 1, 'local', '', NOW(3), NOW(3), 0, 0)"
+                ),
+                {"owner": owner_id, "bn": f"W7E2E_BM2_{owner_id}"},
+            )
+            await s.commit()
+            bm2 = await s.scalar(
+                text(
+                    "SELECT id FROM oms_stock.inv_material "
+                    "WHERE material_bn = :bn"
+                ),
+                {"bn": f"W7E2E_BM2_{owner_id}"},
+            )
+        bm2 = int(bm2 or 0)
+        # 造 2 行（不同物料）
         await s.execute(
             text(
                 "INSERT INTO oms_order.ord_delivery_item "
@@ -431,7 +466,7 @@ async def main() -> int:
                 " create_time, update_time, version, is_deleted) "
                 "VALUES (1, :did, :bm, :bmn, 1, 0, :owner, NOW(3), NOW(3), 0, 0)"
             ),
-            {"did": did3, "bm": bm_id + 1, "bmn": f"W7BM{bm_id + 1}", "owner": owner_id},
+            {"did": did3, "bm": bm2, "bmn": f"W7BM{bm2}", "owner": owner_id},
         )
         await s.commit()
         await dlv.push(did3, operator="tester")
@@ -649,8 +684,85 @@ async def main() -> int:
 
     passed = sum(1 for _, ok_, _ in RESULTS if ok_)
     print(f"\n合计：{passed}/{len(RESULTS)} 项通过")
+    # 结束时清理自造数据（**必须在结束时清**：只在开头清会让最后一次运行
+    # 的残留留在库里，污染其他测试——复盘实测 W6 E2E 残留的 owner_co 根节点
+    # 曾导致 test_master 取错根节点 → 层级矩阵校验被绕过）
+    async with SessionFactory() as s:
+        await _clean_e2e(s)
     await engine.dispose()
     return 0 if passed == len(RESULTS) else 1
+
+
+async def _clean_e2e(s) -> None:
+    """清理本脚本自造的数据（DLVE2E% 前缀）"""
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_delivery_item_detail WHERE delivery_id IN "
+            "(SELECT id FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'DLVE2E%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_delivery_item WHERE delivery_id IN "
+            "(SELECT id FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'DLVE2E%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_delivery_package WHERE delivery_id IN "
+            "(SELECT id FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'DLVE2E%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_delivery_diff WHERE delivery_id IN "
+            "(SELECT id FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'DLVE2E%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_delivery_log WHERE delivery_id IN "
+            "(SELECT id FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'DLVE2E%')"
+        )
+    )
+    await s.execute(
+        text("DELETE FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'DLVE2E%'")
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_fulfill.ful_outbound_callback WHERE delivery_id NOT IN "
+            "(SELECT id FROM oms_order.ord_delivery)"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_fulfill.ful_outbound_cmd WHERE delivery_bn LIKE 'DLVE2E%'"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_fulfill.ful_channel_log WHERE cmd_bn LIKE 'DLVE2E%' "
+            "   OR cmd_bn LIKE 'CMDDLVE2E%'"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_fulfill.ful_cmd_fail WHERE cmd_bn LIKE 'DLVE2E%' "
+            "   OR cmd_bn LIKE 'CMDDLVE2E%'"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_stock.inv_stock_ledger WHERE bm_id IN "
+            "(SELECT id FROM oms_stock.inv_material WHERE material_bn LIKE 'W7E2E_BM2%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_stock.inv_material WHERE material_bn LIKE 'W7E2E_BM2%'"
+        )
+    )
+    await s.commit()
 
 
 if __name__ == "__main__":

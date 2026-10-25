@@ -251,8 +251,47 @@ async def main() -> int:
 
     passed = sum(1 for _, ok_, _ in RESULTS if ok_)
     print(f"\n合计：{passed}/{len(RESULTS)} 项通过")
+    # 结束时清理自造数据（复盘规范：E2E 必须在结束时清，否则残留污染其他测试）
+    async with SessionFactory() as s:
+        await _clean_e2e(s)
     await engine.dispose()
     return 0 if passed == len(RESULTS) else 1
+
+
+async def _clean_e2e(s) -> None:
+    """清理本脚本自造的数据（W7WB* 前缀）"""
+    # ⚠ 删除顺序：gw_api_fail 有外键指向 gw_writeback_task → 必须先删子表
+    await s.execute(
+        text(
+            "DELETE FROM oms_gateway.gw_api_fail WHERE writeback_task_id IN "
+            "(SELECT id FROM oms_gateway.gw_writeback_task WHERE biz_ref LIKE 'W7WB%')"
+        )
+    )
+    await s.execute(
+        text("DELETE FROM oms_gateway.gw_writeback_task WHERE biz_ref LIKE 'W7WB%'")
+    )
+    # ⚠ 删除顺序：先子表后父表（有 FK 约束，顺序反了整段 rollback）
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_order_item WHERE order_id IN "
+            "(SELECT id FROM oms_order.ord_order WHERE order_bn LIKE 'W7WB%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_receiver WHERE order_id IN "
+            "(SELECT id FROM oms_order.ord_order WHERE order_bn LIKE 'W7WB%')"
+        )
+    )
+    await s.execute(
+        text(
+            "DELETE FROM oms_order.ord_delivery WHERE delivery_bn LIKE 'W7WB%'"
+        )
+    )
+    await s.execute(
+        text("DELETE FROM oms_order.ord_order WHERE order_bn LIKE 'W7WB%'")
+    )
+    await s.commit()
 
 
 if __name__ == "__main__":
