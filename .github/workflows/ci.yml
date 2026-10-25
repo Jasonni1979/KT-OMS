@@ -135,6 +135,11 @@ jobs:
           set -o pipefail
           uv run pytest tests/ -q 2>&1 | tee /tmp/pytest.log
 
+      - name: Check test-case doc is in sync
+        run: |
+          cd ..
+          uv run --with pytest python tools/gen_test_doc.py --check
+
       - name: Container logs on failure
         if: failure()
         run: |

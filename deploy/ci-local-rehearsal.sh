@@ -68,6 +68,10 @@ echo "=== Job 3/4: Mock Platform (pytest) ==="
   && ok "mock pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mock.log | tail -1)）" \
   || { bad "mock pytest"; tail -15 /tmp/ci_mock.log; }
 
+echo "=== Job 5/5: 测试用例清单与代码同步（交付文档防脱节）==="
+(cd "$ROOT" && "$PY" tools/gen_test_doc.py --check >/tmp/ci_testdoc.log 2>&1) \
+  && ok "测试用例清单与代码同步" || { bad "测试用例清单与代码不同步"; tail -20 /tmp/ci_testdoc.log; }
+
 echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc --noEmit >/tmp/ci_tsc.log 2>&1) \
   && ok "type-check" || { bad "type-check"; tail -8 /tmp/ci_tsc.log; }
