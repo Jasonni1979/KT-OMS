@@ -43,29 +43,50 @@ jobs:
     needs: backend
     permissions:
       contents: write   # 供失败时回写 ci-dbg 诊断分支
+    services:
+      # 不声明 ports → GitHub 分配随机宿主端口，避开 runner 预装 MySQL(3306)/Redis(6379) 的抢占
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.CI_MYSQL_PASSWORD }}
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -p${{ env.CI_MYSQL_PASSWORD }}"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s --health-timeout=3s --health-retries=20
     defaults:
       run:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start MySQL & Redis containers
+      - name: Wait for MySQL（TCP 就绪探测）
         run: |
-          # 镜像源：统一用 1ms.run 代理。理由（实测）：
-          #   ① 本机 Docker Hub 官方源直连超时（i/o timeout）
-          #   ② GitHub runner 官方源同样可能超时，且有匿名拉取限流（共享 IP → toomanyrequests）
-          #   ③ 上一轮 CI 的 mock-platform job 用 1ms.run 镜像构建成功 → 已验证在 runner 可用
-          docker pull docker.1ms.run/mysql:8.0
-          docker pull docker.1ms.run/redis:7-alpine
-          docker rm -f ktoms-ci-mysql ktoms-ci-redis >/dev/null 2>&1 || true
-          docker run -d --name ktoms-ci-mysql \
-            -e MYSQL_ROOT_PASSWORD="$CI_MYSQL_PASSWORD" \
-            -p ${CI_MYSQL_PORT}:3306 \
-            docker.1ms.run/mysql:8.0 \
-            --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
-          docker run -d --name ktoms-ci-redis \
-            -p ${CI_REDIS_PORT}:6379 \
-            docker.1ms.run/redis:7-alpine
+          # services 用「不指定端口映射」方式 → GitHub 分配随机宿主端口，
+          # 彻底避开 ubuntu-latest runner 预装 MySQL(3306) 的抢占（这是之前 job 秒挂的真因）。
+          # 实际端口通过 ${{ job.services.mysql.ports['3306'] }} 取得。
+          MYSQL_PORT="${{ job.services.mysql.ports['3306'] }}"
+          REDIS_PORT="${{ job.services.redis.ports['6379'] }}"
+          echo "MySQL 实际端口: $MYSQL_PORT / Redis: $REDIS_PORT"
+          for i in $(seq 1 60); do
+            if mysqladmin ping -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -p"$CI_MYSQL_PASSWORD" --silent >/dev/null 2>&1; then
+              echo "MySQL 就绪（第${i}次探测）"; break
+            fi
+            if [ "$i" = "60" ]; then echo "::error::MySQL 启动超时"; exit 1; fi
+            sleep 3
+          done
+          for i in $(seq 1 30); do
+            if redis-cli -h 127.0.0.1 -p "$REDIS_PORT" ping 2>/dev/null | grep -q PONG; then
+              echo "Redis 就绪（第${i}次探测）"; break
+            fi
+            if [ "$i" = "30" ]; then echo "::error::Redis 启动超时"; exit 1; fi
+            sleep 2
+          done
+          echo "MYSQL_PORT=$MYSQL_PORT" >> "$GITHUB_ENV"
+          echo "REDIS_PORT=$REDIS_PORT" >> "$GITHUB_ENV"
 
       - name: Container start snapshot（启动后立即留现场）
         run: |
@@ -77,32 +98,12 @@ jobs:
           } 2>&1 | tee /tmp/ci-start.log
           cat /tmp/ci-start.log
 
-      - name: Wait for MySQL（TCP 就绪探测）
-        run: |
-          for i in $(seq 1 60); do
-            if docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N -e "SELECT 1" >/dev/null 2>&1; then
-              echo "MySQL 就绪（第${i}次探测）"; break
-            fi
-            if [ "$i" = "60" ]; then echo "::error::MySQL 启动超时"; exit 1; fi
-            sleep 3
-          done
-
-      - name: Wait for Redis
-        run: |
-          for i in $(seq 1 30); do
-            if docker exec ktoms-ci-redis redis-cli ping 2>/dev/null | grep -q PONG; then
-              echo "Redis 就绪（第${i}次探测）"; break
-            fi
-            if [ "$i" = "30" ]; then echo "::error::Redis 启动超时"; exit 1; fi
-            sleep 2
-          done
-
       - name: Load DDL（373 表）
         run: |
           for f in ../docs/database/sql/*.sql; do
-            docker exec -i ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" < "$f"
+            mysql -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -p"$CI_MYSQL_PASSWORD" < "$f"
           done
-          docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N \
+          mysql -h 127.0.0.1 -P "$MYSQL_PORT" -uroot -p"$CI_MYSQL_PASSWORD" -N \
             -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';"
 
       - name: Install uv
@@ -113,8 +114,8 @@ jobs:
       - name: Seed 基础数据（组织树 + 超管）
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
-          KTOMS_MYSQL_PORT: ${{ env.CI_MYSQL_PORT }}
-          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.CI_REDIS_PORT }}/0
+          KTOMS_MYSQL_PORT: ${{ env.MYSQL_PORT }}
+          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.REDIS_PORT }}/0
         run: |
           uv sync --all-extras
           uv run python -m app.scripts.seed_org
@@ -123,8 +124,8 @@ jobs:
       - name: Pytest
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1
-          KTOMS_MYSQL_PORT: ${{ env.CI_MYSQL_PORT }}
-          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.CI_REDIS_PORT }}/0
+          KTOMS_MYSQL_PORT: ${{ env.MYSQL_PORT }}
+          KTOMS_REDIS_URL: redis://127.0.0.1:${{ env.REDIS_PORT }}/0
         run: |
           set -o pipefail
           uv run pytest tests/ -q 2>&1 | tee /tmp/pytest.log
@@ -147,7 +148,7 @@ jobs:
             echo "# CI self-diagnose (commit ${GITHUB_SHA})"
             echo "--- container ps ---"; docker ps -a --format "{{.Names}} {{.Status}} {{.Ports}}" || true
             echo "--- mysql tables ---"
-            docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N \
+            mysql -h 127.0.0.1 -P "${MYSQL_PORT:-3306}" -uroot -p"$CI_MYSQL_PASSWORD" -N \
               -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';" 2>&1 || true
             echo "--- start snapshot ---"; cat /tmp/ci-start.log 2>/dev/null || echo "(无启动快照)"
             echo "--- pytest tail ---"; tail -60 /tmp/pytest.log 2>/dev/null || echo "(无 pytest 日志)"
@@ -161,9 +162,9 @@ jobs:
           git commit -q -m "ci-dbg: ${GITHUB_SHA}"
           git push -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/ci-dbg
 
-      - name: Cleanup containers
+      - name: Cleanup
         if: always()
-        run: docker rm -f ktoms-ci-mysql ktoms-ci-redis >/dev/null 2>&1 || true
+        run: echo "service 容器由 GitHub 自动清理"
 
   mock-platform:
     name: Mock Platform (模拟器 pytest)
