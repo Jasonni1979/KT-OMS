@@ -63,9 +63,17 @@ export KTOMS_MYSQL_HOST=127.0.0.1 KTOMS_MYSQL_PORT=$CI_PORT KTOMS_REDIS_URL="red
 # 缺它 → 审单链无候选仓/物流 → 场景与审单用例路径与开发库不一致
 (cd "$ROOT/backend" && "$PY" -m app.scripts.seed_audit >/tmp/ci_seed4.log 2>&1) \
   && ok "seed_audit" || { bad "seed_audit"; tail -8 /tmp/ci_seed4.log; }
+# W6：履约域种子（分仓规则 + 拆单规则）
+(cd "$ROOT/backend" && "$PY" -m app.scripts.seed_fulfill >/tmp/ci_seed5.log 2>&1) \
+  && ok "seed_fulfill" || { bad "seed_fulfill"; tail -8 /tmp/ci_seed5.log; }
 (cd "$ROOT/backend" && "$PY" -m pytest tests/ -q >/tmp/ci_pytest.log 2>&1) \
   && ok "pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_pytest.log | tail -1)）" \
   || { bad "pytest"; tail -20 /tmp/ci_pytest.log; }
+
+echo "=== Job 2b: 模型 ↔ DDL 列一致性（W5/W6 连续三轮踩过 DDL 列名坑）==="
+# 逐表逐列比对 ORM 声明与 information_schema → 不一致即失败
+(cd "$ROOT/backend" && "$PY" ../tools/check_model_ddl.py >/tmp/ci_modelddl.log 2>&1) \
+  && ok "模型 ↔ DDL 一致性" || { bad "模型 ↔ DDL 不一致"; tail -15 /tmp/ci_modelddl.log; }
 
 echo "=== Job 3/4: Mock Platform (pytest) ==="
 (cd "$ROOT/mocks/platform" && "$PY" -m pytest tests/ -q >/tmp/ci_mock.log 2>&1) \
@@ -81,6 +89,12 @@ echo "=== Job 6/6: 业务场景端到端（跨域契约衔接门禁）==="
 (cd "$ROOT/backend" && "$PY" -m app.scripts.scenario_e2e --with-mock >/tmp/ci_scenario.log 2>&1) \
   && ok "业务场景端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_scenario.log | tail -1)）" \
   || { bad "业务场景端到端"; tail -25 /tmp/ci_scenario.log; }
+
+echo "=== Job 7/7: 履约链路端到端（W6：分仓→拆单→发货单状态机）==="
+# 43 项断言：整仓分配/多仓兜底/缺货分级/按货主拆/守恒校验/状态机全链路/回传幂等/差异登记
+(cd "$ROOT/backend" && "$PY" -m app.scripts.fulfill_e2e >/tmp/ci_fulfill.log 2>&1) \
+  && ok "履约链路端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_fulfill.log | tail -1)）" \
+  || { bad "履约链路端到端"; tail -25 /tmp/ci_fulfill.log; }
 
 echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc --noEmit >/tmp/ci_tsc.log 2>&1) \

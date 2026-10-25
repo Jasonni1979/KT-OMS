@@ -16,6 +16,20 @@ from app.models.audit import (
     OrdFulfillPlan,
 )
 from app.models.branch import FulBranch
+from app.models.fulfill import (
+    OrdBranchChangeLog,
+    OrdBranchDispatchRule,
+    OrdDelivery,
+    OrdDeliveryDiff,
+    OrdDeliveryItem,
+    OrdDeliveryItemDetail,
+    OrdDeliveryLog,
+    OrdDeliveryPackage,
+    OrdDispatchPlan,
+    OrdRoutingDecisionLog,
+    OrdSplitRule,
+    OrdSplitTrace,
+)
 from app.models.gateway import (
     GwApiLog,
     GwOrderBuffer,
@@ -171,4 +185,63 @@ register_filterable(OrdAuditBatchLog, {
 })
 register_filterable(OrdAuditWorkLog, {
     "tenant_id": OrdAuditWorkLog.tenant_id,
+})
+
+# ============ W6 履约域（D03.06 分仓 / D03.04 拆单 / D03.07 发货单）============
+
+# 分仓方案：tenant + owner + shop 维
+register_filterable(OrdDispatchPlan, {
+    "tenant_id": OrdDispatchPlan.tenant_id,
+    "owner_id": OrdDispatchPlan.owner_id,
+    "shop_id": OrdDispatchPlan.shop_id,
+})
+# 选仓规则：tenant + owner 维
+register_filterable(OrdBranchDispatchRule, {
+    "tenant_id": OrdBranchDispatchRule.tenant_id,
+    "owner_id": OrdBranchDispatchRule.owner_id,
+})
+# 拆单规则：tenant + owner 维
+register_filterable(OrdSplitRule, {
+    "tenant_id": OrdSplitRule.tenant_id,
+    "owner_id": OrdSplitRule.owner_id,
+})
+# 发货单：tenant + owner + shop 维
+register_filterable(OrdDelivery, {
+    "tenant_id": OrdDelivery.tenant_id,
+    "owner_id": OrdDelivery.owner_id,
+    "shop_id": OrdDelivery.shop_id,
+})
+# 发货单行 / 差异：tenant + owner 维（无 shop 列）
+register_filterable(OrdDeliveryItem, {
+    "tenant_id": OrdDeliveryItem.tenant_id,
+    "owner_id": OrdDeliveryItem.owner_id,
+})
+register_filterable(OrdDeliveryDiff, {
+    "tenant_id": OrdDeliveryDiff.tenant_id,
+    "owner_id": OrdDeliveryDiff.owner_id,
+})
+# 追加型表（无 owner/shop 列或仅 tenant 维）
+register_filterable(OrdBranchChangeLog, {
+    "tenant_id": OrdBranchChangeLog.tenant_id,
+    "owner_id": OrdBranchChangeLog.owner_id,
+    "shop_id": OrdBranchChangeLog.shop_id,
+})
+register_filterable(OrdRoutingDecisionLog, {
+    "tenant_id": OrdRoutingDecisionLog.tenant_id,
+    "owner_id": OrdRoutingDecisionLog.owner_id,
+    "shop_id": OrdRoutingDecisionLog.shop_id,
+})
+register_filterable(OrdSplitTrace, {
+    "tenant_id": OrdSplitTrace.tenant_id,
+    "owner_id": OrdSplitTrace.owner_id,
+    "shop_id": OrdSplitTrace.shop_id,
+})
+register_filterable(OrdDeliveryItemDetail, {
+    "tenant_id": OrdDeliveryItemDetail.tenant_id,
+})
+register_filterable(OrdDeliveryPackage, {
+    "tenant_id": OrdDeliveryPackage.tenant_id,
+})
+register_filterable(OrdDeliveryLog, {
+    "tenant_id": OrdDeliveryLog.tenant_id,
 })

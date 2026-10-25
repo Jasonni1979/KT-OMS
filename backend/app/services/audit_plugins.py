@@ -171,11 +171,13 @@ class BlacklistPlugin(BasePlugin):
 
 
 class BranchSelectPlugin(BasePlugin):
-    """branch_select（WAREHOUSE）：选仓
+    """branch_select（WAREHOUSE）：选仓 → 调 D03.06 配货分仓
 
-    优先级：平台指定仓（order.platform_extra.warehouse_hint 或 warehouse_memo）
-    > 店铺发货仓绑定（gw_shop_config.branch_bind_json，D03.06 基础版）
-    > 唯一发货仓
+    W6 起走真实分仓引擎（DispatchService.dispatch）：
+    候选仓生成（平台指定仓 > 货主仓属 ∩ 店铺绑定 > 区域路由 > 全局兜底）
+    → 规则命中 → 满足度计算 → 整仓优先/贪心多仓/缺货判定 → plan 落库。
+
+    决策区写入：branch（单仓）/ dispatch_plan（多仓或缺货）/ split_required。
     """
 
     PLUGIN_NAME = "branch_select"
@@ -183,34 +185,97 @@ class BranchSelectPlugin(BasePlugin):
     ORDER = 10
 
     async def process(self, ctx: RuleContext) -> PluginResult:
-        candidates: list[dict[str, Any]] = ctx.meta.get("branch_candidates", []) or []
+        from app.services.dispatch_service import DispatchService
+
+        order_id = int(ctx.get("order_id", 0) or 0)
+        session = ctx.meta.get("session")
+        redis = ctx.meta.get("redis")
+        if not order_id or session is None or redis is None:
+            # 上下文不全（单测直接调用插件）→ 退化到候选仓排序
+            candidates: list[dict[str, Any]] = ctx.meta.get("branch_candidates", []) or []
+            if not candidates:
+                return PluginResult.hold([
+                    Reason(
+                        plugin=self.PLUGIN_NAME,
+                        code="NO_BRANCH",
+                        level=LEVEL_BLOCK,
+                        description="无可用发货仓（店铺未绑定发货仓）",
+                        detail={"shop_id": ctx.get("shop_id")},
+                        suggest_action="人工指定仓库",
+                        route_target="manual",
+                    )
+                ])
+            # 平台指定仓优先（FR-01a）
+            hint = str(ctx.get("warehouse_hint", "") or "").strip()
+            picked_c = candidates[0]
+            if hint:
+                for c in candidates:
+                    if str(c.get("branch_bn", "")) == hint or str(
+                        c.get("branch_id")
+                    ) == hint:
+                        picked_c = c
+                        break
+            else:
+                picked_c = sorted(
+                    candidates, key=lambda c: c.get("priority", 999)
+                )[0]
+            return PluginResult.mutate(
+                {"branch": picked_c, "branch_candidates": candidates}
+            )
+
+        svc = DispatchService(session, redis)
+        # 平台指定仓（FR-01a 最高优先级）——hint 来自订单报文
         hint = str(ctx.get("warehouse_hint", "") or "").strip()
-        if hint:
-            for c in candidates:
-                if str(c.get("branch_bn", "")) == hint or str(c.get("branch_id")) == hint:
-                    return PluginResult.mutate({"branch": c, "branch_candidates": candidates})
-        if not candidates:
+        appointed = int(hint) if hint.isdigit() else None
+        res = await svc.dispatch(order_id, appointed_branch_id=appointed)
+
+        if not res.ok:
+            # 缺货/无候选仓 → 结构化不通过原因（FR-04a 分级）
+            code = res.fail_code or "NO_BRANCH"
+            detail = dict(res.lack_detail or {})
+            detail.update({"plan_id": res.plan_id, "mode": res.mode})
             return PluginResult.hold([
                 Reason(
                     plugin=self.PLUGIN_NAME,
-                    code="NO_BRANCH",
+                    code=code,
                     level=LEVEL_BLOCK,
-                    description="无可用发货仓（店铺未绑定发货仓）",
-                    detail={"shop_id": ctx.get("shop_id")},
-                    suggest_action="人工指定仓库",
-                    route_target="manual",
+                    description=res.fail_message or f"分仓失败：{code}",
+                    detail=detail,
+                    suggest_action="换仓重试或转缺货流程",
+                    route_target="shortage" if res.mode == "lack" else "manual",
                 )
             ])
-        # 候选仓按优先级排序（branch_bind_json 里带 priority）
-        picked = sorted(candidates, key=lambda c: c.get("priority", 999))[0]
-        return PluginResult.mutate({"branch": picked, "branch_candidates": candidates})
+
+        # 整仓 → 单分支；多仓 → 交下游 split 插件按仓拆
+        picked: dict[str, Any] = {}
+        for cand in res.candidates:
+            if cand.fulfill_rate >= 1.0:
+                picked = cand.to_dict()
+                break
+        return PluginResult.mutate(
+            {
+                "branch": picked,
+                "branch_candidates": [c.to_dict() for c in res.candidates],
+                "dispatch_plan": {
+                    "plan_id": res.plan_id,
+                    "round_no": res.round_no,
+                    "mode": res.mode,
+                    "alloc": {str(k): v for k, v in res.alloc.items()},
+                    "split_required": res.split_required,
+                },
+                "split_required": res.split_required,
+            }
+        )
 
 
 class SplitPlugin(BasePlugin):
-    """split（WAREHOUSE）：拆单（本期实现仓/货主维度基础版）
+    """split（WAREHOUSE）：拆单 → 调 D03.04 拆单策略中心
 
-    真实实现调 D03.04 策略注册表（W6）；P0 基础版按「仓 × 货主」分组——
-    与 SC-D03.02-04 的拆单语义一致（拆单=发货单维度，订单头不产生新订单）。
+    W6 起走真实拆单引擎（SplitService.split）：
+    加载规则 → 校验策略启用 → 预取上下文（库存视图/分仓 plan）→ 策略纯函数计算
+    → **守恒校验** → 产出分配方案（组 = 未来发货单）。
+
+    无拆单规则时退化为「仓 × 货主」基础分组（与 D03.04 FR-06e「不拆是特例」口径一致）。
     """
 
     PLUGIN_NAME = "split"
@@ -222,6 +287,43 @@ class SplitPlugin(BasePlugin):
         if not branch:
             # 上游 branch_select 已 HOLD → 短路，不会到这里；防御性返回
             return PluginResult.pass_()
+        order_id = int(ctx.get("order_id", 0) or 0)
+        session = ctx.meta.get("session")
+        redis = ctx.meta.get("redis")
+        plan = ctx.decision.get("dispatch_plan") or {}
+
+        # 有拆单规则 → 走真实引擎
+        rule_id = int(ctx.get("split_rule_id", 0) or 0)
+        if rule_id and order_id and session is not None and redis is not None:
+            from app.services.split_service import SplitService
+
+            svc = SplitService(session, redis)
+            context: dict[str, Any] = {
+                "branch_plan": {"alloc": plan.get("alloc") or {}},
+                "branch_seq": [
+                    c.get("branch_id")
+                    for c in (ctx.decision.get("branch_candidates") or [])
+                    if c.get("branch_id")
+                ],
+            }
+            res = await svc.split(order_id, rule_id, context)
+            if not res.ok:
+                return PluginResult.hold([
+                    Reason(
+                        plugin=self.PLUGIN_NAME,
+                        code=res.fail_code or "SPLIT_FAIL",
+                        level=LEVEL_BLOCK,
+                        description=f"拆单失败：{res.fail_code}",
+                        detail=res.fail_detail,
+                        suggest_action="人工拆单或修正规则",
+                        route_target="manual",
+                    )
+                ])
+            return PluginResult.mutate(
+                {"split_groups": res.groups, "split_trace_id": res.trace_id}
+            )
+
+        # 无规则 → 基础分组（仓 × 货主）
         branch_id = int(branch.get("branch_id", 0) or 0)
         items: list[dict[str, Any]] = ctx.meta.get("items", []) or []
         groups: dict[tuple[int, int], SplitGroup] = {}

@@ -65,6 +65,13 @@ class OrdOrder(Base, TimestampMixin, TenantMixin, VersionMixin):
     combine_hash: Mapped[str | None] = mapped_column(String(32), nullable=True)
     combine_idx: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     combine_group_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    # 拆单轮次计数（D03.04 FR-06b：每轮落库成功 +1；发货单取消不回退）
+    splited_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # 发货联动字段（D03.07 FR-06a：发货确认时回写）
+    logi_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    logi_no: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    delivery_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    finish_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     batch_no: Mapped[str] = mapped_column(String(32), nullable=False, default="")
     is_fail: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
     fail_code: Mapped[str] = mapped_column(String(32), nullable=False, default="")
@@ -76,6 +83,31 @@ class OrdOrder(Base, TimestampMixin, TenantMixin, VersionMixin):
     urge_flag: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
     urge_cnt: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     first_urge_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # ---------- 以下为 DDL 有列但此前模型未映射的字段（tools/check_model_ddl.py 检出）----------
+    # 时效承诺（D03.10 预售/承诺）
+    promise_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    promise_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # 收货坐标（O2O 门店路由 D03.11）
+    receiver_lat: Mapped[float | None] = mapped_column(Numeric(10, 6), nullable=True)
+    receiver_lng: Mapped[float | None] = mapped_column(Numeric(10, 6), nullable=True)
+    # 运费与承担方（发货单/面单 D09.05）
+    delivery_fee: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    fee_bearer: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # 即时零售平台（D03.15）
+    instant_platform: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # 跨境申报类型（D03.12）
+    cross_border_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    declare_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    declare_status: Mapped[str] = mapped_column(String(16), nullable=False, default="none")
+    # 归档（D03.13）
+    archive_flag: Mapped[str] = mapped_column(String(16), nullable=False, default="online")
+    archive_locator: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    archive_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # 叫回标记（D03.07 FR-08b）
+    recall_flag: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    recall_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # 审单路由人数（D03.03 分派）
+    router_num: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     warehouse_memo: Mapped[str] = mapped_column(String(512), nullable=False, default="")
     buyer_memo: Mapped[str] = mapped_column(String(512), nullable=False, default="")
     self_delivery: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
@@ -114,6 +146,10 @@ class OrdOrderItem(Base, TimestampMixin, TenantMixin, VersionMixin):
     bom_candidates: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     is_virtual: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
     is_gift: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    # 预售预计发货日（D03.10 预售/现货拆单）
+    estimate_con_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # 行税额（金额分摊 D03.01 FR-06）
+    tax_amount: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
     parse_status: Mapped[str] = mapped_column(String(16), nullable=False, default="parsed")
     weight: Mapped[float] = mapped_column(Numeric(18, 4), nullable=False, default=0)
     platform_extra: Mapped[Any | None] = mapped_column(JSON, nullable=True)
