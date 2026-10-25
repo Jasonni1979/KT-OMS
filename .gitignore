@@ -24,6 +24,7 @@ build/
 node_modules/
 frontend/dist/
 *.local
+*.tsbuildinfo      # vue-tsc -b 增量构建缓存（不应入库）
 
 # 环境与密钥
 .env
