@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import security as sec
 from app.core.config import settings
+from app.core.db import system_scope
 from app.core.exceptions import PermissionDeniedError
 from app.models.account import (
     OrgAccount,
@@ -38,10 +39,12 @@ class AuthService:
 
     # ---------- 登录 ----------
 
+    @system_scope
     async def login_password(self, login_name: str, password: str,
                              device_type: str = "pc", login_ip: str = "",
                              device_fp: str = "") -> dict:
         """账密登录（channel=password）。失败原因结构化：pwd_error/locked/disabled"""
+        # 豁免通道登记点②：认证链路查询属系统级（发生在 AuthContext 注入之前）
         account = await self.s.scalar(
             select(OrgAccount).where(
                 OrgAccount.login_name == login_name,
@@ -140,6 +143,7 @@ class AuthService:
         return {"access_token": access, "refresh_token": refresh, "session_id": session_id,
                 "expires_in": settings.access_token_expire_minutes * 60}
 
+    @system_scope
     async def _is_superuser(self, account_id: int) -> bool:
         role_ids = (await self.s.scalars(
             select(OrgAccountRole.role_id).where(OrgAccountRole.account_id == account_id)
@@ -151,6 +155,7 @@ class AuthService:
         )
         return cnt is not None
 
+    @system_scope
     async def _audit_fail(self, account: OrgAccount, device_type: str, ip: str, reason: str) -> None:
         self.s.add(OrgSession(
             tenant_id=account.tenant_id, session_id=sec.new_session_id(), account_id=account.id,
@@ -161,6 +166,7 @@ class AuthService:
 
     # ---------- 每请求校验 ----------
 
+    @system_scope
     async def validate_access(self, token: str) -> dict:
         """JWT 验签 → roles_ver 一致性 → Redis 会话存在性（即时吊销，FR-05b §5.2）"""
         payload = sec.decode_access_token(token)
@@ -181,6 +187,7 @@ class AuthService:
 
     # ---------- 刷新 / 登出 ----------
 
+    @system_scope
     async def refresh(self, refresh_token: str, device_type: str = "pc") -> dict:
         rt_hash = sec.hash_refresh_token(refresh_token)
         row = await self.s.scalar(
@@ -215,6 +222,7 @@ class AuthService:
 
     # ---------- 权限点（供菜单/按钮控制） ----------
 
+    @system_scope
     async def permissions_of(self, account_id: int) -> list[str]:
         role_ids = (await self.s.scalars(
             select(OrgAccountRole.role_id).where(OrgAccountRole.account_id == account_id)

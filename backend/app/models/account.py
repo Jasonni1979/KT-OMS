@@ -143,6 +143,34 @@ class OrgRolePerm(Base):
     create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
 
 
+class OrgDataPermission(Base):
+    """数据权限授权关系（D10.03 FR-02a/02b：节点授权源头 + 直接维度授权）"""
+
+    __tablename__ = "org_data_permission"
+    __table_args__ = {"schema": "oms_org"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1)
+    account_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
+    dim_type: Mapped[str] = mapped_column(
+        String(16), nullable=False,
+        comment="org_node/shop/brand/branch/owner",
+    )
+    dim_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    grant_scope: Mapped[str] = mapped_column(String(16), nullable=False, default="inherit",
+                                              comment="inherit=展开子树/self_only=仅本节点")
+    grant_source: Mapped[str] = mapped_column(String(16), nullable=False, default="direct")
+    reason: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    grant_op: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    expire_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+    is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+
+
 class OrgSession(Base):
     """refresh 会话落库（FR-05b：登出/禁用/踢出=删Redis+吊销双保险）"""
 

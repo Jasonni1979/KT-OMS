@@ -1,8 +1,4 @@
-"""全局中间件：trace_id 注入 + 请求日志 + AuthContext 骨架
-
-AuthContext 的完整四维解析（账号→角色→数据权限展开）在 M1 D10 实现；
-M0 骨架先放默认上下文，保证 contextvars 链路贯通（M0.4 数据权限 spike 的基础）。
-"""
+"""全局中间件：trace_id 注入 + 请求日志 + AuthContext 生命周期（D10.03 FR-04a）"""
 import time
 import uuid
 
@@ -11,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.core.db import AuthContext, set_auth_context
+from app.core.db import clear_auth_context
 
 
 class TraceMiddleware(BaseHTTPMiddleware):
@@ -38,12 +34,14 @@ class TraceMiddleware(BaseHTTPMiddleware):
 
 
 class AuthContextMiddleware(BaseHTTPMiddleware):
-    """M0 骨架：注入默认 AuthContext（tenant_id=1 开发租户）。
+    """请求级权限上下文生命周期管理（D10.03 FR-04a）
 
-    M1 替换为真实实现：解析 JWT → 账号 → 角色 → D10.03 数据权限展开（缓存）→ AuthContext。
-    外部租户（品牌方门户）强制单货主硬隔离在 D10.03 实现。
+    - 请求进入时清空上一请求残留的 AuthContext（contextvars 复用导致串扰的防线）
+    - 真实 scope 解析在 get_current_account 依赖中完成（JWT→账号→角色→四维展开→注入）
+    - 无登录态的公开接口（healthz 等）不注入上下文：ORM 查询因 fail-closed 被拒，
+      公共接口需用 text() 原生 SQL 或显式 without_data_scope() 豁免
     """
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        set_auth_context(AuthContext(tenant_id=1, is_superuser=True))
+        clear_auth_context()  # 清空残留（防跨请求串扰）
         return await call_next(request)

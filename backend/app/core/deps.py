@@ -9,10 +9,11 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import AuthContext, get_session, set_auth_context
+from app.core.db import get_session, set_auth_context
 from app.core.exceptions import PermissionDeniedError
 from app.services.auth import AuthService
 from app.services.master import get_redis
+from app.services.permission import build_auth_context
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -28,16 +29,9 @@ async def get_current_account(
     auth = AuthService(session, redis)
     result = await auth.validate_access(creds.credentials)
     account = result["account"]
-    # 注入 AuthContext（MVP：超管=all；普通账户四维过滤在 M1a-3 中间件按角色 data_scope 展开）
     is_super = bool(result.get("su"))
-    ctx = AuthContext(
-        tenant_id=account.tenant_id,
-        account_id=account.id,
-        is_superuser=is_super,
-        owner_ids=[] if is_super else [],   # M1a-3：非超管按角色授权节点展开
-        shop_ids=[],
-        branch_ids=[],
-    )
+    # 解析四维 scope（缓存优先，miss 实时展开）并注入 AuthContext（D10.03 FR-04a）
+    ctx = await build_auth_context(account.id, account.tenant_id, session, redis, is_super)
     set_auth_context(ctx)
     request.state.account_id = account.id
     return result

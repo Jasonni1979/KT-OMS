@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import get_session
+from app.core.db import get_session, without_data_scope
 from app.core.response import ok
 from app.models.hello import OrgTenant
 
@@ -25,11 +25,15 @@ async def readyz(session: AsyncSession = Depends(get_session)) -> dict:
 
 @router.get("/tenants")
 async def list_tenants(session: AsyncSession = Depends(get_session)) -> dict:
-    """跨 schema 查询演示：读 oms_org.org_tenant（M0 连通性验证用）"""
-    result = await session.execute(
-        select(OrgTenant).where(OrgTenant.is_deleted == 0).limit(20)
-    )
-    rows = result.scalars().all()
+    """跨 schema 查询演示：读 oms_org.org_tenant（M0 连通性验证用）
+
+    豁免通道登记点①：系统级演示接口，不承载用户数据 → 显式 without_data_scope()
+    """
+    with without_data_scope():
+        result = await session.execute(
+            select(OrgTenant).where(OrgTenant.is_deleted == 0).limit(20)
+        )
+        rows = result.scalars().all()
     return ok(
         {
             "total": len(rows),

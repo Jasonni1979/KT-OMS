@@ -40,6 +40,29 @@ class OrgNode(Base):
     is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
 
 
+class OrgNodeRelation(Base):
+    """节点与业务对象关联（D10.01 FR-07a：仓↔可服务货主多对多 = 三元记账前提）"""
+
+    __tablename__ = "org_node_relation"
+    __table_args__ = {"schema": "oms_org"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1)
+    node_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
+    rel_type: Mapped[str] = mapped_column(
+        String(32), nullable=False,
+        comment="shop/branch/owner/branch_owner/tenant_owner",
+    )
+    rel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    is_primary: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    status: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
+    create_op: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    update_time: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+
+
 class OrgOwner(Base):
     """货主档案（三元记账 owner_id 权威源，FR-03；类型创建后不可改）"""
 

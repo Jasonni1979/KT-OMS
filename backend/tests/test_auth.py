@@ -91,6 +91,21 @@ async def test_lock_after_5_failures(client):
     from app.services.auth import AuthService
 
     redis = await get_redis()
+    # 先清理残留（幂等，避免唯一键冲突）
+    from sqlalchemy import text as _text
+
+    from app.core.db import engine as _engine
+    async with _engine.begin() as conn:
+        await conn.execute(_text(
+            "DELETE FROM oms_org.org_session WHERE account_id IN "
+            "(SELECT id FROM oms_org.org_account WHERE login_name='t_lock_user')"
+        ))
+        await conn.execute(_text(
+            "DELETE FROM oms_org.org_account_credential WHERE account_id IN "
+            "(SELECT id FROM oms_org.org_account WHERE login_name='t_lock_user')"
+        ))
+        await conn.execute(_text("DELETE FROM oms_org.org_account WHERE login_name='t_lock_user'"))
+
     async with SessionFactory() as s:
         acc = OrgAccount(tenant_id=1, account_type="staff", login_name="t_lock_user",
                          account_name="锁定测试", org_node_id=1, status=2, source="local",

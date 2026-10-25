@@ -11,10 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
-from app.core.db import engine
+from app.core.db import engine, install_scope_injection
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import get_logger, setup_logging
 from app.core.middleware import AuthContextMiddleware, TraceMiddleware
+from app.models import registry  # noqa: F401  # 业务域可过滤实体声明注册（导入即生效）
 
 logger = get_logger("main")
 
@@ -22,6 +23,8 @@ logger = get_logger("main")
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging("DEBUG" if settings.debug else "INFO")
+    # D10.03 FR-04a：行级过滤注入已在模块加载期安装（此处仅确认日志）
+    install_scope_injection()
     logger.info("startup", app=settings.app_name, env=settings.env)
     yield
     await engine.dispose()

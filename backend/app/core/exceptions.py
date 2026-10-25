@@ -43,7 +43,7 @@ class PermissionDeniedError(BizError):
 
 class ValidationError(BizError):
     code = "VALIDATION_ERROR"
-    http_status = status.HTTP_422_UNPROCESSABLE_ENTITY
+    http_status = status.HTTP_422_UNPROCESSABLE_CONTENT
     message = "数据校验失败"
 
 
