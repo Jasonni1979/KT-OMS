@@ -41,6 +41,8 @@ jobs:
     name: Backend (pytest + MySQL/Redis)
     runs-on: ubuntu-latest
     needs: backend
+    permissions:
+      contents: write   # 供失败时回写 ci-dbg 诊断分支
     defaults:
       run:
         working-directory: backend
@@ -49,6 +51,12 @@ jobs:
 
       - name: Start MySQL & Redis containers
         run: |
+          # 镜像源：统一用 1ms.run 代理。理由（实测）：
+          #   ① 本机 Docker Hub 官方源直连超时（i/o timeout）
+          #   ② GitHub runner 官方源同样可能超时，且有匿名拉取限流（共享 IP → toomanyrequests）
+          #   ③ 上一轮 CI 的 mock-platform job 用 1ms.run 镜像构建成功 → 已验证在 runner 可用
+          docker pull docker.1ms.run/mysql:8.0
+          docker pull docker.1ms.run/redis:7-alpine
           docker rm -f ktoms-ci-mysql ktoms-ci-redis >/dev/null 2>&1 || true
           docker run -d --name ktoms-ci-mysql \
             -e MYSQL_ROOT_PASSWORD="$CI_MYSQL_PASSWORD" \
@@ -58,6 +66,16 @@ jobs:
           docker run -d --name ktoms-ci-redis \
             -p ${CI_REDIS_PORT}:6379 \
             docker.1ms.run/redis:7-alpine
+
+      - name: Container start snapshot（启动后立即留现场）
+        run: |
+          {
+            echo "--- docker ps ---"
+            docker ps -a --format "{{.Names}} | {{.Status}} | {{.Ports}} | {{.Image}}"
+            echo "--- image inspect ---"
+            docker images --format "{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}"
+          } 2>&1 | tee /tmp/ci-start.log
+          cat /tmp/ci-start.log
 
       - name: Wait for MySQL（TCP 就绪探测）
         run: |
@@ -119,8 +137,7 @@ jobs:
 
       - name: Self-diagnose to ci-dbg branch（失败时回写现场，供无 API 凭证环境排障）
         if: always()
-        permissions:
-          contents: write
+        continue-on-error: true   # 诊断回写失败不得影响主流程结论
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -132,6 +149,7 @@ jobs:
             echo "--- mysql tables ---"
             docker exec ktoms-ci-mysql mysql -h 127.0.0.1 -uroot -p"$CI_MYSQL_PASSWORD" -N \
               -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'oms_%';" 2>&1 || true
+            echo "--- start snapshot ---"; cat /tmp/ci-start.log 2>/dev/null || echo "(无启动快照)"
             echo "--- pytest tail ---"; tail -60 /tmp/pytest.log 2>/dev/null || echo "(无 pytest 日志)"
           } > /tmp/ci-dbg/status.txt
           cat /tmp/ci-dbg/status.txt
@@ -195,6 +213,7 @@ jobs:
       actions: read
     steps:
       - name: Publish status
+        continue-on-error: true
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -226,6 +245,7 @@ jobs:
 
       - name: Collect failed logs（供无 API 凭证环境排障）
         if: always()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.run_id }}
