@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多品牌多店铺运营能力设计 · 自研 OMS 补充报告</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#1A1D24; --ink2:#4A5160; --ink3:#8A91A0;
+  --line:#E3E6EC; --brand:#185FA5; --brand-soft:#E8F0FA;
+  --ok:#1E7E4A; --ok-soft:#E5F4EC; --warn:#B26A00; --warn-soft:#FDF1DE;
+  --risk:#B4342E; --risk-soft:#FBE9E8; --accent:#6B4FBB; --accent-soft:#EFEBFA;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161A; --card:#1D2026; --ink:#E8EAF0; --ink2:#B4BAC6; --ink3:#7C8494;
+    --line:#2C3038; --brand:#6FA3DC; --brand-soft:#1C2B3D;
+    --ok:#5CC08A; --ok-soft:#16281E; --warn:#E0A44C; --warn-soft:#2B2013;
+    --risk:#E8837C; --risk-soft:#2E1917; --accent:#A990F0; --accent-soft:#221C36; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:40px 28px 80px}
+.cover{padding:56px 0 36px;border-bottom:3px solid var(--brand);margin-bottom:36px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:4px 14px;font-weight:700;margin-bottom:18px}
+h1{font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.sub{font-size:16.5px;color:var(--ink2);margin-top:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.meta span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+h2{font-size:22px;font-weight:800;margin:52px 0 18px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2 .n{color:var(--brand);font-family:var(--mono);font-size:16px;margin-right:10px;font-weight:700}
+h3{font-size:16.5px;font-weight:700;margin:28px 0 12px;color:var(--ink)}
+p{margin:10px 0;color:var(--ink2)}
+b{color:var(--ink)}
+ul,ol{margin:10px 0 10px 22px;color:var(--ink2)}
+li{margin:6px 0}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-soft);color:var(--brand);border-radius:4px;padding:1px 6px}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:14px;color:var(--ink3);letter-spacing:.1em}
+.toc ol{columns:2;column-gap:36px;margin-left:20px;font-size:14px}
+.toc li{break-inside:avoid}
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+th{background:var(--brand-soft);color:var(--ink);font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:4px solid;font-size:14px}
+.callout .t{font-weight:800;margin-bottom:6px;display:block}
+.c-key{background:var(--brand-soft);border-color:var(--brand);color:var(--ink2)} .c-key .t{color:var(--brand)}
+.c-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ink2)} .c-ok .t{color:var(--ok)}
+.c-warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink2)} .c-warn .t{color:var(--warn)}
+.c-risk{background:var(--risk-soft);border-color:var(--risk);color:var(--ink2)} .c-risk .t{color:var(--risk)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;white-space:nowrap;vertical-align:1px}
+.t-p0{background:var(--risk-soft);color:var(--risk)} .t-p1{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-acc{background:var(--accent-soft);color:var(--accent)}
+.fig{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.fig svg{width:100%;height:auto}
+.cap{font-size:12.5px;color:var(--ink3);margin-top:10px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3)}
+@media print{
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{page-break-before:always;margin-top:20px} h2:first-of-type{page-break-before:avoid}
+  .fig,.tw,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <span class="eyebrow">WISE 技术交付中心 · 补充报告</span>
+  <h1>多品牌多店铺运营能力设计</h1>
+  <div class="sub">隔离设计的另一半：从「数据不串」到「多品牌日常可运营」· 租户模型 / 接入产品化 / 角色作业台 / 跨品牌视图</div>
+  <div class="meta">
+    <span>版本 V1.0</span><span>2026-10-23</span>
+    <span>配套：《底座复核与多品牌隔离设计》V1.0</span>
+    <span>规模基线：现状 ≤10 品牌/≤100 店铺 · 目标容量 30 品牌/500 店铺/日均 5 万单</span>
+  </div>
+</div>
+
+<div class="callout c-key">
+  <span class="t">本报告的定位</span>
+  隔离设计回答了「品牌之间数据不串、货权不混」——那是<b>防守面</b>。
+  代运营商的多品牌多店铺还有<b>进攻面</b>：签一个新品牌=一个新租户上线，<b>接入速度就是营收速度</b>；
+  运营团队要按品牌高效作业（混合制：大品牌专团队+小品牌共享池）；管理层要跨品牌看经营。
+  本报告设计四件事：<b>租户模型、品牌接入产品化（≤3 工作日/品牌）、角色模板与品牌作业台、跨品牌经营视图</b>。
+</div>
+
+<div class="callout c-ok">
+  <span class="t">规模结论先行</span>
+  现状 ≤10 品牌/≤100 店铺，单逻辑实例承载毫无压力；按 <b>30 品牌/500 店铺/日均 5 万单</b> 做目标容量设计（约 3 年余量），
+  底座订单表已有 <code>idx_shopid_orderid_createtime</code>、<code>idx_orgid_ordertype...</code> 复合索引，同步任务按店铺分片即可覆盖目标容量——<b>规模不构成架构风险，接入效率才是代运营的真瓶颈</b>。
+</div>
+
+<div class="toc">
+  <h3>目录 CONTENTS</h3>
+  <ol>
+    <li><a href="#o1">租户模型：品牌=租户</a></li>
+    <li><a href="#o2">品牌接入产品化（五步 SOP）</a></li>
+    <li><a href="#o3">角色模板与品牌作业台</a></li>
+    <li><a href="#o4">跨品牌经营视图</a></li>
+    <li><a href="#o5">规模与性能设计</a></li>
+    <li><a href="#o6">里程碑影响与验收</a></li>
+  </ol>
+</div>
+
+<h2 id="o1"><span class="n">01</span>租户模型：品牌=租户</h2>
+
+<div class="fig">
+<svg viewBox="0 0 680 400" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="680" height="400" rx="14" fill="#FFFFFF"/>
+<title>租户模型：品牌为租户的五类挂载资源</title>
+<rect x="140" y="20" width="400" height="48" rx="10" fill="#E8F0FA" stroke="#185FA5" stroke-width="2"/>
+<text x="340" y="40" font-family="-apple-system,PingFang SC,sans-serif" font-size="13" font-weight="700" fill="#185FA5" text-anchor="middle">品牌（租户）</text>
+<text x="340" y="57" font-family="-apple-system,PingFang SC,sans-serif" font-size="10" fill="#4A5160" text-anchor="middle">= 核算主体 cos + 货主 owner + 组织节点 org</text>
+
+<rect x="30" y="100" width="116" height="64" rx="9" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="88" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">店铺集合</text>
+<text x="88" y="142" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">平台授权 · 店铺-货主映射</text>
+<text x="88" y="156" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">shop.org_id/cos_id 挂载</text>
+<rect x="156" y="100" width="116" height="64" rx="9" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="214" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">策略模板集</text>
+<text x="214" y="142" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">审单规则 · 库存同步策略</text>
+<text x="214" y="156" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">结算口径 · 售后策略</text>
+<rect x="282" y="100" width="116" height="64" rx="9" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="340" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">角色与账号集</text>
+<text x="340" y="142" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">品牌角色模板实例化</text>
+<text x="340" y="156" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">账号→店铺集合授权</text>
+<rect x="408" y="100" width="116" height="64" rx="9" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="466" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">商品与库存</text>
+<text x="466" y="142" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">品牌商品池 · 五态库存</text>
+<text x="466" y="156" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">按货主+仓+SKU 存储</text>
+<rect x="534" y="100" width="116" height="64" rx="9" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="592" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">结算与对账</text>
+<text x="592" y="142" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">结算单带 cos_id</text>
+<text x="592" y="156" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">品牌对账单独立出账</text>
+
+<path d="M340 68 L88 100" stroke="#8A91A0" stroke-width="1.2"/>
+<path d="M340 68 L214 100" stroke="#8A91A0" stroke-width="1.2"/>
+<path d="M340 68 L340 100" stroke="#8A91A0" stroke-width="1.2"/>
+<path d="M340 68 L466 100" stroke="#8A91A0" stroke-width="1.2"/>
+<path d="M340 68 L592 100" stroke="#8A91A0" stroke-width="1.2"/>
+
+<rect x="30" y="196" width="620" height="52" rx="9" fill="#EFEBFA" stroke="#6B4FBB"/>
+<text x="340" y="217" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#6B4FBB" text-anchor="middle">跨品牌层（只读聚合）：经营看板 · 对比报表 · 管理层视图</text>
+<text x="340" y="236" font-family="-apple-system,PingFang SC,sans-serif" font-size="10" fill="#4A5160" text-anchor="middle">权限独立于业务权限；仅白名单脱敏指标；物理隔离品牌只上送聚合值</text>
+
+<rect x="30" y="272" width="620" height="104" rx="10" fill="#F2F4F7" stroke="#8A91A0"/>
+<text x="46" y="294" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24">租户生命周期（与隔离设计的路由规则衔接）</text>
+<text x="46" y="314" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">签约评审 → 路由判定（逻辑实例 / 物理实例，双签留痕）→ 五步接入 SOP → 运营期 → 续约/退出</text>
+<text x="46" y="332" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">退出：店铺授权回收 → 在途单排空 → 结算清零 → 数据转只读归档（保留合规年限）→ 租户状态置「已退出」</text>
+<text x="46" y="350" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">迁移：逻辑实例品牌触发物理条件时，用 B3 的 ETL 组件反向导出开新实例（工具复用，不另建）</text>
+<text x="46" y="368" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">休眠：品牌暂停运营时租户置「休眠」，停止同步与计费资源，数据保留可唤醒</text>
+</svg>
+<div class="cap">图 1 · 租户模型：品牌=租户，挂载店铺/策略/角色/商品库存/结算五类资源；跨品牌层只读聚合；生命周期含路由、退出与迁移通道</div>
+</div>
+
+<h3>1.1 租户标识的三重映射（与底座字段对齐）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:22%">概念</th><th style="width:30%">底座承载</th><th>职责边界</th></tr></thead>
+<tbody>
+<tr><td><b>品牌（租户）</b></td><td>租户主表（新建）= 品牌档案</td><td>商务与生命周期主体：合同、路由判定、退出归档</td></tr>
+<tr><td><b>核算主体</b></td><td><code>organization.cos</code>（cos_id）</td><td>财务与结算维度：结算单/对账单强制携带</td></tr>
+<tr><td><b>货主</b></td><td>库存 owner 字段（隔离设计组件②新建，语义复用 cos）</td><td>库存与仓内作业维度：WMS 货主档案一一对应</td></tr>
+<tr><td><b>组织节点</b></td><td><code>organization.org</code>（org_id）</td><td>运营组织维度：角色挂载与作业台分组</td></tr>
+</tbody>
+</table></div>
+<p>四个 ID 在租户主表中一一映射并作为<b>唯一权威</b>，任何业务表只引用其中之一（按维度选），禁止业务代码自行推断映射关系——这是防止「品牌-店铺-货主」错挂的制度性保障。</p>
+
+<h2 id="o2"><span class="n">02</span>品牌接入产品化（五步 SOP，目标 ≤3 工作日/品牌）</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:8%">步</th><th style="width:24%">动作</th><th style="width:36%">内容</th><th>耗时目标</th></tr></thead>
+<tbody>
+<tr><td><b>1</b></td><td>品牌建档</td><td>租户主表创建；cos/org/owner 三 ID 生成并映射；路由判定结论挂档（逻辑/物理）</td><td>0.5 天（含双签）</td></tr>
+<tr><td><b>2</b></td><td>店铺接入</td><td>店铺创建+平台授权（Token）；店铺-货主映射配置；授权连通性自动校验</td><td>0.5-1 天（视平台审核）</td></tr>
+<tr><td><b>3</b></td><td>模板套用</td><td>从模板库选择并实例化：审单规则模板、库存同步策略模板、结算口径模板、售后策略模板；差异项逐条确认</td><td>0.5 天</td></tr>
+<tr><td><b>4</b></td><td>角色分配</td><td>按运营模式选角色模板（专团队/共享池）实例化；账号开通与店铺集合授权</td><td>0.5 天</td></tr>
+<tr><td><b>5</b></td><td>验证放行</td><td>接入自检清单自动跑：授权拉单 1 笔、审单规则命中校验、库存同步值比对、权限越权抽测 4 项；全绿后租户置「运营中」</td><td>0.5 天</td></tr>
+</tbody>
+</table></div>
+
+<h3>2.1 模板库设计（接入速度的核心资产）</h3>
+<ul>
+  <li><b>四类模板</b>：审单规则、库存同步策略（可售计算/安全库存/同步频率）、结算口径（佣金结构/费用项/对账维度）、售后策略（退货地址/仅退款阈值/换货规则）。</li>
+  <li><b>版本化+继承</b>：模板有版本号，品牌实例化时记录模板版本；模板升级不自动覆盖已实例化品牌，提供「差异对比+选择性升级」。</li>
+  <li><b>模板来源</b>：首批模板从存量品牌配置反向提炼（M1 知识抢救回访纪要+通天晓 OFS 配置导出）；此后每接入 3 个品牌复盘一次模板覆盖率，覆盖率目标 ≥80%（即 80% 配置项无需品牌级定制）。</li>
+</ul>
+
+<div class="callout c-warn">
+  <span class="t">接入 SOP 的验收方式：真品牌演练</span>
+  试点阶段（S2）内，用<b>一个真实新签品牌</b>按五步 SOP 完成接入并纳入 G2 门禁验收——证明接入是产品化能力而非人工手艺。
+  若当期无新签品牌，则用一个存量品牌做「退出-重接入」演练（在测试实例执行）。
+</div>
+
+<h2 id="o3"><span class="n">03</span>角色模板与品牌作业台</h2>
+
+<h3>3.1 角色模板（混合制运营的两套基线）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:20%">角色模板</th><th style="width:34%">数据范围（行级权限中间件注入）</th><th>典型作业</th></tr></thead>
+<tbody>
+<tr><td><b>品牌运营（专团队）</b></td><td>本品牌全部店铺：订单/库存/售后读写；本品牌结算只读</td><td>审单、异常单处理、库存策略调整、售后处理</td></tr>
+<tr><td><b>共享池运营</b></td><td>被授权的 N 个品牌店铺集合（账号级配置）；品牌间切换作业</td><td>同品牌运营，多品牌轮转；作业台带品牌切换器</td></tr>
+<tr><td><b>品牌客服</b></td><td>本品牌订单/售后读写；库存只读；结算不可见</td><td>查单、退货登记、物流异常跟进</td></tr>
+<tr><td><b>品牌财务对接人</b></td><td>本品牌结算/对账读写；订单只读（金额字段可见）</td><td>对账单确认、费用核对、发票信息维护</td></tr>
+<tr><td><b>运营总监（跨品牌）</b></td><td>全部逻辑实例品牌的订单/库存只读+聚合；物理实例仅聚合值</td><td>跨品牌巡检、资源调配、升级决策</td></tr>
+<tr><td><b>系统管理员</b></td><td>配置权限全开，<b>业务数据默认不可见</b>（需临时授权+审计留痕）</td><td>模板维护、租户管理、权限配置</td></tr>
+</tbody>
+</table></div>
+<p><b>设计原则</b>：角色模板=功能权限包，账号=角色模板×店铺集合（数据范围）的实例化。功能权限与数据范围<b>正交分离</b>——这是隔离设计组件①在运营侧的落地形态，避免为每个品牌×角色组合硬编码权限。</p>
+
+<h3>3.2 品牌作业台（日常运营的统一入口）</h3>
+<ul>
+  <li><b>品牌切换器</b>：共享池运营登录后默认进入「我的品牌」列表，切换品牌即切换全部页面数据范围（中间件按当前品牌注入过滤）；切换动作记审计。</li>
+  <li><b>作业台四象限</b>：待审单/异常单（履约）、库存预警（可售低于安全线/同步失败）、售后待办、对账待确认——每象限只展示当前品牌数据并带平台维度细分。</li>
+  <li><b>大促模式</b>：品牌级开关，开启后作业台突出积压监控与批量审单入口，冻结该品牌策略变更（与迁移方案冻结窗口联动）。</li>
+</ul>
+
+<h2 id="o4"><span class="n">04</span>跨品牌经营视图</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:22%">视图</th><th style="width:40%">内容</th><th>数据源与权限</th></tr></thead>
+<tbody>
+<tr><td><b>经营看板</b></td><td>各品牌 GMV/单量/履约时效/客诉率/库存周转，日粒度趋势</td><td>逻辑实例聚合表（T+1）+ 物理实例上送聚合值；运营总监/管理层可见</td></tr>
+<tr><td><b>品牌对比报表</b></td><td>同指标跨品牌横向对比、排名、环比</td><td>同上；导出带水印与授权记录</td></tr>
+<tr><td><b>接入与续约视图</b></td><td>租户生命周期状态、合同到期提醒、接入 SOP 进度</td><td>租户主表；商务+管理层可见</td></tr>
+<tr><td><b>资源负载视图</b></td><td>各品牌同步任务量/接口调用量/异常率，用于共享池排班与容量规划</td><td>监控组件；技术负责人+运营总监可见</td></tr>
+</tbody>
+</table></div>
+<p><b>边界规则</b>：跨品牌视图<b>只读、聚合、脱敏</b>三原则；明细数据永不跨品牌可见（含管理层）；物理隔离品牌在视图中与逻辑品牌呈现一致（聚合值同构），管理层无感知差异。视图实现为独立聚合服务（T+1 批处理），不侵入 OMS 在线库——与建议书「KPI 报表独立服务」的 P2 规划同源，MVP 期先交付经营看板最小集（单量/GMV/履约时效三指标）。</p>
+
+<h2 id="o5"><span class="n">05</span>规模与性能设计</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:24%">维度</th><th style="width:30%">目标容量（3 年余量）</th><th>设计对策</th></tr></thead>
+<tbody>
+<tr><td><b>订单量</b></td><td>日均 5 万单、大促峰值 10 倍</td><td>底座 Swoole 队列+订单表复合索引（idx_shopid_orderid_createtime 已存在）；归档策略：完结订单 90 天后转归档分区（与只读历史库同构）</td></tr>
+<tr><td><b>店铺同步</b></td><td>500 店铺并发拉单/回传</td><td>同步任务按店铺分片+令牌桶限流（按平台配额）；失败店铺自动退避重试并告警</td></tr>
+<tr><td><b>权限模型</b></td><td>千级账号×店铺集合授权</td><td>账号→店铺集合授权结果缓存（变更即失效）；中间件过滤走索引字段，不引入全表扫描</td></tr>
+<tr><td><b>库存</b></td><td>货主×仓×SKU 千万级行</td><td>五态库存按（owner, warehouse, sku）主键组织；可售计算批处理+增量触发双通道</td></tr>
+<tr><td><b>实例数</b></td><td>逻辑 1 + 物理 ≤3</td><td>物理实例超 3 触发架构复盘（隔离设计 5 章）；逻辑实例垂直扩容优先于拆分</td></tr>
+</tbody>
+</table></div>
+<div class="callout c-ok">
+  <span class="t">规模结论</span>
+  现状到目标容量之间有 5 倍以上余量，且底座索引与队列模型已覆盖主要压力点——<b>多品牌规模不是本项目的架构风险项</b>。
+  真正需要持续投入的是接入效率（模板覆盖率）与权限模型的正确性（渗透测试），两者都已挂门禁。
+</div>
+
+<h2 id="o6"><span class="n">06</span>里程碑影响与验收</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:14%">阶段</th><th style="width:44%">本报告新增交付</th><th>验收标准</th></tr></thead>
+<tbody>
+<tr><td><b>M1</b></td><td>租户主表与四 ID 映射设计定稿；模板库首批模板提炼（来源：知识抢救纪要+OFS 配置导出）</td><td>映射表评审通过；四类模板各 ≥1 个基线版本</td></tr>
+<tr><td><b>M2</b></td><td>角色模板六类实现+品牌作业台（切换器/四象限/大促模式）；接入 SOP 工具化（自检清单自动跑）</td><td>越权抽测全绿；作业台 UAT 通过（运营代表签字）</td></tr>
+<tr><td><b>S2（试点）</b></td><td>真实新品牌按五步 SOP 接入演练（或存量品牌退出-重接入演练）</td><td>接入耗时 ≤3 工作日；自检清单全绿；纳入 G2 门禁</td></tr>
+<tr><td><b>M4-M6</b></td><td>跨品牌经营看板最小集上线；模板覆盖率复盘机制启动</td><td>看板三指标与财务口径勾稽一致；覆盖率基线建立</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">收尾：代运营视角的完整能力图</span>
+  隔离设计（防守面）+ 本报告（进攻面）= 多品牌多店铺的完整答案：
+  <b>数据不串</b>（强制层四组件+混合隔离）、<b>接得快</b>（五步 SOP+模板库，≤3 工作日/品牌）、
+  <b>作业顺</b>（角色模板×数据范围正交+品牌作业台）、<b>看得清</b>（跨品牌只读聚合视图）、<b>撑得住</b>（目标容量 3 年余量）。
+  五项能力分别挂 G1/G2 门禁与 M1/M2 交付物，随主计划推进，不另立项目。
+</div>
+
+<div class="foot">
+  多品牌多店铺运营能力设计 V1.0 · 2026-10-23 · WISE 技术交付中心<br>
+  配套文档：《自研 OMS 决策建议书》V1.0 ·《底座复核与多品牌隔离设计》V1.0 ·《团队组建与遗留系统稳定保障方案》V1.0 ·《迁移切换执行方案》V1.0
+</div>
+
+</div>
+</body>
+</html>

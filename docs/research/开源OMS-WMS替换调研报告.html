@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开源 OMS / WMS 替换调研报告 · 替代通天晓 OFS+WMS</title>
+<style>
+  :root{
+    --brand:#185FA5;
+    --brand-2:#0E4C87;
+    --brand-soft:#E8F1F9;
+    --ink:#12161C;
+    --ink-2:#3C4654;
+    --ink-3:#6B7684;
+    --line:#DDE3EA;
+    --bg:#FFFFFF;
+    --bg-2:#F7F9FB;
+    --ok:#0F7B4F;
+    --ok-bg:#E4F5EC;
+    --warn:#A8630A;
+    --warn-bg:#FDF1E0;
+    --bad:#B3261E;
+    --bad-bg:#FBEAE8;
+    --info:#185FA5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);
+    line-height:1.75;font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+
+  /* ---------- header ---------- */
+  header{
+    background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);
+    color:#fff;padding:56px 0 48px;margin-bottom:36px;
+  }
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:760px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .pill{
+    background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);
+    padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500;
+  }
+
+  /* ---------- section ---------- */
+  section{margin-bottom:44px}
+  h2{
+    font-size:21px;font-weight:700;color:var(--brand);
+    padding-bottom:11px;border-bottom:2px solid var(--brand-soft);
+    margin-bottom:20px;display:flex;align-items:baseline;gap:11px;
+  }
+  h2 .num{
+    background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:14px;flex-shrink:0;
+  }
+  h3{font-size:16.5px;font-weight:650;margin:26px 0 12px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+
+  /* ---------- verdict ---------- */
+  .verdict{
+    background:var(--bg);border:1px solid var(--line);border-left:5px solid var(--warn);
+    border-radius:10px;padding:24px 28px;margin-bottom:8px;
+  }
+  .verdict h3{margin-top:0;font-size:18px;color:var(--warn)}
+  .verdict p:last-child{margin-bottom:0}
+
+  .callout{
+    background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;
+    padding:20px 24px;margin:20px 0;
+  }
+  .callout p:last-child{margin-bottom:0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+
+  .warnbox{
+    background:var(--bad-bg);border:1px solid #F0C4C0;border-left:5px solid var(--bad);
+    border-radius:10px;padding:20px 24px;margin:20px 0;
+  }
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+
+  /* ---------- table ---------- */
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:760px}
+  thead th{
+    background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;
+    padding:12px 13px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:13px;
+  }
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--brand-soft)}
+  td.nm{font-weight:600;color:var(--ink);white-space:nowrap}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  .tag{
+    display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;
+    font-weight:650;white-space:nowrap;letter-spacing:.02em;
+  }
+  .t-mit{background:var(--ok-bg);color:var(--ok)}
+  .t-apache{background:#E7EEF9;color:#1B4E86}
+  .t-weak{background:var(--warn-bg);color:var(--warn)}
+  .t-strong{background:var(--bad-bg);color:var(--bad)}
+  .t-cond{background:#EFECF7;color:#5B4A9E}
+
+  .pulse{font-weight:650}
+  .p-hot{color:var(--ok)}
+  .p-mid{color:var(--warn)}
+  .p-cold{color:var(--bad)}
+
+  code{
+    background:#EEF2F6;padding:1.5px 6px;border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2);
+  }
+
+  /* ---------- cards ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+  .card h4{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--ink)}
+  .card p{font-size:13.5px;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card .ico{font-size:20px;margin-bottom:8px;display:block}
+
+  /* ---------- score bars ---------- */
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
+  .bar-label{width:190px;flex-shrink:0;color:var(--ink-2);font-weight:550}
+  .bar-track{flex:1;height:8px;background:#E8EDF2;border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px}
+  .bar-val{width:38px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-3);font-weight:600}
+
+  /* ---------- steps ---------- */
+  .step{
+    display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);
+  }
+  .step:last-child{border-bottom:none}
+  .step-num{
+    width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;
+  }
+  .step-body{flex:1}
+  .step-body h4{font-size:15px;font-weight:650;margin-bottom:6px;color:var(--ink)}
+  .step-body p{font-size:13.5px;margin-bottom:0}
+
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:7px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .src{font-size:12.5px;color:var(--ink-3);line-height:1.9}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">开源选型调研 · 技术决策输入</div>
+    <h1>开源 OMS / WMS 替换可行性调研<br>目标：替代通天晓 OFS + WMS</h1>
+    <p class="sub">
+      针对当前在技术运维与厂商协作上的困境，评估以开源方案 + 自研团队接管 OMS/WMS 的可能性。
+      核心筛选条件：<strong style="color:#fff">宽松许可证（MIT 优先）以规避知识产权风险</strong>、社区活跃度、代码可维护性、二次开发成本。
+    </p>
+    <div class="meta-row">
+      <span class="pill">数据来源：GitHub REST API 实测</span>
+      <span class="pill">样本量：15+ 仓库逐一核验</span>
+      <span class="pill">核验时间：2026-10-17</span>
+      <span class="pill">结论：MIT 直选不成立</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>核心结论（先看这里）</h2>
+
+  <div class="verdict">
+    <h3>结论 1：符合"MIT 协议"的成熟 OMS/WMS，客观上不存在</h3>
+    <p>
+      对 GitHub 上全部主流候选逐一核验许可证后，<strong>没有一个同时满足「MIT 协议 + 成熟可用」的 OMS 或 WMS 项目</strong>。
+      搜索结果中被大量文章标注为 "MIT 协议" 的项目，经 GitHub API 实测<strong>均为错误信息</strong>（详见第 3 节打假表）。
+    </p>
+  </div>
+
+  <div class="verdict" style="border-left-color:var(--info)">
+    <h3 style="color:var(--info)">结论 2：Apache-2.0 才是开源 OMS/WMS 的事实标准，且商业友好度不输 MIT</h3>
+    <p>
+      真正成熟的候选项目集中在 <strong>Apache-2.0</strong> 协议下（GreaterWMS、OpenWMS 等）。
+      <strong>Apache-2.0 与 MIT 同属宽松许可（Permissive License），均允许闭源商用、修改、再分发，无需开源自身代码。</strong>
+      对"规避知识产权风险"这个目标而言，Apache-2.0 <strong>甚至优于 MIT</strong>——它额外包含明确的专利授权条款与专利反诉终止条款。
+    </p>
+  </div>
+
+  <div class="verdict" style="border-left-color:var(--bad)">
+    <h3 style="color:var(--bad)">结论 3：必须排除 AGPL-3.0 项目，这是最大的隐性雷区</h3>
+    <p>
+      最贴合电商场景的开源 OMS 项目 <code>zeasin/qihang-oms</code>（启航 OMS，支持淘宝/京东/拼多多/抖店/微信小店）
+      常被当作"开源电商 OMS"推荐，但实测其协议为 <strong>AGPL-3.0</strong>：只要通过网络提供服务，就必须向用户开放全部修改后的源码。
+      <strong>这与"避免知识产权风险"的诉求直接冲突，且比继续用通天晓的法律风险更大。</strong>
+    </p>
+  </div>
+
+  <div class="verdict" style="border-left-color:var(--ok)">
+    <h3 style="color:var(--ok)">结论 4：技术可行性成立，但"直接 fork 上生产"不成立</h3>
+    <p>
+      开源方案能解决的是<strong>「厂商运维绑架」和「知识产权归属」</strong>两个问题，但解决不了<strong>「谁来长期养这套代码」</strong>。
+      务实路径是：<strong>以 Apache-2.0 项目为骨架参考 + 自建核心领域模型 + 增量替换</strong>，而非整体迁移。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>候选项目实测清单（GitHub API 原始数据）</h2>
+
+  <p>下表所有数据均通过 GitHub REST API 实时拉取，含 <code>pushed_at</code> 最后提交时间与 <code>license.spdx_id</code> 协议字段。</p>
+
+  <h3>2.1 WMS 方向</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>项目</th><th>协议</th><th>技术栈</th><th class="num">Star</th><th class="num">Fork</th><th>最后提交</th><th>维护状态</th><th>适用性判断</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="nm">GreaterWMS/GreaterWMS<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">福特亚太售后物流衍生</span></td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>Python / Django<br>Quasar(Vue)</td>
+        <td class="num">4,411</td><td class="num">1,169</td>
+        <td>2026-10-13</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td><strong>最推荐</strong>。中文文档完整，Django 团队技术栈友好，ASN/波次/拣货/Milk-Run/多仓齐备，有真实企业生产验证背景</td>
+      </tr>
+      <tr>
+        <td class="nm">openwms/org.openwms<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">欧洲 WMS 社区标准实现</span></td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>Java / Spring Boot<br>Hibernate + Kafka</td>
+        <td class="num">748</td><td class="num">224</td>
+        <td>2026-07-13</td>
+        <td class="pulse p-mid">● 稳定</td>
+        <td>架构最规范，Java 团队友好。但属传统 WMS 模型，电商多平台订单场景需大量扩展</td>
+      </tr>
+      <tr>
+        <td class="nm">openboxes/openboxes<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">医疗供应链方向</span></td>
+        <td><span class="tag t-weak">EPL-1.0</span></td>
+        <td>Groovy / Grails</td>
+        <td class="num">915</td><td class="num">509</td>
+        <td>2026-10-16</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td>EPL-1.0 属弱著佐权：修改的 <code>.class</code> 需回馈，但业务代码可闭源。医疗批次效期模型强，电商适配差</td>
+      </tr>
+      <tr>
+        <td class="nm">fjykTec/ModernWMS</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>.NET 7 / Vue 3</td>
+        <td class="num">1,787</td><td class="num">—</td>
+        <td>2025-06-22</td>
+        <td class="pulse p-cold">● 停滞 16 个月</td>
+        <td>功能完整度尚可，但长期无提交，<strong>不建议作为自研起点</strong></td>
+      </tr>
+      <tr>
+        <td class="nm">zccbbg/wms-ruoyi<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">若依 WMS，中文社区</span></td>
+        <td><span class="tag t-cond">NOASSERTION</span></td>
+        <td>Java / Spring Boot<br>Vue + Element UI</td>
+        <td class="num">1,219</td><td class="num">303</td>
+        <td>2026-03-20</td>
+        <td class="pulse p-mid">● 一般</td>
+        <td>协议为「保留协议声明即可商用」的宽松条款，但非标准 SPDX，<strong>法务需单独出具确认函</strong></td>
+      </tr>
+      <tr>
+        <td class="nm">jingsewu/open-wes<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">WES 仓储执行系统</span></td>
+        <td><span class="tag t-mit">MIT</span></td>
+        <td>Java / 微服务<br>TypeScript</td>
+        <td class="num">341</td><td class="num">—</td>
+        <td>2026-10-13</td>
+        <td class="pulse p-mid">● 活跃但仅 4 人</td>
+        <td><strong>唯一较可信的 MIT WMS 候选</strong>，但团队规模小（4 contributors），成熟度需自行验证</td>
+      </tr>
+      <tr>
+        <td class="nm">OCA/stock-logistics-warehouse<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">Odoo 官方协会仓库</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>Python / Odoo</td>
+        <td class="num">419</td><td class="num">—</td>
+        <td>2026-10-16</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td><strong>协议排除项。</strong>功能强但 AGPL 传染性不满足诉求</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>2.2 OMS 方向</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>项目</th><th>协议</th><th>技术栈</th><th class="num">Star</th><th>平台覆盖</th><th>最后提交</th><th>适用性判断</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="nm">ShopeX/OMS (ONEX OMS)<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">商派科技官方开源</span></td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>PHP / 自研 MVC<br>Swoole 队列</td>
+        <td class="num">—</td>
+        <td>淘宝/京东/拼多多<br>抖音/私域</td>
+        <td>2026-09-26</td>
+        <td><strong>OMS 首选参考。</strong>v8.10.0 持续迭代，含库存状态机、智能寻源、奇门 WMS 对接、财务对账。业务模型与通天晓最接近</td>
+      </tr>
+      <tr>
+        <td class="nm">zeasin/qihang-oms<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">启航电商 OMS</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>Spring Boot 3 / Vue</td>
+        <td class="num">30</td>
+        <td>淘宝/京东/拼多多<br>抖店/微信小店/快手</td>
+        <td>2026-09-10</td>
+        <td><strong>协议排除项。</strong>功能最贴合但 AGPL-3.0 不可用于闭源商用；仅可作产品需求参考</td>
+      </tr>
+      <tr>
+        <td class="nm">medusajs/medusa<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">海外电商中台</span></td>
+        <td><span class="tag t-cond">MIT + 商业条款</span></td>
+        <td>TypeScript / Node</td>
+        <td class="num">36,772</td>
+        <td>海外电商为主</td>
+        <td>2026-10-16</td>
+        <td>工程能力与文档质量最高，<strong>但为混合许可</strong>，核心包与商业模块条款不同，法务审查成本高</td>
+      </tr>
+      <tr>
+        <td class="nm">bagisto/bagisto</td>
+        <td><span class="tag t-mit">MIT</span></td>
+        <td>PHP / Laravel</td>
+        <td class="num">28,247</td>
+        <td>通用电商</td>
+        <td>2026-10-16</td>
+        <td>标准 MIT，但偏独立站商城，<strong>非全渠道 OMS 中台架构</strong>，与 OFS 场景差距大</td>
+      </tr>
+      <tr>
+        <td class="nm">saleor/saleor</td>
+        <td><span class="tag t-weak">BSD-3</span></td>
+        <td>Python / GraphQL</td>
+        <td class="num">23,446</td>
+        <td>海外电商</td>
+        <td>2026-10-16</td>
+        <td>Headless 架构，<strong>不含 WMS/多仓寻源</strong>，仅可作商品与订单域参考</td>
+      </tr>
+      <tr>
+        <td class="nm">frappe/erpnext</td>
+        <td><span class="tag t-strong">GPL-3.0</span></td>
+        <td>Python / Frappe</td>
+        <td class="num">40,250</td>
+        <td>全模块 ERP</td>
+        <td>2026-10-16</td>
+        <td><strong>协议排除项。</strong>GPL-3.0 强著佐权，与闭源商用目标冲突</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>信息打假：网络流传的许可证错误</h2>
+
+  <p>本轮检索中，<strong>大量中文技术博客与聚合站点给出的许可证信息与 GitHub 实际不符</strong>，这会直接导致错误的选型决策，特此列出：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>被错误标注</th><th>网络文章声称</th><th>GitHub API 实测</th><th>风险后果</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="nm">zeasin/qihang-oms</td>
+        <td>MIT</td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td><strong>致命</strong>。AGPL 下闭源商用即违约，且网络传播即触发开源义务</td>
+      </tr>
+      <tr>
+        <td class="nm">OCA/stock-logistics-warehouse</td>
+        <td>MIT / LGPL</td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td><strong>致命</strong>。同上</td>
+      </tr>
+      <tr>
+        <td class="nm">medusajs/medusa</td>
+        <td>MIT</td>
+        <td><span class="tag t-cond">MIT + 商业条款</span></td>
+        <td><strong>高</strong>。混合许可，部分模块有限制，需逐包审查</td>
+      </tr>
+      <tr>
+        <td class="nm">hightower-systems/sentry-wms</td>
+        <td>MIT</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>低。两者均宽松</td>
+      </tr>
+      <tr>
+        <td class="nm">frappe/erpnext</td>
+        <td>MIT</td>
+        <td><span class="tag t-strong">GPL-3.0</span></td>
+        <td><strong>致命</strong>。强著佐权传染</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⚠ 另需甄别：内容农场已污染搜索结果</span>
+    <p>
+      本次检索中，<code>commgearpro.com</code>、<code>tsight.io</code> 等站点大量输出看似专业、实则<strong>虚构的开源项目</strong>
+      （如 "Stockpile WMS"、"WMS-Lite"、"WarehouseOS (Go/React)"），并附有伪造的合规认证、压测数据与客户案例。
+      这些站点同时在推销商业 SaaS，<strong>不可作为选型依据</strong>。本报告所有数据均以 GitHub API 为准。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>许可证合规性对照</h2>
+
+  <p>按"能否闭源商用、能否规避知识产权风险"排序，协议分为三档：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>协议档位</th><th>具体协议</th><th>闭源商用</th><th>修改后是否需开源</th><th>专利保护</th><th>本项目适配度</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm" style="color:var(--ok)">A档 推荐<br><span style="font-size:12px;font-weight:400">宽松许可</span></td>
+        <td><span class="tag t-mit">MIT</span> <span class="tag t-apache">Apache-2.0</span> <span class="tag t-weak">BSD-3</span></td>
+        <td>✅ 允许</td>
+        <td>❌ 不需要</td>
+        <td>Apache-2.0 有<br>（含专利反诉终止）</td>
+        <td><strong>完全满足诉求</strong></td>
+      </tr>
+      <tr style="background:var(--warn-bg)">
+        <td class="nm" style="color:var(--warn)">B档 谨慎<br><span style="font-size:12px;font-weight:400">弱著佐权</span></td>
+        <td><span class="tag t-weak">EPL-1.0</span> <span class="tag t-weak">LGPL</span> <span class="tag t-cond">MPL-2.0</span></td>
+        <td>✅ 允许</td>
+        <td>⚠️ 仅修改的文件/库需回馈</td>
+        <td>部分有</td>
+        <td>需架构隔离，法务可接受</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm" style="color:var(--bad)">C档 排除<br><span style="font-size:12px;font-weight:400">强著佐权</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span> <span class="tag t-strong">GPL-3.0</span> <span class="tag t-strong">SSPL</span></td>
+        <td>❌ 不允许</td>
+        <td>⚠️ 必须开源，含网络服务场景</td>
+        <td>无</td>
+        <td><strong>与诉求冲突，排除</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">关于"必须 MIT"的建议</span>
+    <p>
+      如果法务硬性要求 MIT 原文，<strong>可执行的候选仅剩：WMS 侧 <code>jingsewu/open-wes</code>（4 人团队，风险自担），OMS 侧无可选项。</strong>
+      建议向法务提交说明：<strong>Apache-2.0 与 MIT 同属宽松许可，对"避免被厂商绑定、避免知识产权纠纷"的实际目标达成度相同，且额外提供专利授权与专利反诉终止保护，权利人保护强于 MIT。</strong>
+      这是可辩护的标准立场。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>综合评分</h2>
+
+  <p>对最可行的三个组合方案，按企业落地关键维度打分（满分 100）：</p>
+
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:24px 26px;margin:18px 0">
+    <h4 style="font-weight:700;margin-bottom:14px;color:var(--ink)">方案 A：ShopeX ONEX OMS（Apache-2.0）+ GreaterWMS（Apache-2.0）　<strong style="color:var(--brand)">推荐</strong></h4>
+    <div class="bar-row"><div class="bar-label">协议合规（闭源商用）</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--ok)"></div></div><div class="bar-val">100</div></div>
+    <div class="bar-row"><div class="bar-label">业务模型贴合度</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--brand)"></div></div><div class="bar-val">82</div></div>
+    <div class="bar-row"><div class="bar-label">代码可维护性</div><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--brand)"></div></div><div class="bar-val">70</div></div>
+    <div class="bar-row"><div class="bar-label">中文文档与支持</div><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--brand)"></div></div><div class="bar-val">85</div></div>
+    <div class="bar-row"><div class="bar-label">社区活跃度</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--brand)"></div></div><div class="bar-val">78</div></div>
+    <div style="margin-top:16px;font-size:13.5px;color:var(--ink-2)">
+      <strong>优势：</strong>协议干净、业务模型与 OFS 最接近、双方均持续迭代、中文文档完备。<br>
+      <strong>代价：</strong>PHP 后端与 Java 技术栈不同源；WMS 侧需重写移动端 PDA 作业层。
+    </div>
+  </div>
+
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:24px 26px;margin:18px 0">
+    <h4 style="font-weight:700;margin-bottom:14px;color:var(--ink)">方案 B：OpenWMS（Apache-2.0）+ 自建 OMS 核心域</h4>
+    <div class="bar-row"><div class="bar-label">协议合规（闭源商用）</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--ok)"></div></div><div class="bar-val">100</div></div>
+    <div class="bar-row"><div class="bar-label">业务模型贴合度</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--warn)"></div></div><div class="bar-val">62</div></div>
+    <div class="bar-row"><div class="bar-label">代码可维护性</div><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--ok)"></div></div><div class="bar-val">85</div></div>
+    <div class="bar-row"><div class="bar-label">中文文档与支持</div><div class="bar-track"><div class="bar-fill" style="width:45%;background:var(--warn)"></div></div><div class="bar-val">45</div></div>
+    <div class="bar-row"><div class="bar-label">社区活跃度</div><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--brand)"></div></div><div class="bar-val">70</div></div>
+    <div style="margin-top:16px;font-size:13.5px;color:var(--ink-2)">
+      <strong>优势：</strong>Java 技术栈统一，WMS 架构最规范，长期可维护性最好。<br>
+      <strong>代价：</strong>传统 WMS 模型，电商多平台/多仓寻源/预售下沉需大量自研，前期投入最大。
+    </div>
+  </div>
+
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:24px 26px;margin:18px 0">
+    <h4 style="font-weight:700;margin-bottom:14px;color:var(--ink)">方案 C：MIT 硬约束（open-wes）+ 自研 OMS</h4>
+    <div class="bar-row"><div class="bar-label">协议合规（闭源商用）</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--ok)"></div></div><div class="bar-val">100</div></div>
+    <div class="bar-row"><div class="bar-label">业务模型贴合度</div><div class="bar-track"><div class="bar-fill" style="width:48%;background:var(--bad)"></div></div><div class="bar-val">48</div></div>
+    <div class="bar-row"><div class="bar-label">代码可维护性</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--bad)"></div></div><div class="bar-val">40</div></div>
+    <div class="bar-row"><div class="bar-label">中文文档与支持</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:var(--bad)"></div></div><div class="bar-val">35</div></div>
+    <div class="bar-row"><div class="bar-label">社区活跃度</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--bad)"></div></div><div class="bar-val">38</div></div>
+    <div style="margin-top:16px;font-size:13.5px;color:var(--ink-2)">
+      <strong>结论：</strong>4 人团队的 MIT 项目风险过高，<strong>不建议作为生产系统底座</strong>。仅在"MIT 原文"为硬性红线时作为备选。
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>风险与真实成本（决策必读）</h2>
+
+  <p>开源替换的账不能只算"省掉多少授权费"。以下是必须计入 TCO 的项目：</p>
+
+  <div class="cards">
+    <div class="card">
+      <span class="ico">🔧</span>
+      <h4>人力持续投入</h4>
+      <p>具备批次管理能力的多仓 WMS 改造，常见投入 <strong>数人到十余人月</strong>；若涉及波次策略与自动化设备对接，人天成倍增加。</p>
+      <p>更关键的是<strong>人员离职造成的知识断层</strong>——这是自建系统长期维护的最大风险。</p>
+    </div>
+    <div class="card">
+      <span class="ico">🔗</span>
+      <h4>集成成本不因开源而降低</h4>
+      <p>与 ERP / TMS / 各电商平台 / 财务的接口，两条路线都省不掉。差别在于商业厂商有标准连接器与实施方法论，自建路线<strong>每根接口都按项目计费</strong>。</p>
+    </div>
+    <div class="card">
+      <span class="ico">⛓️</span>
+      <h4>升级分叉不可持续</h4>
+      <p>开源社区版本迭代快但不承诺兼容。深度二开后代码与上游渐行渐远，最终形成<strong>「不敢升级、只能自己养」的私有分支</strong>。</p>
+    </div>
+    <div class="card">
+      <span class="ico">🔒</span>
+      <h4>运维与安全责任转移</h4>
+      <p>仓库作业 7×24 连续，系统宕机直接影响发货。服务器、数据库、漏洞修复、备份、监控告警、应急预案<strong>全部转移为企业自身责任</strong>。</p>
+    </div>
+    <div class="card">
+      <span class="ico">📉</span>
+      <h4>并发与数据一致性</h4>
+      <p>多货主、高频出入库场景下，开源项目常缺悲观/乐观锁校验；SKU 从千级到十万级时，默认索引配置往往无法支撑跨表查询。</p>
+    </div>
+    <div class="card">
+      <span class="ico">🏗️</span>
+      <h4>自动化设备对接缺口</h4>
+      <p>WCS 中间件对接 AGV / 堆垛机 / 穿梭车 / 输送线，开源项目普遍缺标准驱动层。通天晓在花西子、五芳斋、中百等项目中已验证过这部分。</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="t">成本对比的正确算法</span>
+    <p>
+      不要比"首年软件投入"。开源路线首年便宜（主要是人力），但逐年摊薄运维与二开成本；
+      商用路线前期投入高，但升级、行业模板、厂商 SLA 由厂商承担。
+      <strong>按三年 TCO 口径测算，开源路线的净节省通常远小于直觉预期</strong>——尤其是当业务复杂度超过开源作者的预设场景时。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>建议路径：不 fork，而是"参考 + 自建"</h2>
+
+  <div class="callout" style="background:var(--ok-bg);border-color:#B8E0CC">
+    <span class="t" style="color:var(--ok)">核心判断</span>
+    <p>
+      开源 WMS/OMS 的绝大多数项目诞生于<strong>作者个人的特定业务场景</strong>，代码缺乏系统性业务文档、模块耦合度高。
+      直接 fork 意味着接手一份<strong>没有文档的技术负债</strong>，而非继承一份成熟资产。
+      <strong>更稳妥的做法是把开源项目当作"领域模型的参考实现"和"避坑清单"，核心资产自建。</strong>
+    </p>
+  </div>
+
+  <h3>四阶段推进路径</h3>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>阶段一：解耦与止血（1–2 个月）</h4>
+      <p>把对通天晓的耦合降到最低——梳理所有接口、定时任务、数据同步、报表依赖清单。<strong>此阶段不换系统，只做"可迁移性"准备</strong>，让后续任何路线都有退路。产出：接口与数据资产清单。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>阶段二：PoC 验证（2–3 个月）</h4>
+      <p>用 <code>GreaterWMS</code> 或 <code>ONEX OMS</code> 搭一套<strong>独立于生产环境的沙箱</strong>，导入真实历史数据跑完整业务流。重点验证：多平台订单归集、库存状态机、多仓寻源、波次拣货、批次效期、PDA 扫码防呆。产出：可行性结论 + 差距清单 + 工作量评估。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>阶段三：增量替换（6–12 个月）</h4>
+      <p><strong>不追求一次性替换</strong>。按模块优先级逐个切：新渠道先切、部分仓库先切、新业务线先切。保持通天晓与新系统并行，通过数据管道对齐库存。任一环节出问题可回退。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h4>阶段四：能力内化（持续）</h4>
+      <p>核心领域模型（订单状态机、库存账、寻源规则、波次算法）<strong>必须完全自有</strong>，不依赖任何上游仓库的开源更新。建立内部文档规范与代码评审机制——这是自研系统能否活过两年的真正决定因素。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section>
+  <h2><span class="num">8</span>下一步行动项</h2>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:44px">#</th><th>行动</th><th>产出</th><th>建议责任方</th><th>周期</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>向法务提交许可证评估说明：Apache-2.0 与 MIT 同属宽松许可，申请以 Apache-2.0 为准入标准</td><td>法务书面确认函</td><td>法务 + 技术</td><td>1 周</td></tr>
+      <tr><td>2</td><td>梳理通天晓现有系统的接口、数据模型、外部依赖全清单</td><td>解耦与迁移清单</td><td>技术团队</td><td>1–2 月</td></tr>
+      <tr><td>3</td><td>部署 GreaterWMS + ONEX OMS 沙箱环境，导入脱敏历史数据</td><td>可运行 Demo</td><td>技术团队</td><td>2 周</td></tr>
+      <tr><td>4</td><td>业务部门参与 PoC 验证，输出功能差距清单与优先级</td><td>差距分析报告</td><td>业务 + 技术</td><td>1 月</td></tr>
+      <tr><td>5</td><td>基于 PoC 结果做三年 TCO 测算与最终路线决策</td><td>决策纪要</td><td>管理层</td><td>1 月</td></tr>
+      <tr><td>6</td><td>排查 <code>qihang-oms</code>(AGPL) 等项目是否已在内部被引用，<strong>立即停止引入</strong></td><td>合规整改</td><td>技术 + 法务</td><td>立即</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">一句话总结</span>
+    <p>
+      <strong>技术上可行，协议上可行，但"MIT + 成熟"这个组合不存在。</strong>
+      建议放弃对 MIT 的字面坚持，把法务关推到 Apache-2.0（保护力度实际更强），
+      然后用"参考 + 自建 + 增量替换"的方式走——<strong>开源解决的是"不被绑架"，自研解决的是"能不能活下去"，两者缺一不可。</strong>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="src">
+    <strong>数据来源与核验方法</strong><br>
+    · 全部项目指标通过 GitHub REST API v3 实时拉取（<code>repos/{owner}/{repo}</code> 端点），含 <code>license.spdx_id</code>、<code>stargazers_count</code>、<code>pushed_at</code>、<code>languages</code>、<code>contributors</code> 字段<br>
+    · 核验时间：2026-10-17；开源项目数据随时间变化，正式决策前请复核<br>
+    · 已剔除内容农场与 AI 生成的虚构项目数据<br>
+    · 商业 WMS 自建成本区间参考自行业实施经验数据，具体数值需结合自身仓型、SKU 量级与自动化设备情况重新测算
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

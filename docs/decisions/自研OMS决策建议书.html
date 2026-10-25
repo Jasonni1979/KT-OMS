@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自研 OMS 决策建议书 · 代运营 + 经销双业务</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#1A1D24; --ink2:#4A5160; --ink3:#8A91A0;
+  --line:#E3E6EC; --brand:#185FA5; --brand-soft:#E8F0FA;
+  --ok:#1E7E4A; --ok-soft:#E5F4EC; --warn:#B26A00; --warn-soft:#FDF1DE;
+  --risk:#B4342E; --risk-soft:#FBE9E8; --accent:#6B4FBB; --accent-soft:#EFEBFA;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161A; --card:#1D2026; --ink:#E8EAF0; --ink2:#B4BAC6; --ink3:#7C8494;
+    --line:#2C3038; --brand:#6FA3DC; --brand-soft:#1C2B3D;
+    --ok:#5CC08A; --ok-soft:#16281E; --warn:#E0A44C; --warn-soft:#2B2013;
+    --risk:#E8837C; --risk-soft:#2E1917; --accent:#A990F0; --accent-soft:#221C36; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:40px 28px 80px}
+/* cover */
+.cover{padding:56px 0 36px;border-bottom:3px solid var(--brand);margin-bottom:36px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:4px 14px;font-weight:700;margin-bottom:18px}
+h1{font-size:34px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.sub{font-size:17px;color:var(--ink2);margin-top:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.meta span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+/* headings */
+h2{font-size:23px;font-weight:800;margin:56px 0 18px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2 .n{color:var(--brand);font-family:var(--mono);font-size:16px;margin-right:10px;font-weight:700}
+h3{font-size:17px;font-weight:700;margin:30px 0 12px;color:var(--ink)}
+h4{font-size:15px;font-weight:700;margin:20px 0 8px;color:var(--ink2)}
+p{margin:10px 0;color:var(--ink2)}
+b{color:var(--ink)}
+ul,ol{margin:10px 0 10px 22px;color:var(--ink2)}
+li{margin:6px 0}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-soft);color:var(--brand);border-radius:4px;padding:1px 6px}
+/* toc */
+.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:14px;color:var(--ink3);letter-spacing:.1em}
+.toc ol{columns:2;column-gap:36px;margin-left:20px;font-size:14px}
+.toc li{break-inside:avoid}
+/* table */
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+th{background:var(--brand-soft);color:var(--ink);font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+/* callout */
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:4px solid;font-size:14px}
+.callout .t{font-weight:800;margin-bottom:6px;display:block}
+.c-key{background:var(--brand-soft);border-color:var(--brand);color:var(--ink2)} .c-key .t{color:var(--brand)}
+.c-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ink2)} .c-ok .t{color:var(--ok)}
+.c-warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink2)} .c-warn .t{color:var(--warn)}
+.c-risk{background:var(--risk-soft);border-color:var(--risk);color:var(--ink2)} .c-risk .t{color:var(--risk)}
+/* tags */
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;white-space:nowrap;vertical-align:1px}
+.t-p0{background:var(--risk-soft);color:var(--risk)} .t-p1{background:var(--warn-soft);color:var(--warn)}
+.t-p2{background:var(--brand-soft);color:var(--brand)} .t-ok{background:var(--ok-soft);color:var(--ok)}
+.t-acc{background:var(--accent-soft);color:var(--accent)}
+/* fig */
+.fig{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.fig svg{width:100%;height:auto}
+.cap{font-size:12.5px;color:var(--ink3);margin-top:10px}
+/* card grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}.toc ol{columns:1}}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.pcard h4{margin:0 0 8px;color:var(--ink);font-size:15px}
+.pcard.rec{border:2px solid var(--ok);position:relative}
+.pcard.rec::after{content:"推荐";position:absolute;top:-11px;right:14px;background:var(--ok);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:1px 10px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3)}
+@media print{
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{page-break-before:always;margin-top:20px} h2:first-of-type{page-break-before:avoid}
+  .fig,.tw,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <span class="eyebrow">WISE 技术交付中心 · 决策建议书</span>
+  <h1>自研 OMS 决策建议书</h1>
+  <div class="sub">面向电商代运营 + 经销双业务 · 以 ShopeX ONEX OMS 为底座的分阶段自研路线</div>
+  <div class="meta">
+    <span>版本 V1.0</span><span>2026-10-23</span><span>状态：待决策层评审</span>
+    <span>前置文档：开源 OMS/WMS 替换调研报告（2026-10-17）</span>
+  </div>
+</div>
+
+<div class="callout c-key">
+  <span class="t">本版核心结论（只读这一段也够）</span>
+  ① 技术路线推荐 <b>「ShopeX ONEX OMS（Apache-2.0）为代码底座 + 自研团队二次开发接管」</b>，纯从零自研在 3-5 人团队规模下不可行；
+  ② <b>WMS 不替换</b>，沿用通天晓 WMS，通过奇门 / RESTful 标准接口对接，仓内作业零变动；
+  ③ 业务优先级：<b>代运营链路 P0</b>（多品牌多店铺、平台授权、货权分离、三方结算），<b>经销链路 P1</b>（采购、成本、调拨、批发价）；
+  ④ 节奏：<b>3 个月 MVP</b>，单品牌试点跑通「订单归集 → 审单 → 寻源 → 下发 WMS → 回传」全链路，随后并行双跑、灰度切换、下线通天晓 OFS；
+  ⑤ 全程保留回退能力：并行期内通天晓 OFS 随时可回切，OMS 侧回退不影响仓内作业。
+</div>
+
+<div class="toc">
+  <h3>目录 CONTENTS</h3>
+  <ol>
+    <li><a href="#c1">背景与痛点</a></li>
+    <li><a href="#c2">建设目标与业务范围</a></li>
+    <li><a href="#c3">技术路线对比与推荐</a></li>
+    <li><a href="#c4">目标架构设计</a></li>
+    <li><a href="#c5">功能清单（P0 / P1 / P2）</a></li>
+    <li><a href="#c6">实施里程碑（3 个月 MVP）</a></li>
+    <li><a href="#c7">团队配置与投入估算</a></li>
+    <li><a href="#c8">风险清单与回退方案</a></li>
+  </ol>
+</div>
+
+<h2 id="c1"><span class="n">01</span>背景与痛点</h2>
+
+<h3>1.1 现状</h3>
+<p>公司作为电商代运营服务商，同时经营<b>代运营</b>（多品牌多店铺、平台授权经营、货权归品牌方）与<b>经销</b>（买断货权、采购入库、批发分销）两类业务。当前订单履约全链路依赖通天晓：<b>OFS 订单履约系统 + WMS 仓储管理系统</b>，覆盖淘宝/天猫、京东、拼多多、抖店、微信小店及私域渠道的订单处理，以及仓内 PDA、波次、复核、称重、发运作业。</p>
+
+<h3>1.2 为什么要动</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:22%">痛点</th><th>具体表现</th><th style="width:22%">影响</th></tr></thead>
+<tbody>
+<tr><td><b>技术运维受制于厂商</b></td><td>问题响应依赖厂商排期，故障定位是黑盒，定制需求周期长、报价不可控</td><td>大促保障被动，业务节奏被卡</td></tr>
+<tr><td><b>厂商合作存在不确定性</b></td><td>续约议价能力弱；OFS+WMS 双系统绑定同一厂商，依赖度过高</td><td>商务与经营安全风险</td></tr>
+<tr><td><b>知识产权不在自己手里</b></td><td>订单中台作为业务最上游核心系统，代码与数据模型均不可控</td><td>长期竞争力无法沉淀</td></tr>
+<tr><td><b>双业务耦合支持不足</b></td><td>代运营的货权分离、三方结算与经销的成本核算、批发价格体系，在通用 OFS 中难以两全</td><td>财务对账靠人工，规模化受限</td></tr>
+</tbody>
+</table></div>
+
+<h3>1.3 前序调研结论（2026-10-17，本建议书的依据）</h3>
+<ul>
+  <li><b>MIT 协议的成熟 OMS/WMS 客观不存在</b>；Apache-2.0 是事实标准，商业友好度不输 MIT（含专利授权与反诉终止条款），可闭源自研。</li>
+  <li><b>ShopeX ONEX OMS 是唯一「协议干净 + 业务完整 + 厂商级迭代」三重达标项</b>：商派官方开源，Apache-2.0，v8.10.0 于 2026-09-26 发版；60+ 业务模块中 <code>dealer</code>（经销商）、<code>taoguan*</code>（淘宝官仓）、<code>presale</code>（预售）、<code>vop</code>（京东 VOP）、<code>tgstockcost</code>（库存成本）、<code>purchase</code>（采购）、<code>finance</code>（财务）、<code>qimen</code>（奇门对接）直接命中代运营与经销诉求，与通天晓 OFS 业务模型重合度最高。</li>
+  <li><b>启航系（qihang）是功能陷阱</b>：平台覆盖最广但协议为 AGPL-3.0，网络交互即触发全量开源义务，闭源商用硬性排除，只可作产品需求参考。</li>
+  <li><b>「直接 fork 上生产」不成立</b>：开源解决的是厂商绑架与知产归属，解决不了「谁来长期养这套代码」——必须自建团队接管。</li>
+  <li><b>通天晓官方已声明 WMS 支持第三方 OMS 对接</b>：标准 RESTful API 平台，预置出库订单、入库通知、退货预报、库存对账报文，先换 OMS 不动 WMS 的路径官方背书。</li>
+</ul>
+
+<h2 id="c2"><span class="n">02</span>建设目标与业务范围</h2>
+
+<h3>2.1 建设目标</h3>
+<div class="grid2">
+  <div class="pcard"><h4>🎯 自主可控</h4><p style="font-size:13.5px">订单中台源码在手，运维不再受厂商排期制约；对通天晓的依赖从 OFS+WMS 双依赖降为仅 WMS 单依赖，续约谈判地位显著改善。</p></div>
+  <div class="pcard"><h4>🧩 双业务一套中台</h4><p style="font-size:13.5px">代运营（货权分离、多品牌隔离、三方结算）与经销（买断货权、成本核算、批发体系）在同一订单中台上以货主/业务类型维度区分，不做两套系统。</p></div>
+  <div class="pcard"><h4>⚡ 3 个月见效</h4><p style="font-size:13.5px">MVP 聚焦代运营核心履约链路，单品牌试点上线；用最小变更拿到最大自主权，仓内作业零感知。</p></div>
+  <div class="pcard"><h4>🔌 可插拔扩展</h4><p style="font-size:13.5px">平台对接、WMS 对接、财务结算均按适配层设计，后续换 WMS、接新平台、整合财务数据源不动核心域模型。</p></div>
+</div>
+
+<h3>2.2 业务范围界定</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:16%">优先级</th><th style="width:26%">范围</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><span class="tag t-p0">P0 · MVP</span></td><td><b>代运营履约链路</b></td><td>多平台订单归集、多品牌多店铺管理、平台授权、审单、寻源分仓、下发通天晓 WMS、物流回传、库存同步、基础结算对账</td></tr>
+<tr><td><span class="tag t-p1">P1 · MVP 后 3-6 月</span></td><td><b>经销业务链路</b></td><td>采购管理、入库通知、成本核算、多仓调拨、批发价格体系、经销商（dealer）管理</td></tr>
+<tr><td><span class="tag t-p2">P2 · 按需</span></td><td><b>增值与深化</b></td><td>预售、O2O/POS、京东 VOP、KPI 报表、财务系统深度整合（可插拔）、WMS 替换决策</td></tr>
+<tr><td><span class="tag t-acc">不在范围</span></td><td>仓内作业系统</td><td>PDA、波次、复核、称重、发运、FEFO 全部保留在通天晓 WMS，本建议书不涉及</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">范围决策依据</span>
+  代运营是收入基本盘、订单量与痛点最集中，且 ShopeX 底座对代运营模块（多店铺、货权、结算）覆盖最完整，故列 P0；经销链路依赖的 <code>purchase</code> / <code>tgstockcost</code> / <code>dealer</code> 模块底座中已有骨架，P1 阶段做适配增强而非从零建，投入可控。
+</div>
+
+<h2 id="c3"><span class="n">03</span>技术路线对比与推荐</h2>
+
+<h3>3.1 三条候选路线</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:15%">维度</th><th style="width:28%">路线 A：ShopeX 底座二开<br><span class="tag t-ok">推荐</span></th><th style="width:28%">路线 B：纯从零自研</th><th style="width:29%">路线 C：继续通天晓 OFS 优化</th></tr></thead>
+<tbody>
+<tr><td><b>做法</b></td><td>fork ShopeX ONEX OMS（Apache-2.0），自研团队接管源码，按双业务需求裁剪增强，逐步替换通天晓 OFS</td><td>自建领域模型与代码框架，参考开源项目设计，不引入其代码</td><td>不动系统，通过商务谈判改善 SLA 与响应</td></tr>
+<tr><td><b>协议风险</b></td><td>无。Apache-2.0 可闭源商用，保留 LICENSE/NOTICE 即可</td><td>无（但需严格防火墙，防止团队参考 AGPL 项目代码造成污染）</td><td>无</td></tr>
+<tr><td><b>3 个月 MVP 可行性</b></td><td><b>可行</b>。60+ 模块已含多平台归集、审单、寻源、奇门对接，MVP 主要工作是裁剪、对接、验证</td><td><b>不可行</b>。仅平台 API 对接（淘宝/京东/拼多多/抖店/微信小店五套授权与订单模型）就需 3 个月以上</td><td>不适用</td></tr>
+<tr><td><b>投入（人力·年）</b></td><td>约 3-5 人 × 0.5-1 年到稳定期</td><td>约 6-10 人 × 1.5-2 年，且需要资深订单域架构师</td><td>0 研发投入，持续支付厂商费用</td></tr>
+<tr><td><b>自主可控</b></td><td>高：源码在手，二开后与上游解耦自主演进</td><td>最高：完全自有</td><td>无改善</td></tr>
+<tr><td><b>核心风险</b></td><td>PHP/Swoole 技术栈团队适配成本；底座代码理解期；与上游版本分叉后的维护责任</td><td>周期与人力远超预算；订单域坑位（超卖、拆合单、状态机）需全部自己踩</td><td>厂商依赖与运维痛点原样保留，谈判地位不改善</td></tr>
+<tr><td><b>痛点解决度</b></td><td>OMS 侧全解，对通天晓依赖减半</td><td>全解，但远水不解近渴</td><td>不解决</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-ok">
+  <span class="t">推荐结论：路线 A（ShopeX 底座二开）</span>
+  在「3-5 人小团队 + 3 个月 MVP」的约束下，路线 A 是唯一可行解。路线 B 的从零自研周期至少 18 个月、人力翻倍，不符合当前团队规模；路线 C 不解决任何根本痛点。<b>「以 Apache-2.0 项目为骨架 + 自建核心领域模型 + 增量替换」</b>正是前序调研认定的务实路径。
+  <br><b>2026-10-23 补充修订</b>：经源码级复核，底座准确定位为「多店铺数据模型 + 单运营主体运营视图」——多品牌数据钩子齐全（店铺挂组织/核算主体、订单带 org/cos 维度），但隔离强制层（行级权限/库存货主/品牌结算/品牌审单规则）需二开自建，+3-4 周进 M2。该修订<b>不改变路线结论</b>：隔离强制层在任何路线上都是必建增量，换底座只保留增量、丢掉重资产。详见《底座复核与多品牌隔离设计》。
+</div>
+
+<h3>3.2 路线 A 的三个关键工程决策</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:22%">决策点</th><th style="width:39%">选择</th><th>理由</th></tr></thead>
+<tbody>
+<tr><td><b>与上游的关系</b></td><td>接管即分叉：fork 后建立内部主仓库，不再跟随上游自动合并；按季度评估上游安全补丁，人工挑选合入</td><td>二开深度会迅速扩大 diff，自动合并成本高于收益；Apache-2.0 无回馈义务</td></tr>
+<tr><td><b>技术栈</b></td><td>保留 PHP / Swoole 主体，不做大重写；新增独立能力（如数据看板、对账 Job）可用团队熟悉的语言以独立服务 + API 方式挂接</td><td>重写等于变相走路线 B；Swoole 队列性能足够支撑单品牌试点到全量</td></tr>
+<tr><td><b>WMS 对接层</b></td><td>优先复用底座 <code>qimen</code>（奇门）模块；若通天晓走私有 RESTful 报文，则新建独立适配器模块，核心域模型不感知 WMS 品牌</td><td>可插拔设计，为 P2 阶段 WMS 替换决策保留选择权</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="c4"><span class="n">04</span>目标架构设计</h2>
+
+<h3>4.1 当前架构 → 目标架构</h3>
+
+<div class="fig">
+<svg viewBox="0 0 680 470" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="680" height="470" rx="14" fill="#FFFFFF"/>
+<title>当前架构与目标架构对比</title>
+<text x="170" y="34" font-family="-apple-system,PingFang SC,sans-serif" font-size="15" font-weight="700" fill="#B4342E" text-anchor="middle">当前架构（双依赖通天晓）</text>
+<text x="510" y="34" font-family="-apple-system,PingFang SC,sans-serif" font-size="15" font-weight="700" fill="#1E7E4A" text-anchor="middle">目标架构（OMS 自主可控）</text>
+<line x1="340" y1="20" x2="340" y2="450" stroke="#E3E6EC" stroke-width="1" stroke-dasharray="4 4"/>
+
+<rect x="45" y="52" width="250" height="56" rx="10" fill="#E8F0FA" stroke="#185FA5" stroke-width="1"/>
+<text x="170" y="75" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#1A1D24" text-anchor="middle">电商平台</text>
+<text x="170" y="94" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" fill="#4A5160" text-anchor="middle">淘宝/天猫 · 京东 · 拼多多 · 抖店 · 微信小店 · 私域</text>
+
+<rect x="45" y="140" width="250" height="62" rx="10" fill="#FBE9E8" stroke="#B4342E" stroke-width="1.5"/>
+<text x="170" y="163" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#B4342E" text-anchor="middle">通天晓 OFS 订单履约</text>
+<text x="170" y="183" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">运维痛点集中 · 黑盒 · 厂商排期</text>
+
+<rect x="45" y="234" width="250" height="56" rx="10" fill="#FDF1DE" stroke="#B26A00" stroke-width="1"/>
+<text x="170" y="257" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#1A1D24" text-anchor="middle">通天晓 WMS</text>
+<text x="170" y="276" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">仓内执行 + FEFO</text>
+
+<rect x="45" y="322" width="250" height="48" rx="10" fill="#F2F4F7" stroke="#8A91A0" stroke-width="1"/>
+<text x="170" y="342" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">仓内作业</text>
+<text x="170" y="359" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">PDA · 波次 · 复核 · 称重 · 发运</text>
+
+<path d="M170 108 L170 140" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M170 202 L170 234" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M170 290 L170 322" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<rect x="385" y="52" width="250" height="56" rx="10" fill="#E8F0FA" stroke="#185FA5" stroke-width="1"/>
+<text x="510" y="75" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#1A1D24" text-anchor="middle">电商平台</text>
+<text x="510" y="94" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" fill="#4A5160" text-anchor="middle">渠道不变</text>
+
+<rect x="385" y="140" width="250" height="62" rx="10" fill="#E5F4EC" stroke="#1E7E4A" stroke-width="1.5"/>
+<text x="510" y="163" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#1E7E4A" text-anchor="middle">自研 OMS（ShopeX 底座二开）</text>
+<text x="510" y="183" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">Apache-2.0 · 源码在手 · 归集/审单/寻源/结算</text>
+
+<rect x="385" y="234" width="250" height="56" rx="10" fill="#FDF1DE" stroke="#B26A00" stroke-width="1"/>
+<text x="510" y="257" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#1A1D24" text-anchor="middle">通天晓 WMS（保留）</text>
+<text x="510" y="276" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">奇门 / RESTful 标准接口对接</text>
+
+<rect x="385" y="322" width="250" height="48" rx="10" fill="#F2F4F7" stroke="#8A91A0" stroke-width="1"/>
+<text x="510" y="342" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">仓内作业（零变动）</text>
+<text x="510" y="359" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">运营团队无感知切换</text>
+
+<path d="M510 108 L510 140" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M510 202 L510 234" stroke="#1E7E4A" stroke-width="1.5" marker-end="url(#ar2)"/>
+<path d="M510 290 L510 322" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<rect x="45" y="398" width="590" height="52" rx="10" fill="#EFEBFA" stroke="#6B4FBB" stroke-width="1"/>
+<text x="340" y="420" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#6B4FBB" text-anchor="middle">切换策略：并行双跑 → 按品牌灰度切流 → 全量切换 → 下线通天晓 OFS</text>
+<text x="340" y="439" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160" text-anchor="middle">并行期内通天晓 OFS 保留热备，随时可回切；OMS 侧回退不影响仓内作业</text>
+
+<defs>
+<marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8A91A0"/></marker>
+<marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1E7E4A"/></marker>
+</defs>
+</svg>
+<div class="cap">图 1 · 当前架构（左）与目标架构（右）：OMS 侧自主可控，WMS 侧沿用既有投资，仓内作业零变动</div>
+</div>
+
+<h3>4.2 自研 OMS 内部分层</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:20%">层</th><th style="width:44%">职责</th><th>底座对应模块 / 自建策略</th></tr></thead>
+<tbody>
+<tr><td><b>平台接入层</b></td><td>各平台店铺授权、订单/商品/库存 API 适配、消息推送（JOS/淘宝开放平台/拼多多/抖店）</td><td>底座多平台归集模块；缺失平台按适配器模式补建</td></tr>
+<tr><td><b>订单核心域</b></td><td>订单归集、审单规则、拆合单、寻源分仓、状态机、异常单处理</td><td>底座 <code>ome</code> / <code>omeauto</code> 订单中心与自动调度，二开重点区</td></tr>
+<tr><td><b>库存域</b></td><td>库存五态（在库/占用/在途/可售/冻结）、多货主隔离、平台库存同步、防超卖</td><td>底座库存模块 + <code>omevirtualwms</code>；货主隔离按代运营多品牌需求强化</td></tr>
+<tr><td><b>履约对接层</b></td><td>下发通天晓 WMS（出库单/入库通知/退货预报）、物流回传、库存对账报文</td><td><code>qimen</code> 奇门模块优先，通天晓私有报文则建独立适配器</td></tr>
+<tr><td><b>结算域</b></td><td>代运营三方结算（品牌方/平台/服务商）、佣金与费用归集、对账单</td><td>底座 <code>finance</code> 模块增强；财务系统数据源设计为<b>可插拔</b></td></tr>
+<tr><td><b>经销扩展域（P1）</b></td><td>采购、入库、成本核算、多仓调拨、批发价格体系、经销商管理</td><td><code>purchase</code> / <code>tgstockcost</code> / <code>dealer</code> 模块适配增强</td></tr>
+<tr><td><b>平台支撑层</b></td><td>账号权限、多租户/多品牌数据隔离、操作审计、监控告警、报表 KPI</td><td>底座权限体系 + 自建监控（切换期保障的关键）</td></tr>
+</tbody>
+</table></div>
+
+<h3>4.3 与通天晓 WMS 的对接设计</h3>
+<ul>
+  <li><b>四类核心报文</b>（通天晓官方预置标准）：出库订单下发、入库通知、退货预报、库存对账。MVP 阶段必须打通并做双向一致性校验。</li>
+  <li><b>库存口径对齐责任转移</b>：对接后 OMS 与 WMS 之间的库存一致性由自己团队保障，需建立日终自动对账 Job + 差异告警，这是过渡期最高优先级的稳定性工作。</li>
+  <li><b>接口降级预案</b>：WMS 接口异常时订单在 OMS 侧排队缓冲，恢复后自动补发，不丢单不重复下发（幂等键设计）。</li>
+</ul>
+
+<h2 id="c5"><span class="n">05</span>功能清单（P0 / P1 / P2）</h2>
+
+<h3>5.1 P0 · 代运营核心链路（MVP 必须交付）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:18%">功能域</th><th style="width:44%">功能点</th><th>底座现状 → 工作量评估</th></tr></thead>
+<tbody>
+<tr><td rowspan="2"><b>店铺与授权</b></td><td>多品牌多店铺管理、店铺-货主映射、平台授权管理（Token 刷新/失效告警）</td><td>底座已有多店铺体系 → <span class="tag t-ok">配置+增强</span></td></tr>
+<tr><td>数据权限隔离：按品牌隔离订单/库存/结算数据可见性</td><td>底座权限模型可承载 → <span class="tag t-p1">中等二开</span></td></tr>
+<tr><td rowspan="3"><b>订单处理</b></td><td>多平台订单归集（淘宝/天猫、京东、拼多多、抖店、微信小店）、订单状态机</td><td>底座核心能力 → <span class="tag t-ok">验证为主</span></td></tr>
+<tr><td>审单规则引擎（金额/地址/黑名单/留言/优惠校验）、自动+人工审单</td><td>底座 <code>omeauto</code> → <span class="tag t-p1">规则定制</span></td></tr>
+<tr><td>拆单/合单、寻源分仓、缺货挂起、异常单工作台</td><td>底座已有 → <span class="tag t-p1">按业务调优</span></td></tr>
+<tr><td rowspan="2"><b>库存</b></td><td>库存五态管理、平台库存同步策略（可售库存计算/安全库存/同步频率）</td><td>底座 + <code>omevirtualwms</code> → <span class="tag t-p1">口径对齐</span></td></tr>
+<tr><td>多货主库存隔离（代运营货权归品牌方，严禁串货）</td><td>需强化 → <span class="tag t-p0">重点二开</span></td></tr>
+<tr><td rowspan="2"><b>WMS 对接</b></td><td>出库单下发、物流单号回传、发货状态回传平台</td><td><code>qimen</code>/适配器 → <span class="tag t-p0">重点开发</span></td></tr>
+<tr><td>退货预报下发、销退入库回传</td><td>通天晓标准报文 → <span class="tag t-p1">联调</span></td></tr>
+<tr><td rowspan="2"><b>结算与对账</b></td><td>库存日终对账 Job（OMS vs WMS 差异告警）</td><td>自建 → <span class="tag t-p0">重点开发</span></td></tr>
+<tr><td>代运营基础结算：平台账单归集、佣金/费用明细、品牌方对账单导出</td><td><code>finance</code> 模块增强 → <span class="tag t-p1">中等二开</span></td></tr>
+<tr><td><b>运维保障</b></td><td>监控告警（订单积压/接口失败/授权失效）、操作审计日志、大促压测</td><td>自建 → <span class="tag t-p0">重点开发</span></td></tr>
+<tr><td rowspan="2"><b>多品牌隔离强制层</b><br><span class="tag t-acc">10-23 新增</span></td><td>行级数据权限中间件（账号→店铺集合，列表/详情/导出/API 四层统一注入）；库存货主维度（五态按货主+仓+SKU）</td><td>底座有钩子无强制 → <span class="tag t-p0">重点二开</span>（+2-3 周）</td></tr>
+<tr><td>品牌结算闭环（结算单强制带核算主体）；品牌级审单规则（全局/品牌/店铺三级作用域）；混合隔离模型（敏感品牌物理实例路由）</td><td>自建为主 → <span class="tag t-p0">重点二开</span>（+1 周）；详见《底座复核与多品牌隔离设计》</td></tr>
+</tbody>
+</table></div>
+
+<h3>5.2 P1 · 经销业务链路（MVP 后 3-6 个月）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:18%">功能域</th><th style="width:44%">功能点</th><th>底座现状</th></tr></thead>
+<tbody>
+<tr><td><b>采购管理</b></td><td>采购单、供应商管理、到货预约、入库通知下发 WMS</td><td><code>purchase</code> 模块 → 适配增强</td></tr>
+<tr><td><b>成本核算</b></td><td>采购成本、移动加权/批次成本、毛利分析</td><td><code>tgstockcost</code> 模块 → 适配增强</td></tr>
+<tr><td><b>多仓调拨</b></td><td>调拨单、在途库存、调拨出入库与 WMS 联动</td><td>底座调拨能力 → 联调验证</td></tr>
+<tr><td><b>批发体系</b></td><td>批发价格体系（等级价/客户价）、经销商账户</td><td><code>dealer</code> 模块 → 适配增强</td></tr>
+<tr><td><b>结算深化</b></td><td>经销应付/应收、与代运营结算合并对账视图</td><td>自建为主</td></tr>
+</tbody>
+</table></div>
+
+<h3>5.3 P2 · 按需启动</h3>
+<ul>
+  <li>预售（<code>presale</code>）、O2O/POS、京东 VOP（<code>vop</code>）、淘宝官仓（<code>taoguan*</code>）等增值模块激活</li>
+  <li>KPI 报表与经营看板（可独立服务实现，不侵入 OMS 主体）</li>
+  <li>财务系统深度整合：数据源<b>可插拔</b>设计，待财务数据可用性确认后启动</li>
+  <li><b>WMS 替换决策</b>：触发条件见 8.3 节</li>
+</ul>
+
+<h2 id="c6"><span class="n">06</span>实施里程碑（3 个月 MVP + 切换期）</h2>
+
+<div class="fig">
+<svg viewBox="0 0 680 340" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="680" height="340" rx="14" fill="#FFFFFF"/>
+<title>实施里程碑甘特图</title>
+<text x="30" y="30" font-family="-apple-system,PingFang SC,sans-serif" font-size="13" font-weight="700" fill="#1A1D24">阶段</text>
+<text x="230" y="30" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" fill="#8A91A0">M1（第1月）</text>
+<text x="345" y="30" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" fill="#8A91A0">M2（第2月）</text>
+<text x="460" y="30" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" fill="#8A91A0">M3（第3月）</text>
+<text x="575" y="30" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" fill="#8A91A0">M4-M6</text>
+<line x1="215" y1="16" x2="215" y2="324" stroke="#E3E6EC"/><line x1="330" y1="16" x2="330" y2="324" stroke="#E3E6EC"/><line x1="445" y1="16" x2="445" y2="324" stroke="#E3E6EC"/><line x1="560" y1="16" x2="560" y2="324" stroke="#E3E6EC"/>
+
+<text x="30" y="62" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">底座接管与环境搭建</text>
+<rect x="215" y="48" width="115" height="22" rx="6" fill="#185FA5" opacity="0.85"/>
+<text x="30" y="100" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">平台对接与订单归集</text>
+<rect x="250" y="86" width="150" height="22" rx="6" fill="#185FA5" opacity="0.7"/>
+<text x="30" y="138" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">审单/寻源/库存二开</text>
+<rect x="300" y="124" width="145" height="22" rx="6" fill="#6B4FBB" opacity="0.75"/>
+<text x="30" y="176" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">通天晓 WMS 接口联调</text>
+<rect x="330" y="162" width="115" height="22" rx="6" fill="#B26A00" opacity="0.8"/>
+<text x="30" y="214" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">对账/监控/压测</text>
+<rect x="410" y="200" width="80" height="22" rx="6" fill="#B26A00" opacity="0.65"/>
+<text x="30" y="252" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">单品牌试点上线</text>
+<rect x="470" y="238" width="60" height="22" rx="6" fill="#1E7E4A"/>
+<text x="30" y="290" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="600" fill="#1A1D24">并行双跑→灰度切流→全量</text>
+<rect x="530" y="276" width="120" height="22" rx="6" fill="#1E7E4A" opacity="0.75"/>
+</svg>
+<div class="cap">图 2 · 实施里程碑：M3 末单品牌试点上线，M4-M6 并行双跑与灰度切换，随后启动 P1 经销链路</div>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th style="width:12%">阶段</th><th style="width:40%">交付物</th><th>验收标准 / 出口条件</th></tr></thead>
+<tbody>
+<tr><td><b>M1</b><br>接管与打通</td><td>内部代码主仓建立；开发/测试环境就绪；底座 60+ 模块裁剪清单；试点品牌店铺授权接入；订单归集跑通（只读拉单，不履约）</td><td>试点品牌 1 个平台真实订单可稳定归集入库，字段完整率 100%</td></tr>
+<tr><td><b>M2</b><br>核心二开</td><td>审单规则、拆合单、寻源分仓配置化；库存五态与平台同步；多货主隔离强化；通天晓 WMS 接口对接（<b>10-23 断供修订：逆向工程+影子验证替代厂商联调</b>，出库下发/回传）</td><td>测试环境全链路模拟单跑通；库存对账 Job 上线且差异率为 0</td></tr>
+<tr><td><b>M3</b><br>试点上线</td><td>监控告警体系；大促压测报告；单品牌灰度上线（真实订单双跑：自研 OMS 与通天晓 OFS 同时处理，人工比对）</td><td>连续 2 周双跑订单结果一致率 ≥ 99.9%；异常单处理 SOP 演练通过</td></tr>
+<tr><td><b>M4-M6</b><br>切换与扩展</td><td>按品牌逐个切流至自研 OMS；通天晓 OFS 降为热备；P1 经销链路启动（采购/成本/调拨/批发价）</td><td>全品牌切流完成且稳定 1 个月 → 正式下线通天晓 OFS；P1 需求评审通过</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">双跑比对是切换质量的生命线</span>
+  M3 的并行双跑不是走过场：同一笔订单在两套系统各自处理，逐字段比对审单结果、寻源仓库、下发报文、库存扣减。比对工具本身要在 M2 就开发好，作为内部效率工具沉淀。
+</div>
+
+<h2 id="c7"><span class="n">07</span>团队配置与投入估算</h2>
+
+<h3>7.1 MVP 期最小可行团队（3-5 人）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:18%">角色</th><th style="width:10%">人数</th><th style="width:38%">职责</th><th>关键要求</th></tr></thead>
+<tbody>
+<tr><td><b>技术负责人 / 架构</b></td><td>1</td><td>底座代码研读与裁剪决策、领域模型把关、WMS 对接方案、对上汇报</td><td>有订单/履约域经验；能快速吃透 PHP/Swoole 存量代码（或愿意）</td></tr>
+<tr><td><b>后端开发</b></td><td>1-2</td><td>审单/寻源/库存二开、对账 Job、监控告警</td><td>PHP 为主；一人时需外聘或内部借调补位</td></tr>
+<tr><td><b>平台对接开发</b></td><td>1</td><td>各电商平台 API 授权、订单/库存同步、通天晓接口联调</td><td>熟悉淘宝/京东/抖店开放平台，可兼任后端</td></tr>
+<tr><td><b>产品 / 测试（兼职）</b></td><td>0.5-1</td><td>业务规则梳理（审单/结算口径）、双跑比对、UAT 组织</td><td>必须由懂代运营业务的人担任，建议运营团队出人</td></tr>
+</tbody>
+</table></div>
+
+<h3>7.2 投入估算</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">项目</th><th style="width:30%">MVP 期（3 个月）</th><th>稳定期（M4-M12）</th></tr></thead>
+<tbody>
+<tr><td><b>人力</b></td><td>4 人全职 + 0.5 兼职，约 12.5 人月</td><td>保留 3 人核心团队（后端 2 + 平台对接 1），P1 经销链路视进度增补</td></tr>
+<tr><td><b>基础设施</b></td><td>开发/测试/生产三套环境（云主机 + MySQL + Redis），估算月成本千元级</td><td>生产环境按订单量扩容；大促前弹性扩容</td></tr>
+<tr><td><b>软件许可</b></td><td>0 元 —— Apache-2.0 底座无许可费用（对比：通天晓 OFS 年费终止）</td><td>0 元</td></tr>
+<tr><td><b>外部依赖</b></td><td><s>通天晓 WMS 接口联调配合</s> <b>【2026-10-23 断供修订】厂商已断供</b>：WMS 接口改走逆向工程+影子验证（报文留样还原规格书、奇门标准通道 Plan B，详见《厂商断供应急预案》第 4 章）；各平台开放平台资质</td><td>通天晓 WMS 续约视商务轨道谈判结果</td></tr>
+<tr><td><b>隐性成本</b></td><td>团队 PHP/Swoole 学习曲线（预留 2-3 周代码研读期，已计入 M1）</td><td>与上游分叉后全部维护责任自担</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">投入的本质权衡</span>
+  自研的成本不是「省不省钱」而是「钱换控制权」：厂商年费转化为自有团队人力成本，账面支出可能持平甚至略增，换来的是排期自主、知产归属、以及对通天晓 WMS 续约谈判的筹码。这个账要在立项时向决策层讲清楚，避免中途以「省成本」为由动摇。
+</div>
+
+<h2 id="c8"><span class="n">08</span>风险清单与回退方案</h2>
+
+<h3>8.1 风险矩阵</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:24%">风险</th><th style="width:10%">等级</th><th style="width:33%">缓解措施</th><th>应急预案</th></tr></thead>
+<tbody>
+<tr><td>团队对 PHP/Swoole 底座上手慢，M1 研读期超支</td><td><span class="tag t-p0">高</span></td><td>M1 前置代码研读；必要时短期外聘 PHP 顾问做代码走读培训</td><td>里程碑顺延但双跑期不压缩，质量门禁不放松</td></tr>
+<tr><td>通天晓 WMS 接口联调不配合 / 报文与文档不符<br><b>【已发生：10-23 厂商断供】</b></td><td><span class="tag t-p0">高</span></td><td>已升级为《厂商断供应急预案》：接口逆向工程（报文留样还原规格书）+ 影子验证（与 OFS 真实报文比对 7 天一致率≥99.9% 才真发）</td><td>适配器层隔离；奇门标准通道 Plan B（无需厂商配合）</td></tr>
+<tr><td>双跑期订单结果不一致率下不来</td><td><span class="tag t-p0">高</span></td><td>比对工具自动化、逐字段定位；不一致率纳入周会跟踪</td><td>不达标不切流；通天晓 OFS 继续主跑，自研侧延长双跑</td></tr>
+<tr><td>大促期间自研 OMS 稳定性不足</td><td><span class="tag t-p1">中</span></td><td>M3 完成压测（按历史大促峰值 2 倍）；<b>切换窗口避开大促前后 1 个月</b></td><td>一键回切通天晓 OFS（热备保留 ≥ 6 个月）</td></tr>
+<tr><td>库存口径不一致导致超卖</td><td><span class="tag t-p1">中</span></td><td>日终对账 Job + 实时差异告警；试点期安全库存上浮</td><td>超卖订单人工履约 SOP；严重时该品牌回切</td></tr>
+<tr><td>核心人员流失导致「没人养代码」</td><td><span class="tag t-p1">中</span></td><td>代码走读制度化（每周）、文档与领域模型图沉淀在仓库内、避免单点掌握</td><td>技术负责人保留架构最终解释权与交接清单</td></tr>
+<tr><td>与上游 ShopeX 分叉后安全漏洞无人修</td><td><span class="tag t-p2">低</span></td><td>季度评估上游 Release，人工挑选安全补丁合入；订阅其安全公告</td><td>依赖社区 + 自修，Apache-2.0 无法律障碍</td></tr>
+</tbody>
+</table></div>
+
+<h3>8.2 回退方案（全程可逆）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:22%">阶段</th><th style="width:39%">回退动作</th><th>回退代价</th></tr></thead>
+<tbody>
+<tr><td>M1-M2（未上线）</td><td>直接止损，无生产影响；代码与工具沉淀为内部资产</td><td>已投入人力（沉没成本约 8 人月）</td></tr>
+<tr><td>M3（试点双跑）</td><td>停止切流，通天晓 OFS 继续主跑，自研侧回到影子运行</td><td>近零 —— 双跑期 OFS 本来就是主链路</td></tr>
+<tr><td>M4-M6（灰度切流）</td><td>按品牌粒度回切：单品牌异常只回切该品牌，不影响已稳定品牌</td><td>低 —— 品牌级隔离是灰度设计的核心</td></tr>
+<tr><td>全量切换后</td><td>通天晓 OFS 热备保留 ≥ 6 个月，数据回灌方案在切换前演练一次</td><td>中 —— 需回灌切换期订单数据，故热备期不可省</td></tr>
+</tbody>
+</table></div>
+
+<h3>8.3 WMS 替换的决策触发条件（P2 预留）</h3>
+<p><b>【2026-10-23 断供修订】触发条件已部分成立</b>（厂商配合度恶化），WMS 替换<b>评估</b>已提前启动（侦察级，不实施），执行仍待自研 OMS 全量切换后，详见《厂商断供应急预案》第 5 章。原始条件如下，满足<b>任一</b>时重启评估（候选：GreaterWMS Apache-2.0，锁定 2.x 分支，不追 3.0）：</p>
+<ul>
+  <li>自研 OMS 全量切换后稳定运行 ≥ 3 个月，团队有余力开辟第二条战线；</li>
+  <li>通天晓 WMS 续约报价或配合度恶化，单依赖也变成瓶颈；</li>
+  <li>仓内出现通天晓无法满足的硬需求（如自动化设备调度、多货主仓内隔离）。</li>
+</ul>
+
+<h2 id="c9"><span class="n">09</span>待确认问题清单（请业务方回复）</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:8%">#</th><th style="width:44%">问题</th><th>影响什么</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>试点品牌选哪个？（建议选订单量中等、SKU 结构不复杂、非大促敏感的品牌）</td><td>M1 授权接入与 M3 灰度对象</td></tr>
+<tr><td>2</td><td>当前接入的平台里，哪些是试点品牌必须的？微信小店/私域订单目前走通天晓 OFS 的哪条链路？</td><td>平台对接的开发排序</td></tr>
+<tr><td>3</td><td>通天晓 OFS 的年费与合同到期时间？</td><td>切换窗口与「热备 6 个月」的成本测算</td></tr>
+<tr><td>4</td><td>代运营三方结算目前的人工对账流程与口径（谁出账单、按什么维度对）？</td><td>结算域 P0 功能的需求细化</td></tr>
+<tr><td>5</td><td>团队现有成员的 PHP 经验情况？是否需要外部顾问预算？</td><td>M1 研读期时长与 7.2 投入估算</td></tr>
+<tr><td>6</td><td>财务系统整合（P2）的数据源什么时候能确认可用性？</td><td>可插拔财务适配层的接口预留设计</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">下一步行动建议</span>
+  ① 决策层批准路线 A 与 3 个月 MVP 立项；② <s>向通天晓发函确认 WMS 接口联调排期</s> <b>【10-23 修订】厂商断供，改为启动《厂商断供应急预案》72 小时行动</b>（账号/许可核实、数据备份、接口留样抢救）；③ 确定试点品牌与团队名单（问题 1、5）；④ M1 启动会。前序四份调研报告作为本建议书附件一并归档。
+</div>
+
+<div class="foot">
+  自研 OMS 决策建议书 V1.0 · 2026-10-23 · WISE 技术交付中心<br>
+  依据文档：《开源 OMS/WMS 替换调研报告》《开源 OMS 专项调研报告》《开源 WMS 专项调研报告》《开源协议对比与企业应用合规指南》《OMS 先行过渡期方案》（均为 2026-10-17）
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>底座复核与多品牌隔离设计 · 自研 OMS 补充报告</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#1A1D24; --ink2:#4A5160; --ink3:#8A91A0;
+  --line:#E3E6EC; --brand:#185FA5; --brand-soft:#E8F0FA;
+  --ok:#1E7E4A; --ok-soft:#E5F4EC; --warn:#B26A00; --warn-soft:#FDF1DE;
+  --risk:#B4342E; --risk-soft:#FBE9E8; --accent:#6B4FBB; --accent-soft:#EFEBFA;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161A; --card:#1D2026; --ink:#E8EAF0; --ink2:#B4BAC6; --ink3:#7C8494;
+    --line:#2C3038; --brand:#6FA3DC; --brand-soft:#1C2B3D;
+    --ok:#5CC08A; --ok-soft:#16281E; --warn:#E0A44C; --warn-soft:#2B2013;
+    --risk:#E8837C; --risk-soft:#2E1917; --accent:#A990F0; --accent-soft:#221C36; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:40px 28px 80px}
+.cover{padding:56px 0 36px;border-bottom:3px solid var(--brand);margin-bottom:36px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:4px 14px;font-weight:700;margin-bottom:18px}
+h1{font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.sub{font-size:16.5px;color:var(--ink2);margin-top:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.meta span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+h2{font-size:22px;font-weight:800;margin:52px 0 18px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2 .n{color:var(--brand);font-family:var(--mono);font-size:16px;margin-right:10px;font-weight:700}
+h3{font-size:16.5px;font-weight:700;margin:28px 0 12px;color:var(--ink)}
+p{margin:10px 0;color:var(--ink2)}
+b{color:var(--ink)}
+ul,ol{margin:10px 0 10px 22px;color:var(--ink2)}
+li{margin:6px 0}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-soft);color:var(--brand);border-radius:4px;padding:1px 6px}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:14px;color:var(--ink3);letter-spacing:.1em}
+.toc ol{columns:2;column-gap:36px;margin-left:20px;font-size:14px}
+.toc li{break-inside:avoid}
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+th{background:var(--brand-soft);color:var(--ink);font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:4px solid;font-size:14px}
+.callout .t{font-weight:800;margin-bottom:6px;display:block}
+.c-key{background:var(--brand-soft);border-color:var(--brand);color:var(--ink2)} .c-key .t{color:var(--brand)}
+.c-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ink2)} .c-ok .t{color:var(--ok)}
+.c-warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink2)} .c-warn .t{color:var(--warn)}
+.c-risk{background:var(--risk-soft);border-color:var(--risk);color:var(--ink2)} .c-risk .t{color:var(--risk)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;white-space:nowrap;vertical-align:1px}
+.t-p0{background:var(--risk-soft);color:var(--risk)} .t-p1{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-acc{background:var(--accent-soft);color:var(--accent)}
+.fig{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.fig svg{width:100%;height:auto}
+.cap{font-size:12.5px;color:var(--ink3);margin-top:10px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3)}
+@media print{
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{page-break-before:always;margin-top:20px} h2:first-of-type{page-break-before:avoid}
+  .fig,.tw,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <span class="eyebrow">WISE 技术交付中心 · 补充报告</span>
+  <h1>底座复核与多品牌隔离设计</h1>
+  <div class="sub">对「ShopeX ONEX OMS 是单品牌系统」质疑的代码级复核 · 混合隔离模型设计</div>
+  <div class="meta">
+    <span>版本 V1.0</span><span>2026-10-23</span>
+    <span>复核方式：GitHub 源码实测（v8.10.x，167MB 全量克隆）</span>
+    <span>修订对象：《自研 OMS 决策建议书》V1.0</span>
+  </div>
+</div>
+
+<div class="callout c-key">
+  <span class="t">复核结论（一句话）</span>
+  团队的观察<b>对了一半</b>：ShopeX 底座的数据模型<b>不是单品牌</b>（店铺挂组织/核算主体、订单带 org/cos 维度、品牌主表与货主概念都在），
+  但<b>隔离的强制层没有落地</b>（无行级数据权限、库存无货主维度、结算不按品牌闭环、审单规则无组织维度）——
+  准确表述是<b>「多店铺数据模型 + 单运营主体运营视图」</b>。
+  缺口在强制层而非领域模型，属于「在已有钩子上加执行层」的二开工作（预估 +3-4 周进 M2），<b>不构成换底座的理由</b>；
+  隔离模型按已确认决策采用<b>混合制：逻辑隔离为主 + 敏感品牌物理隔离</b>。
+</div>
+
+<div class="callout c-warn">
+  <span class="t">为什么换底座解决不了这个问题</span>
+  「按店铺隔离独立管理」是<b>业务需求</b>，不是底座特性。无论选 ShopeX、启航（AGPL 已排除）还是从零自研，
+  行级数据权限、库存货主维度、品牌结算闭环、品牌级审单规则这四件事<b>都必须自建</b>。
+  底座的价值在平台对接、订单域、库存五态这些「重资产」；隔离强制层是增量，增量在哪条路线上都逃不掉。
+  换底座只会把增量保留、同时丢掉重资产。
+</div>
+
+<div class="toc">
+  <h3>目录 CONTENTS</h3>
+  <ol>
+    <li><a href="#b1">代码实测证据</a></li>
+    <li><a href="#b2">修订后的底座评价</a></li>
+    <li><a href="#b3">混合隔离模型总体设计</a></li>
+    <li><a href="#b4">逻辑隔离强制层（四组件）</a></li>
+    <li><a href="#b5">敏感品牌物理隔离</a></li>
+    <li><a href="#b6">对里程碑与投入的影响</a></li>
+    <li><a href="#b7">风险与验收</a></li>
+  </ol>
+</div>
+
+<h2 id="b1"><span class="n">01</span>代码实测证据</h2>
+<p>复核方式：全量克隆 ShopeX/OMS 仓库（Apache-2.0，v8.10.x，167MB），对 <code>app/</code> 下 60+ 模块的 <code>dbschema</code>（表结构定义）与 <code>lib</code>（业务逻辑）做定向检索。以下为关键证据。</p>
+
+<h3>1.1 数据模型层：多品牌钩子齐全（修正「单品牌」判断）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">证据</th><th style="width:30%">代码位置</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td><b>店铺表带组织归属</b></td><td><code>ome/shop</code>：字段 <code>org_id</code>、<code>cos_id</code>、<code>ind_cos_id</code>、<code>node_id/node_type</code></td><td>店铺可挂到组织节点与核算主体下，多品牌归属的数据钩子存在</td></tr>
+<tr><td><b>组织树 + 核算中心树</b></td><td><code>organization</code> 模块：<code>org</code> 表（org_type/org_level_num/parent_id 层级树）+ <code>cos</code> 表（初始数据=总部 HQ / 经销公司 DC）</td><td>多经营主体模型存在，且区分「组织」与「核算中心」两套树</td></tr>
+<tr><td><b>订单表带组织维度</b></td><td><code>ome/orders</code>：字段 <code>shop_id</code>、<code>org_id</code>、<code>cos_id</code>；索引 <code>idx_orgid_ordertype...</code>、<code>ind_cos_id</code>、<code>idx_shopid_orderid_createtime</code></td><td>订单可按组织/核算中心检索与统计，索引已建好</td></tr>
+<tr><td><b>品牌主数据</b></td><td><code>ome/brand</code>（brand_code/name/keywords）、<code>ome/goods.brand_id</code>、<code>ome/type_brand</code></td><td>品牌作为主数据实体存在</td></tr>
+<tr><td><b>货主概念局部存在</b></td><td><code>console/wms_transferorder.owner_code</code>、<code>inventorydepth/shop_skus.cos_id</code></td><td>调拨单与店铺库存设置已有货主/核算维度字段</td></tr>
+</tbody>
+</table></div>
+
+<h3>1.2 强制层：隔离未落地（团队判断成立的部分 = 真缺口）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:22%">缺口</th><th style="width:40%">实测证据</th><th>后果</th></tr></thead>
+<tbody>
+<tr><td><b>无行级数据权限</b></td><td><code>pam/account</code> 仅账户字段；<code>pam/auth</code> = account_id + module + module_uid + 序列化 data blob（模块级功能权限）；全库无 shop/org 范围权限字段，lib 层无强制过滤逻辑</td><td>账号登录后理论上可见全部店铺订单；「按店铺隔离独立管理」在权限层是空的</td></tr>
+<tr><td><b>库存无货主维度</b></td><td><code>console</code> 核心库存表无 org/cos/owner 字段（仅调拨单有 owner_code）；库存只挂 <code>shop_id</code></td><td>库存五态按店铺挂、不按品牌/货主挂；货权隔离只能靠「店铺集合=品牌」的口头约定</td></tr>
+<tr><td><b>结算不按品牌闭环</b></td><td><code>finance</code>/<code>billcenter</code> 的 lib 中无 cos_id 使用；cos 重度使用集中在 <code>dealer</code>（35 个文件，经销线）</td><td>代运营三方结算按品牌/核算主体出账需自建</td></tr>
+<tr><td><b>审单规则无组织维度</b></td><td><code>omeauto</code> lib 中无 org/cos 过滤逻辑</td><td>审单规则全局生效，无法按品牌配置差异规则</td></tr>
+<tr><td><b>无多租户产品承诺</b></td><td>docs / README / CHANGELOG 无多品牌、多货主、tenant 相关描述</td><td>厂商产品定位确为「多店铺、单运营主体」——团队印象的来源，方向正确</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="b2"><span class="n">02</span>修订后的底座评价</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:24%">评价维度</th><th style="width:38%">10-17 调研原结论</th><th>10-23 复核修订</th></tr></thead>
+<tbody>
+<tr><td>协议与合规</td><td>Apache-2.0，三重达标唯一项</td><td><b>维持</b>，不受影响</td></tr>
+<tr><td>业务完整度</td><td>「业务完整度最高，与 OFS 重合度最高」</td><td>修订为：<b>履约链路完整度高；多品牌运营视图缺失</b>。60+ 模块的价值在订单/库存/对接/经销，不在隔离</td></tr>
+<tr><td>多品牌适配</td><td>未单独评估（隐含假设底座可直接承载）</td><td>新增结论：<b>数据模型可承载、强制层需自建</b>；四组件二开 +3-4 周进 M2</td></tr>
+<tr><td>路线结论</td><td>路线 A（底座二开）推荐</td><td><b>维持路线 A</b>，理由见开篇：隔离强制层在任何路线上都是必建增量，底座重资产价值不变</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-ok">
+  <span class="t">给团队的回应口径</span>
+  「商派开源 OMS 不满足多品牌需求」这个说法，精确版本是：<b>「商派开源 OMS 开箱不满足多品牌隔离的强制要求，但其数据模型预留了全部钩子，强制层二开可控」</b>。
+  两者差别决定了是「换底座」还是「加二开」——实测支持后者。
+</div>
+
+<h2 id="b3"><span class="n">03</span>混合隔离模型总体设计</h2>
+
+<div class="fig">
+<svg viewBox="0 0 680 420" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="680" height="420" rx="14" fill="#FFFFFF"/>
+<title>混合隔离模型架构图</title>
+<text x="340" y="30" font-family="-apple-system,PingFang SC,sans-serif" font-size="14" font-weight="700" fill="#1A1D24" text-anchor="middle">混合隔离模型：逻辑隔离为主 + 敏感品牌物理隔离</text>
+
+<rect x="30" y="50" width="620" height="40" rx="9" fill="#EFEBFA" stroke="#6B4FBB" stroke-width="1.5"/>
+<text x="340" y="75" font-family="-apple-system,PingFang SC,sans-serif" font-size="12" font-weight="700" fill="#6B4FBB" text-anchor="middle">统一门户 / 单点登录 / 跨品牌经营看板（只读聚合层）</text>
+
+<rect x="30" y="110" width="390" height="200" rx="10" fill="#E8F0FA" stroke="#185FA5" stroke-width="1.5"/>
+<text x="46" y="134" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#185FA5">逻辑隔离主实例（绝大多数品牌）</text>
+<rect x="46" y="146" width="170" height="34" rx="7" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="131" y="167" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="600" fill="#1A1D24" text-anchor="middle">品牌A 店铺集合</text>
+<rect x="230" y="146" width="170" height="34" rx="7" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="315" y="167" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="600" fill="#1A1D24" text-anchor="middle">品牌B 店铺集合</text>
+<rect x="46" y="190" width="170" height="34" rx="7" fill="#FFFFFF" stroke="#185FA5"/>
+<text x="131" y="211" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="600" fill="#1A1D24" text-anchor="middle">品牌C 店铺集合</text>
+<rect x="230" y="190" width="170" height="34" rx="7" fill="#FFFFFF" stroke="#185FA5" stroke-dasharray="4 3"/>
+<text x="315" y="211" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="600" fill="#8A91A0" text-anchor="middle">品牌N …（共享实例）</text>
+<rect x="46" y="238" width="354" height="56" rx="7" fill="#185FA5" opacity="0.12" stroke="#185FA5"/>
+<text x="223" y="258" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="700" fill="#185FA5" text-anchor="middle">强制层四组件（本次二开核心）</text>
+<text x="223" y="278" font-family="-apple-system,PingFang SC,sans-serif" font-size="10" fill="#4A5160" text-anchor="middle">行级数据权限中间件 · 库存货主维度 · 品牌结算闭环 · 品牌级审单规则</text>
+
+<rect x="440" y="110" width="210" height="200" rx="10" fill="#FBE9E8" stroke="#B4342E" stroke-width="1.5"/>
+<text x="456" y="134" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#B4342E">物理隔离实例（敏感品牌）</text>
+<rect x="456" y="146" width="178" height="40" rx="7" fill="#FFFFFF" stroke="#B4342E"/>
+<text x="545" y="163" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="600" fill="#1A1D24" text-anchor="middle">品牌X 独立实例</text>
+<text x="545" y="178" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">独立库 · 独立部署 · 底座原生跑法</text>
+<rect x="456" y="196" width="178" height="40" rx="7" fill="#FFFFFF" stroke="#B4342E" stroke-dasharray="4 3"/>
+<text x="545" y="213" font-family="-apple-system,PingFang SC,sans-serif" font-size="11" font-weight="600" fill="#8A91A0" text-anchor="middle">品牌Y（按需增开）</text>
+<text x="545" y="228" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#8A91A0" text-anchor="middle">合同明确要求独立系统时</text>
+<rect x="456" y="248" width="178" height="46" rx="7" fill="#B4342E" opacity="0.1" stroke="#B4342E"/>
+<text x="545" y="267" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="middle">数据不出实例边界</text>
+<text x="545" y="284" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">仅脱敏聚合指标上送看板</text>
+
+<rect x="30" y="330" width="620" height="66" rx="10" fill="#F2F4F7" stroke="#8A91A0"/>
+<text x="46" y="352" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24">通天晓 WMS 对接（两类实例共用适配器，货主路由）</text>
+<text x="46" y="372" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">逻辑实例按品牌货主标识路由报文；物理实例独立对接通道；WMS 侧货主档案与 OMS 品牌一一对应</text>
+<text x="46" y="388" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">跨品牌库存可见性：仅逻辑实例内、仅授权角色（运营总监/财务）经聚合视图可见；物理实例库存默认不可见</text>
+</svg>
+<div class="cap">图 1 · 混合隔离模型：逻辑主实例承载绝大多数品牌（强制层四组件保证隔离），敏感品牌独立实例，统一门户与看板只做只读聚合</div>
+</div>
+
+<h3>3.1 品牌入驻路由规则（进逻辑实例还是开物理实例）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:30%">判定条件（满足任一即物理隔离）</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>合同条款明确要求独立系统/独立数据库</td><td>法务在品牌签约评审时勾选，作为路由依据存档</td></tr>
+<tr><td>品牌方审计要求数据物理隔离（如上市公司内控、外资合规）</td><td>以品牌方书面审计要求为准</td></tr>
+<tr><td>品牌方禁止其数据与其他品牌同库存储</td><td>数据主权条款触发</td></tr>
+<tr><td><b>默认</b>：以上均不满足</td><td>进逻辑隔离主实例，享受共享运维与跨品牌聚合能力</td></tr>
+</tbody>
+</table></div>
+<p><b>路由决策人</b>：发起人（商务条款）+ 技术负责人（可行性）双签；决策记录入品牌档案。<b>迁移通道</b>：逻辑实例品牌后续触发物理条件时，按「新品牌接入 SOP」导出该品牌全量数据开新实例（数据导出工具在 S0 与迁移工具链一并建设，复用 B3 的 ETL 组件反向使用）。</p>
+
+<h2 id="b4"><span class="n">04</span>逻辑隔离强制层（四组件，M2 交付）</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:20%">组件</th><th style="width:44%">设计</th><th>验收标准</th></tr></thead>
+<tbody>
+<tr><td><b>① 行级数据权限中间件</b></td><td>账号→角色→店铺集合（品牌）三级授权模型，替代 pam 模块级权限；在列表/详情/导出/接口四层统一注入过滤条件（中间件拦截，禁止业务代码各自拼条件）；越权访问记审计日志并告警</td><td>渗透测试：A 品牌账号对 B 品牌订单的列表/详情/导出/API 四类访问全部 403；审计日志留痕</td></tr>
+<tr><td><b>② 库存货主维度</b></td><td>库存表增加货主字段（复用 cos_id 语义并显式命名为 owner），五态库存按「货主+仓+SKU」存储；店铺-货主映射表为唯一权威；平台可售库存按货主归集计算</td><td>同 SKU 两货主库存互不可见、互不占用；超卖压测中货主间零串货</td></tr>
+<tr><td><b>③ 品牌结算闭环</b></td><td>结算单/对账单强制带 cos_id；佣金与费用归集按品牌维度出账；品牌间费用分摊规则配置化；与财务可插拔适配层对接</td><td>同一结算周期可按品牌独立出对账单，合计与总账勾稽一致</td></tr>
+<tr><td><b>④ 品牌级审单规则</b></td><td>审单规则引擎加组织维度：规则作用域=全局/品牌/店铺三级，品牌规则优先于全局规则；规则变更留痕</td><td>两品牌配置冲突规则（如赠品策略不同）互不影响，回归测试通过</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">四组件的实现顺序与依赖</span>
+  ②库存货主维度先行（数据模型变更，影响面最大，需最先定稿并做历史库存回填）→ ①权限中间件（依赖店铺-货主映射表）→ ④审单规则（依赖组织维度字段）→ ③结算闭环（依赖前三者的口径稳定）。
+  顺序错误的代价：库存模型后改会导致已迁移数据二次回填。
+</div>
+
+<h2 id="b5"><span class="n">05</span>敏感品牌物理隔离</h2>
+<ul>
+  <li><b>实例形态</b>：独立数据库 + 独立应用部署（底座原生单品牌跑法，零隔离二开成本）；共享代码仓库与发布流水线，配置化区分实例参数。</li>
+  <li><b>运维成本控法</b>：实例标准化（同一镜像、同一配置模板、同一监控模板），新增物理实例的边际运维成本控制在 0.2 人月/实例以内；物理实例数量设上限预警（&gt;3 个时复盘是否该回到逻辑隔离+合规增强）。</li>
+  <li><b>数据边界</b>：业务数据不出实例；仅脱敏聚合指标（单量/GMV/履约时效）上送统一看板；跨实例报表在聚合层完成，不回传明细。</li>
+  <li><b>升级策略</b>：代码同源，升级包统一发布；物理实例可错峰升级（先逻辑主实例验证 1 周再推物理实例）——这反而是物理隔离的附带收益：多了一个生产验证环境。</li>
+</ul>
+
+<h2 id="b6"><span class="n">06</span>对里程碑与投入的影响</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:18%">影响项</th><th style="width:41%">原计划（建议书 V1.0）</th><th>修订后</th></tr></thead>
+<tbody>
+<tr><td><b>M2 范围</b></td><td>审单/寻源/库存二开 + WMS 联调</td><td>新增强制层四组件（+3-4 周工作量，与 WMS 联调并行，关键路径 +2 周）</td></tr>
+<tr><td><b>M1 新增动作</b></td><td>底座研读 + 裁剪清单</td><td>裁剪清单中新增「隔离钩子盘点」：org/cos 字段使用面、pam 替换影响面评估</td></tr>
+<tr><td><b>门禁 G1 新增项</b></td><td>双跑一致率≥99.9%</td><td>追加：隔离渗透测试通过（四组件验收标准全绿）才允许进入 S2 试点切换</td></tr>
+<tr><td><b>人力</b></td><td>3.5-4 FTE</td><td>M2 高峰期后端 +0.5（内转第二名后端提前进场），总编制不变、峰值错开</td></tr>
+<tr><td><b>MVP 周期</b></td><td>3 个月</td><td><b>维持 3 个月</b>：四组件与 WMS 联调并行；若渗透测试不达标则顺延 S2，不顺延不豁免</td></tr>
+<tr><td><b>试点品牌选择</b></td><td>订单量中等、SKU 不复杂</td><td>追加条件：试点品牌必须进逻辑实例（验证强制层），敏感品牌排后切换</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="b7"><span class="n">07</span>风险与验收</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:28%">风险</th><th style="width:8%">等级</th><th style="width:34%">应对</th><th>兜底</th></tr></thead>
+<tbody>
+<tr><td>中间件注入过滤有遗漏点（某接口绕过权限）</td><td><span class="tag t-p0">高</span></td><td>接口清单全量盘点+自动化越权扫描（CI 内置）；导出与 API 与页面同权</td><td>渗透测试不达标=门禁不达标，不切换</td></tr>
+<tr><td>库存货主维度回填历史数据出错</td><td><span class="tag t-p0">高</span></td><td>回填按店铺-货主映射表批量执行+逐仓对账；回填前后库存合计校验</td><td>回填失败回滚快照，映射表修正后重跑</td></tr>
+<tr><td>物理实例运维成本超预期</td><td><span class="tag t-p1">中</span></td><td>实例标准化模板；&gt;3 个实例触发架构复盘</td><td>新签品牌默认逻辑隔离+合同谈判规避物理条款</td></tr>
+<tr><td>品牌路由判定争议（商务想全物理/技术想全逻辑）</td><td><span class="tag t-p1">中</span></td><td>路由规则写成判定表（3.1），双签留痕；个案争议上发起人</td><td>—（制度保障）</td></tr>
+<tr><td>跨品牌聚合看板泄露明细</td><td><span class="tag t-p1">中</span></td><td>聚合层只读+脱敏字段白名单；看板权限独立于业务权限</td><td>看板下线不影响履约</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">收尾结论</span>
+  底座选型维持路线 A 不变；「多品牌隔离」从隐含假设升级为<b>显式 P0 二开项</b>（强制层四组件 + 混合隔离模型），
+  进入 M2 范围并挂门禁 G1。建议据此修订《自研 OMS 决策建议书》第 3、5 章表述，其余章节不受影响。
+  本报告源码证据可复核：克隆仓库后按第 1 章代码位置逐条查验。
+</div>
+
+<div class="foot">
+  底座复核与多品牌隔离设计 V1.0 · 2026-10-23 · WISE 技术交付中心<br>
+  证据来源：ShopeX/OMS 仓库全量克隆实测（app/ome、app/organization、app/pam、app/console、app/inventorydepth、app/finance、app/omeauto 等模块 dbschema 与 lib）<br>
+  配套文档：《自研 OMS 决策建议书》V1.0 ·《团队组建与遗留系统稳定保障方案》V1.0 ·《迁移切换执行方案》V1.0
+</div>
+
+</div>
+</body>
+</html>

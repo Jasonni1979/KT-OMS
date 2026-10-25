@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开源协议对比与企业应用合规指南</title>
+<style>
+  :root{
+    --brand:#185FA5;--brand-2:#0E4C87;--brand-soft:#E8F1F9;
+    --ink:#12161C;--ink-2:#3C4654;--ink-3:#6B7684;
+    --line:#DDE3EA;--bg:#FFFFFF;--bg-2:#F7F9FB;
+    --ok:#0F7B4F;--ok-bg:#E4F5EC;--ok-line:#B8E0CC;
+    --warn:#A8630A;--warn-bg:#FDF1E0;--warn-line:#F0D9B5;
+    --bad:#B3261E;--bad-bg:#FBEAE8;--bad-line:#F0C4C0;
+    --info:#185FA5;--cond:#5B4A9E;--cond-bg:#EFECF7;--cond-line:#D5CEEC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px 80px}
+  header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;padding:52px 0 46px;margin-bottom:36px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:840px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+  section{margin-bottom:46px}
+  h2{font-size:21px;font-weight:700;color:var(--brand);padding-bottom:11px;border-bottom:2px solid var(--brand-soft);margin-bottom:20px;display:flex;align-items:baseline;gap:11px}
+  h2 .num{background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:16.5px;font-weight:650;margin:28px 0 12px;color:var(--ink)}
+  h4{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+  .callout{background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;padding:20px 24px;margin:20px 0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+  .callout p:last-child{margin-bottom:0}
+  .warnbox{background:var(--bad-bg);border:1px solid var(--bad-line);border-left:5px solid var(--bad);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+  .okbox{background:var(--ok-bg);border:1px solid var(--ok-line);border-left:5px solid var(--ok);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .okbox .t{font-weight:700;color:var(--ok);margin-bottom:8px;display:block;font-size:15px}
+  .okbox p:last-child{margin-bottom:0}
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+  thead th{background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;padding:12px 11px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:12.5px;vertical-align:bottom}
+  tbody td{padding:11px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.6}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--brand-soft)}
+  td.nm{font-weight:700;color:var(--ink);white-space:nowrap}
+  td.c{text-align:center}
+  .y{color:var(--ok);font-weight:700}
+  .n{color:var(--bad);font-weight:700}
+  .p{color:var(--warn);font-weight:700}
+  .tag{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:650;white-space:nowrap}
+  .t-mit{background:var(--ok-bg);color:var(--ok)}
+  .t-apache{background:#E7EEF9;color:#1B4E86}
+  .t-bsd{background:#E7EEF9;color:#1B4E86}
+  .t-weak{background:var(--warn-bg);color:var(--warn)}
+  .t-strong{background:var(--bad-bg);color:var(--bad)}
+  .t-cond{background:var(--cond-bg);color:var(--cond)}
+  .t-none{background:#EEF0F3;color:var(--ink-3)}
+  .t-src{background:#F3E8F5;color:#7B3F8C}
+  code{background:#EEF2F6;padding:1.5px 6px;border-radius:4px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2)}
+  .fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:20px 0}
+  .fam-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:22px;border-top:5px solid var(--line)}
+  .fam-card.f1{border-top-color:var(--ok)}
+  .fam-card.f2{border-top-color:var(--warn)}
+  .fam-card.f3{border-top-color:var(--bad)}
+  .fam-card.f4{border-top-color:var(--cond)}
+  .fam-card .fh{font-weight:700;font-size:16px;margin-bottom:4px;color:var(--ink)}
+  .fam-card .fs{font-size:12.5px;color:var(--ink-3);margin-bottom:14px;letter-spacing:.02em}
+  .fam-card p{font-size:13.5px;margin-bottom:10px}
+  .fam-card p:last-child{margin-bottom:0}
+  .fam-card ul{padding-left:20px;margin:8px 0}
+  .fam-card li{font-size:13px;margin-bottom:5px;color:var(--ink-2)}
+  .lic{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden}
+  .lic-head{padding:14px 20px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .lic-head .ln{font-weight:700;font-size:16px;color:var(--ink)}
+  .lic-head .lv{font-size:12px;color:var(--ink-3);font-weight:500}
+  .lic-body{padding:16px 20px}
+  .lic-body .meaning{font-size:13.5px;color:var(--ink-2);margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line)}
+  .lic-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.lic-cols{grid-template-columns:1fr}}
+  .lic-cols h5{font-size:12.5px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+  .lic-cols h5.allow{color:var(--ok)}
+  .lic-cols h5.deny{color:var(--bad)}
+  .lic-cols ul{padding-left:19px}
+  .lic-cols li{font-size:13px;margin-bottom:6px;color:var(--ink-2);line-height:1.6}
+  .lic-foot{padding:11px 20px;background:var(--bg-2);border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+  .lic-foot b{color:var(--ink-2)}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
+  .bar-label{width:170px;flex-shrink:0;color:var(--ink-2);font-weight:550}
+  .bar-track{flex:1;height:8px;background:#E8EDF2;border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px}
+  .bar-val{width:36px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-3);font-weight:600}
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:8px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .src{font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  .q{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin:18px 0}
+  .q-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .q-item:last-child{border-bottom:none;padding-bottom:0}
+  .q-num{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+  .q-body{flex:1}
+  .q-body h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .q-body p{font-size:13px;margin:0;color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">开源许可证 · 企业应用合规指南</div>
+    <h1>开源协议对比表<br>含义、区别与企业应用的允许 / 约束</h1>
+    <p class="sub">
+      面向企业自研选型场景，梳理 12 类常见开源协议的<strong style="color:#fff">传染强度、闭源商用许可度、触发条件与合规义务</strong>。
+      结合本次 OMS / WMS 调研实际遇到的协议（MIT / Apache-2.0 / AGPL-3.0 / GPL-3.0 / EPL-1.0 / NOASSERTION 等）逐条映射，
+      可直接用于法务评审与选型决策。
+    </p>
+    <div class="meta-row">
+      <span class="pill">覆盖 12 类协议</span>
+      <span class="pill">六维度对比</span>
+      <span class="pill">组合兼容性矩阵</span>
+      <span class="pill">含本项目实战映射</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>先理解三个判断维度</h2>
+
+  <p>所有开源协议的差异，最终都可以归结为三个问题的不同答案。搞清这三件事，整张表就不用死记。</p>
+
+  <div class="q">
+    <div class="q-item">
+      <div class="q-num">1</div>
+      <div class="q-body">
+        <h4>能不能闭源商用？（Permissive vs Copyleft）</h4>
+        <p><strong>宽松许可</strong>（MIT / Apache / BSD）只要求你保留版权声明，改造后可以完全闭源、随便卖。<strong>著佐权（Copyleft）</strong>则要求衍生作品保持同一协议——GPL 系要求整体开源，AGPL 更进一步。</p>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">2</div>
+      <div class="q-body">
+        <h4>传染范围有多大？（Scope）</h4>
+        <p>这是最容易被忽略、也最关键的一点。同样是 Copyleft，边界完全不同：<strong>文件级</strong>（MPL，只污染改过的文件）、<strong>模块级</strong>（EPL）、<strong>库级</strong>（LGPL，只污染那个库）、<strong>整体级</strong>（GPL，污染整个组合作品）。</p>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">3</div>
+      <div class="q-body">
+        <h4>什么动作会触发义务？（Trigger）</h4>
+        <p><strong>分发</strong>（把软件交给别人）才会触发 GPL；<strong>网络交互</strong>就会触发 AGPL——这是绝大多数企业踩坑的地方。很多人误以为"SaaS 不分发所以没事"，这只对 GPL 成立，对 AGPL 完全不成立。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⚠ 企业场景最常犯的三个认知错误</span>
+    <ul class="tight" style="margin-bottom:0">
+      <li><strong>"内部部署使用，不分发，所以 GPL/AGPL 没事"</strong> —— 错。AGPL 第 13 条的触发条件是"让用户通过网络与之交互"，<strong>内网部署给员工用就已经构成网络交互</strong>。GPL 确实不因内网使用触发，但只要你把系统交付给客户（哪怕是以 SaaS 形式），就要重新审视。</li>
+      <li><strong>"我只调用它的 API / 只作为独立进程运行，不算衍生"</strong> —— 这是灰色地带，争议极大。FSF 立场认为同进程内的动态链接即构成衍生作品；业界普遍接受"独立进程 + 标准 IPC"更安全。<strong>商业项目不要赌这个边界。</strong></li>
+      <li><strong>"协议是 MIT/Apache，所以怎么用都行"</strong> —— 宽松许可确实允许闭源，但<strong>必须保留版权声明与许可文本</strong>，Apache-2.0 还要求保留 NOTICE 文件并声明你做过修改。漏掉这些同样是违约。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>四大协议家族</h2>
+
+  <div class="fam">
+    <div class="fam-card f1">
+      <div class="fh">① 宽松许可</div>
+      <div class="fs">Permissive</div>
+      <p>只要求保留版权声明与许可文本，<strong>改造后可以闭源商用</strong>。对企业最友好，无需开源自身代码。</p>
+      <ul>
+        <li><code>MIT</code> — 最短最宽松，无专利条款</li>
+        <li><code>Apache-2.0</code> — 宽松 + 专利授权 + 反诉终止</li>
+        <li><code>BSD-2/3-Clause</code> — 类似 MIT，3-Clause 多禁背书条款</li>
+        <li><code>ISC</code> — 功能同 MIT，措辞更短</li>
+      </ul>
+      <p><strong>适用：</strong>企业自研产品底座、对外分发的商业软件。</p>
+    </div>
+
+    <div class="fam-card f2">
+      <div class="fh">② 弱著佐权</div>
+      <div class="fs">Weak / File-level Copyleft</div>
+      <p>Copyleft <strong>只覆盖被修改的那个文件/模块/库</strong>，你自己写的代码可以保持闭源。需做架构隔离。</p>
+      <ul>
+        <li><code>MPL-2.0</code> — 文件级，GPL 兼容（条款 3.3）</li>
+        <li><code>EPL-1.0 / EPL-2.0</code> — 模块级，2.0 可选 GPL 兼容</li>
+        <li><code>LGPL-2.1 / 3.0</code> — 库级，用户须可替换该库</li>
+      </ul>
+      <p><strong>适用：</strong>基础库、中间件；要求工程上做清晰的文件/模块边界。</p>
+    </div>
+
+    <div class="fam-card f3">
+      <div class="fh">③ 强著佐权</div>
+      <div class="fs">Strong / Network Copyleft</div>
+      <p>衍生作品<strong>整体</strong>必须保持同协议并开源。<strong>与闭源商用目标直接冲突</strong>。</p>
+      <ul>
+        <li><code>GPL-2.0 / 3.0</code> — 分发即触发，整体开源</li>
+        <li><code>AGPL-3.0</code> — <strong>网络交互即触发</strong>，SaaS 杀手</li>
+        <li><code>SSPL-1.0</code> — 更狠，连服务端基础设施都要开源</li>
+      </ul>
+      <p><strong>适用：</strong>纯开源项目、可公开源码的内部系统。<strong>闭源商用须排除。</strong></p>
+    </div>
+
+    <div class="fam-card f4">
+      <div class="fh">④ 伪开源 / 源码可见</div>
+      <div class="fs">Source-Available（非 OSI 认可）</div>
+      <p>名字带 License、源码可见，但<strong>含商业限制条款，不属开源</strong>。法务上按专有软件处理。</p>
+      <ul>
+        <li><code>SSPL-1.0</code> — 未被 OSI 批准</li>
+        <li><code>BUSL-1.1</code> — 限时，到期转开源</li>
+        <li><code>Elastic-2.0</code> — 禁提供托管服务</li>
+        <li><code>Commons Clause</code> — 附加在开源协议上的限制条款</li>
+      </ul>
+      <p><strong>适用：</strong>基本不适用。见到应直接视为<strong>专有软件 + 商业谈判</strong>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>主对比总表</h2>
+
+  <p>按传染强度从低到高排列。<strong>六列核心指标</strong>：能否闭源商用、传染范围、触发条件、是否需开源自身代码、专利保护、企业风险等级。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>协议</th><th>家族</th>
+        <th class="c">闭源商用</th>
+        <th>传染范围</th>
+        <th>触发条件</th>
+        <th class="c">需开源自身代码</th>
+        <th class="c">专利授权</th>
+        <th class="c">企业风险</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="nm">MIT</td><td><span class="tag t-mit">宽松</span></td>
+        <td class="c y">✅ 允许</td><td>无传染</td><td>无（仅分发时保留声明）</td>
+        <td class="c n">❌ 不需要</td><td class="c n">❌ 无</td><td class="c y">低</td>
+      </tr>
+      <tr>
+        <td class="nm">BSD-2-Clause</td><td><span class="tag t-bsd">宽松</span></td>
+        <td class="c y">✅ 允许</td><td>无传染</td><td>保留声明</td>
+        <td class="c n">❌ 不需要</td><td class="c n">❌ 无</td><td class="c y">低</td>
+      </tr>
+      <tr>
+        <td class="nm">BSD-3-Clause</td><td><span class="tag t-bsd">宽松</span></td>
+        <td class="c y">✅ 允许</td><td>无传染</td><td>保留声明 + <strong>不得用作者名背书</strong></td>
+        <td class="c n">❌ 不需要</td><td class="c n">❌ 无</td><td class="c y">低</td>
+      </tr>
+      <tr>
+        <td class="nm">ISC</td><td><span class="tag t-mit">宽松</span></td>
+        <td class="c y">✅ 允许</td><td>无传染</td><td>保留声明</td>
+        <td class="c n">❌ 不需要</td><td class="c n">❌ 无</td><td class="c y">低</td>
+      </tr>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">Apache-2.0</td><td><span class="tag t-apache">宽松</span></td>
+        <td class="c y">✅ 允许</td><td>无传染</td>
+        <td>保留声明 + NOTICE 文件 + <strong>声明修改</strong></td>
+        <td class="c n">❌ 不需要</td><td class="c y">✅ 有（含反诉终止）</td><td class="c y">低</td>
+      </tr>
+      <tr>
+        <td class="nm">MPL-2.0</td><td><span class="tag t-weak">弱著佐权</span></td>
+        <td class="c y">✅ 允许</td><td><strong>文件级</strong><br>仅修改过的 MPL 文件</td>
+        <td>分发时</td>
+        <td class="c p">⚠️ 仅改过的 MPL 文件</td><td class="c y">✅ 有</td><td class="c p">中低</td>
+      </tr>
+      <tr>
+        <td class="nm">EPL-1.0</td><td><span class="tag t-weak">弱著佐权</span></td>
+        <td class="c y">✅ 允许</td><td><strong>模块级</strong></td>
+        <td>分发时</td>
+        <td class="c p">⚠️ 修改的 EPL 模块</td><td class="c y">✅ 有</td><td class="c p">中低</td>
+      </tr>
+      <tr>
+        <td class="nm">EPL-2.0</td><td><span class="tag t-weak">弱著佐权</span></td>
+        <td class="c y">✅ 允许</td><td><strong>模块级</strong> + 可选次级许可</td>
+        <td>分发时</td>
+        <td class="c p">⚠️ 修改的 EPL 模块</td><td class="c y">✅ 有</td><td class="c p">中低</td>
+      </tr>
+      <tr>
+        <td class="nm">LGPL-2.1 / 3.0</td><td><span class="tag t-weak">弱著佐权</span></td>
+        <td class="c y">✅ 有条件</td><td><strong>库级</strong><br>仅该库本身</td>
+        <td>分发时</td>
+        <td class="c p">⚠️ 库本身 + 须保证用户可替换</td><td class="c y">✅ LGPL-3.0 有</td><td class="c p">中</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">GPL-2.0 / 3.0</td><td><span class="tag t-strong">强著佐权</span></td>
+        <td class="c n">❌ 不允许</td><td><strong>整体组合作品</strong></td>
+        <td><strong>分发</strong>（不含纯网络服务）</td>
+        <td class="c n">✅ 必须</td><td class="c p">⚠️ GPL-3.0 有</td><td class="c n">高</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">AGPL-3.0</td><td><span class="tag t-strong">网络著佐权</span></td>
+        <td class="c n">❌ 不允许</td><td><strong>整体</strong></td>
+        <td><strong>网络交互即触发</strong>（SaaS 也算）</td>
+        <td class="c n">✅ 必须</td><td class="c y">✅ 有</td><td class="c n">极高</td>
+      </tr>
+      <tr style="background:var(--cond-bg)">
+        <td class="nm">SSPL-1.0</td><td><span class="tag t-src">源码可见</span></td>
+        <td class="c n">❌ 不允许</td><td><strong>整个服务栈</strong></td>
+        <td>提供服务即触发</td>
+        <td class="c n">✅ 必须（含基础设施）</td><td class="c p">⚠️ 部分</td><td class="c n">极高</td>
+      </tr>
+      <tr style="background:var(--cond-bg)">
+        <td class="nm">BUSL-1.1</td><td><span class="tag t-src">源码可见</span></td>
+        <td class="c n">❌ 限时限制</td><td>按附加条款</td>
+        <td>生产使用即受限，到期转开源</td>
+        <td class="c p">⚠️ 看附加条款</td><td class="c n">❌ 无</td><td class="c n">高</td>
+      </tr>
+      <tr>
+        <td class="nm">自定义 /<br>NOASSERTION</td><td><span class="tag t-none">待确认</span></td>
+        <td class="c p">⚠️ 不明</td><td>看文本</td><td>看文本</td>
+        <td class="c p">⚠️ 不明</td><td class="c p">⚠️ 不明</td><td class="c n">高</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">表格读法：重点看「触发条件」和「传染范围」两列</span>
+    <p>
+      很多人只盯着"能不能闭源商用"，但真正的决策依据是<strong>触发条件 × 传染范围</strong>：
+      GPL 虽然整体传染，但只要你不分发软件就有操作空间；AGPL 连这个空间都没有。
+      反过来，MPL/EPL 虽然也是 Copyleft，但只污染改动部分，<strong>通过工程隔离完全可以安全商用</strong>。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>逐协议详解</h2>
+
+  <h3>4.1 宽松许可（企业最友好）</h3>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">MIT</span><span class="lv">Massachusetts Institute of Technology License · 最短最宽松</span><span class="tag t-mit">宽松</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>全称麻省理工学院许可证，全文仅百余词。核心就一句话——保留版权声明和许可声明，你可以任意使用、复制、修改、合并、发布、分发、再授权、销售。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、闭源分发、售卖</li>
+            <li>修改后闭源，无需开源任何代码</li>
+            <li>再授权为其他协议（含专有协议）</li>
+            <li>无 copyleft、无网络条款</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li>必须保留原版权声明与许可文本</li>
+            <li><strong>无明示专利授权条款</strong>——贡献者专利不受书面保护</li>
+            <li>不提供任何担保，出问题自担</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>MIT 是"最低门槛"，但因为缺专利条款，理论上存在贡献者专利主张风险。大规模商用重要组件时，Apache-2.0 是更稳的选择。</div>
+    </div>
+  </div>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">Apache-2.0</span><span class="lv">Apache Software Foundation · 宽松 + 专利保护</span><span class="tag t-apache">宽松</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>Apache 软件基金会推出的宽松许可。保留 MIT 式的自由，额外加入<strong>明示专利授权</strong>与<strong>专利反诉终止</strong>机制。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、闭源分发、售卖、改协议</li>
+            <li>修改后完全闭源</li>
+            <li><strong>贡献者明确授予专利许可</strong>（覆盖其贡献所涉专利）</li>
+            <li>与 GPL-3.0 兼容（可与 GPL-3.0 代码合并）</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li>保留版权声明、许可文本 <strong>+ NOTICE 文件</strong></li>
+            <li><strong>必须声明你做过修改</strong>（modified files notice）</li>
+            <li><strong>专利反诉终止</strong>：你若因该软件发起专利诉讼，授权自动终止</li>
+            <li>与 <strong>GPL-2.0-only 不兼容</strong></li>
+            <li>不得使用 Apache 商标做背书</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>这是企业开源项目的首选协议。相比 MIT 多出的专利授权 + 反诉终止条款，对"规避知识产权风险"的目标保护力度<strong>实际强于 MIT</strong>。代价是合规动作更多（NOTICE + 修改声明）。</div>
+    </div>
+  </div>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">BSD-2 / BSD-3-Clause</span><span class="lv">Berkeley Software Distribution · MIT 的近亲</span><span class="tag t-bsd">宽松</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>加州大学伯克利分校发布的宽松许可。BSD-2-Clause 功能上等同 MIT（保留声明即可）。BSD-3-Clause 多一条：<strong>不得用原作者名义为衍生产品背书</strong>。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、闭源、改协议、售卖</li>
+            <li>无 copyleft、无网络条款</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li>保留版权声明与免责声明</li>
+            <li>3-Clause 额外禁止使用作者名做宣传背书</li>
+            <li><strong>无专利条款</strong>（同 MIT）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>与 MIT 实质等价，选型时无需区分。BSD-3 的禁背书条款在营销合规上有实际意义。</div>
+    </div>
+  </div>
+
+  <h3>4.2 弱著佐权（可用，但需架构隔离）</h3>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">MPL-2.0</span><span class="lv">Mozilla Public License · 文件级 Copyleft</span><span class="tag t-weak">弱著佐权</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>Mozilla 推出的弱著佐权许可。<strong>Copyleft 只覆盖被修改的那个源文件</strong>——MPL 文件改了就得以 MPL 发布，但你新增的文件可用任意协议（含闭源）。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、闭源分发自有代码</li>
+            <li>与专有代码混合在同一项目</li>
+            <li>含专利授权条款</li>
+            <li><strong>与 GPL v2/v3、LGPL 兼容</strong>（条款 3.3 次级许可机制）</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li>修改过的 MPL 文件必须以 MPL 开源</li>
+            <li>必须保留版权与许可信息</li>
+            <li><strong>不要把 MPL 代码片段复制粘贴进自己的文件</strong>——会扩大污染面</li>
+            <li>文件头需标注"Incompatible With Secondary Licenses"否则自动兼容</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>MPL 是"可安全商用的 Copyleft"，前提是<strong>工程上保持文件边界清晰</strong>。典型用户：Firefox、Thunderbird。</div>
+    </div>
+  </div>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">EPL-1.0 / EPL-2.0</span><span class="lv">Eclipse Public License · 模块级 Copyleft</span><span class="tag t-weak">弱著佐权</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>Eclipse 基金会的弱著佐权许可。<strong>Copyleft 在模块/组件级别</strong>——修改的 EPL 模块须以 EPL 发布，但独立模块可专有。EPL-2.0 新增 Secondary License 机制可指定 GPL-2.0 为次级许可以解决 GPL 兼容问题。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、与专有代码组合分发</li>
+            <li>含专利授权 + 专利反诉条款</li>
+            <li>EPL-2.0 可通过次级许可实现 GPL 兼容</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li>修改的 EPL 模块须开源</li>
+            <li>须明确声明哪些模块是 EPL、哪些不是</li>
+            <li><strong>EPL-1.0 与 GPL 不兼容</strong>（1.0 无次级许可机制）</li>
+            <li>IBM/Eclipse 生态为主，跨生态项目少见</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>本次 WMS 调研中的 <code>openboxes/openboxes</code> 即为 EPL-1.0。<strong>注意 1.0 与 2.0 的关键差别</strong>：1.0 无 GPL 兼容路径，且 Copyleft 边界为"模块"，隔离成本略高于 MPL 的"文件"。</div>
+    </div>
+  </div>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">LGPL-2.1 / LGPL-3.0</span><span class="lv">Lesser GPL · 库级 Copyleft</span><span class="tag t-weak">弱著佐权</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>GPL 的"弱化版"，专为函数库设计。<strong>Copyleft 只作用于那个库本身</strong>——链接它的应用可以闭源，但用户必须能替换该库。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>闭源应用链接 LGPL 库并商业分发</li>
+            <li>动态链接最简单（用户替换 .so/.dll 即可）</li>
+            <li>LGPL-3.0 含专利授权</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li>库本身及其修改必须开源</li>
+            <li><strong>用户必须能替换该库</strong>（可替换性要求）</li>
+            <li><strong>静态链接</strong>须提供目标文件（.o）或源码，允许重新链接</li>
+            <li><strong>移动端 App Store 分发需格外小心</strong>（安装信息要求）</li>
+            <li>头文件定义的数据结构是否传染存在争议</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>LGPL 在服务端动态链接场景基本安全；<strong>静态链接、嵌入式、App Store 是三个高风险场景</strong>，须提前做合规设计。</div>
+    </div>
+  </div>
+
+  <h3>4.3 强著佐权（闭源商用须排除）</h3>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">GPL-2.0 / GPL-3.0</span><span class="lv">GNU General Public License · 整体传染</span><span class="tag t-strong">强著佐权</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>自由软件基金会推出的强著佐权许可。<strong>衍生作品整体必须保持 GPL 并提供完整源码</strong>。GPL-3.0 额外加入专利授权、反 Tivo 化、兼容 Apache-2.0。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、收费分发（但必须同时开源）</li>
+            <li>纯内部使用且不分发，无开源义务</li>
+            <li>GPL-3.0 含明示专利授权</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li><strong>分发衍生作品时必须提供完整对应源码</strong></li>
+            <li>与闭源代码同进程链接即可能整体污染</li>
+            <li>GPL-2.0-only 与 Apache-2.0 <strong>不兼容</strong></li>
+            <li>触发条件是"分发"，<strong>纯 SaaS 不触发</strong>（这是唯一操作空间）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>本次 WMS 调研中的 <code>erzhongxmu/JeeWMS</code>（OMS+WMS+BMS+TMS 四合一）即 GPL-3.0。<strong>它与 Apache-2.0 的 OMS 组合会导致整体被迫开源</strong>——这是本次调研识别的最高优先级协议风险。</div>
+    </div>
+  </div>
+
+  <div class="lic" style="border-color:var(--bad-line)">
+    <div class="lic-head" style="background:var(--bad-bg)"><span class="ln">AGPL-3.0</span><span class="lv">Affero GPL · GPL + 网络条款（企业最大陷阱）</span><span class="tag t-strong">网络著佐权</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>GPL-3.0 加第 13 条"远程网络交互"条款。<strong>即使用户只是通过网络访问你的服务、你完全没有"分发"软件，也触发开源义务</strong>。这是 AGPL 与 GPL 的唯一实质差别，也是它最危险的地方。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>商业使用、收费（但须同时开源）</li>
+            <li>完全不开放给外部使用的纯离线场景</li>
+            <li>含 GPL-3.0 全部专利保护</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li><strong>网络交互即触发</strong>，无"内部使用"灰色地带</li>
+            <li>衍生作品整体必须开源</li>
+            <li>内网部署给员工用<strong>同样构成网络交互</strong></li>
+            <li>与 Apache-2.0 组合会污染整个项目</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>本次 OMS 调研中的 <code>zeasin/qihang-erp-open</code>（启航电商 ERP，平台覆盖最广、功能最全）与 <code>lilishop/lilishop</code>（★4327）均为 AGPL-3.0。<strong>它们功能最诱人，但对企业闭源商用是硬性排除项</strong>——只能作产品需求参考，不可作代码底座。</div>
+    </div>
+  </div>
+
+  <h3>4.4 源码可见但非开源（按专有软件对待）</h3>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">SSPL-1.0</span><span class="lv">Server Side Public License · MongoDB 2018 推出</span><span class="tag t-src">源码可见</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong>基于 GPL-3.0 改写第 13 条。提供软件即服务时，<strong>不仅要开源该软件，还要开源整个服务栈</strong>——管理软件、API、自动化、监控、备份、存储、托管等全部。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>自由使用、审查、修改、再分发源码</li>
+            <li>非服务场景（如内部工具）相对宽松</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li><strong>未被 OSI 认可为开源</strong>（2019 年被拒）</li>
+            <li>提供服务须开源整个服务基础设施</li>
+            <li>Debian、RHEL、Fedora 已将其从发行版中移除</li>
+            <li>Red Hat / Debian / FSF 均认定其不自由</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>见到 SSPL <strong>直接按专有软件 + 商业谈判处理</strong>，不要走开源合规流程。典型用户：MongoDB（2018-10-16 起）、Graylog 4.0+、Redis 7.x（2024-2025 期间）。</div>
+    </div>
+  </div>
+
+  <div class="lic">
+    <div class="lic-head"><span class="ln">BUSL-1.1 / Elastic-2.0</span><span class="lv">限时或限场景的源码可见协议</span><span class="tag t-src">源码可见</span></div>
+    <div class="lic-body">
+      <div class="meaning"><strong>含义：</strong><strong>BUSL</strong>（Business Source License）限时——生产使用受附加条款限制，到期（不超过 4 年）转为指定开源协议。<strong>Elastic License 2.0</strong>——不得作为托管服务提供、不得绕过许可密钥。</div>
+      <div class="lic-cols">
+        <div>
+          <h5 class="allow">✅ 允许</h5>
+          <ul>
+            <li>查看、修改、内部使用源码</li>
+            <li>BUSL 到期后自动转为开源协议</li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="deny">⚠️ 约束</h5>
+          <ul>
+            <li><strong>均未被 OSI 认可</strong></li>
+            <li>BUSL 生产使用受限，需逐项目读"Additional Use Grant"</li>
+            <li>Elastic-2.0 禁止提供托管服务</li>
+            <li>每个项目的附加条款不同，无法统一判断</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lic-foot"><b>企业注意：</b>这类协议<strong>没有通用判断标准</strong>，必须逐项目读附加条款。典型用户：MariaDB、CockroachDB（BUSL）、Elasticsearch / Kibana 7.8+（Elastic-2.0 + SSPL 双许可）。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>组合兼容性矩阵</h2>
+
+  <p>自研系统往往是"多个开源组件 + 自有代码"的组合。<strong>关键问题：这些协议混在一起后，整体能否保持闭源？</strong></p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>组合方式</th><th class="c">可否闭源商用</th><th>原因与注意点</th></tr>
+    </thead>
+    <tbody>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">MIT + Apache-2.0 + BSD + 自有代码</td>
+        <td class="c y">✅ 完全可行</td>
+        <td>宽松许可之间可自由组合。<strong>仅需保留全部版权声明 + Apache 的 NOTICE 与修改声明</strong>。整体可闭源、可售卖。</td>
+      </tr>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">Apache-2.0 + Apache-2.0<br><span style="font-size:12px;color:var(--ink-3)">（如 ShopeX OMS + GreaterWMS）</span></td>
+        <td class="c y">✅ 完全可行</td>
+        <td><strong>本次推荐组合正是此结构</strong>。双 Apache-2.0 无任何冲突，各自保留 NOTICE / LICENSE 即可整体闭源商用。</td>
+      </tr>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">MPL-2.0 + 自有代码</td>
+        <td class="c y">✅ 可行</td>
+        <td>自有文件保持闭源。<strong>前提：不要把 MPL 代码复制进自有文件</strong>，保持文件边界。</td>
+      </tr>
+      <tr style="background:var(--warn-bg)">
+        <td class="nm">EPL-1.0 + 自有代码</td>
+        <td class="c p">⚠️ 需架构隔离</td>
+        <td>修改的 EPL 模块须开源。<strong>须清晰划分模块边界</strong>，并注意 EPL-1.0 与 GPL 无兼容路径。</td>
+      </tr>
+      <tr style="background:var(--warn-bg)">
+        <td class="nm">LGPL 库 + 自有闭源应用</td>
+        <td class="c p">⚠️ 有条件可行</td>
+        <td>动态链接安全；<strong>静态链接须提供目标文件允许重链；App Store 分发须额外处理</strong>。</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">GPL-3.0 + Apache-2.0 组合</td>
+        <td class="c n">❌ 不可闭源</td>
+        <td>GPL-3.0 虽与 Apache-2.0 协议兼容，但<strong>组合结果整体按 GPL-3.0 处理，必须开源</strong>。这就是 JeeWMS + ShopeX OMS 的风险。</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">AGPL-3.0 + 任意闭源代码</td>
+        <td class="c n">❌ 不可闭源</td>
+        <td><strong>网络交互即触发整体开源</strong>。哪怕只是内部署一个 Web 服务，也无灰色地带。这是最严格的组合。</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">GPL-2.0-only + Apache-2.0</td>
+        <td class="c n">❌ 协议不兼容</td>
+        <td><strong>Apache-2.0 的专利/修改条款与 GPL-2.0 冲突</strong>，法律上不允许合并分发。GPL-3.0 才兼容 Apache-2.0。</td>
+      </tr>
+      <tr style="background:var(--cond-bg)">
+        <td class="nm">SSPL + 自有代码（提供服务时）</td>
+        <td class="c n">❌ 不可行</td>
+        <td>须开源整个服务栈含基础设施。<strong>直接按专有软件谈判处理</strong>，勿走开源流程。</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">自定义 / NOASSERTION + 任意</td>
+        <td class="c n">⚠️ 不可判定</td>
+        <td><strong>协议不明即视为有风险</strong>。须先取得明确许可文本并由法务出具意见，否则不进入 PoC。</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="okbox">
+    <span class="t">✅ 本次 OMS / WMS 选型的协议结论</span>
+    <p>
+      <strong>ShopeX ONEX OMS（Apache-2.0）+ GreaterWMS 2.x（Apache-2.0）</strong>落在表格第二行——
+      双宽松许可组合，<strong>整体可闭源商用，无任何协议冲突</strong>，合规动作仅是保留双方的 NOTICE 与 LICENSE 文件、声明修改。
+      这是本次调研在协议层面能给出的最好结果。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>本项目实战映射</h2>
+
+  <p>把本次 OMS / WMS 调研实际遇到的项目按协议归类，<strong>每一条都对应到上面的分析</strong>：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>项目</th><th>协议</th><th>协议带来的直接结论</th><th class="c">可用性</th></tr>
+    </thead>
+    <tbody>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">ShopeX/OMS<br><span style="font-size:12px;font-weight:400;color:var(--ink-3)">商派 ONEX OMS</span></td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>宽松 + 专利保护。可闭源商用，须保留 NOTICE 并声明修改。<strong>业务完整度最高（60+ 模块），与 OFS 模型最贴合</strong></td>
+        <td class="c y">✅ 首选</td>
+      </tr>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">GreaterWMS</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>与 ShopeX 协议完全兼容。<strong>双 Apache-2.0 组合可整体闭源</strong>。须锁 2.x 分支</td>
+        <td class="c y">✅ WMS 首选</td>
+      </tr>
+      <tr>
+        <td class="nm">tigshop/Tigshop</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>协议可用，但定位是商城系统非 OMS，B2B 价格体系可作参考</td>
+        <td class="c p">△ 参考</td>
+      </tr>
+      <tr>
+        <td class="nm">openlinker</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>协议可用。API-first 电商编排平台，可作平台适配层架构参考</td>
+        <td class="c p">△ 参考</td>
+      </tr>
+      <tr>
+        <td class="nm">openboxes/openboxes</td>
+        <td><span class="tag t-weak">EPL-1.0</span></td>
+        <td>弱著佐权，须做模块隔离。<strong>注意 EPL-1.0 与 GPL 无兼容路径</strong>，且为医疗供应链模型，电商适配差</td>
+        <td class="c p">△ 谨慎</td>
+      </tr>
+      <tr>
+        <td class="nm">jingsewu/open-wes</td>
+        <td><span class="tag t-mit">MIT</span></td>
+        <td>最宽松。但仅 4 人贡献者、341 star，成熟度需自行验证</td>
+        <td class="c p">△ 备选</td>
+      </tr>
+      <tr>
+        <td class="nm">wms2/mywms</td>
+        <td><span class="tag t-none">NOASSERTION</span></td>
+        <td><strong>COPYING 文件为空、SPDX 未识别</strong>。协议不明即视为有风险，须法务先出意见</td>
+        <td class="c n">⚠️ 待确认</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">zeasin/qihang-erp-open<br><span style="font-size:12px;font-weight:400;color:var(--ink-3)">启航电商 ERP</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td><strong>功能最全（7 平台全覆盖）但网络交互即触发整体开源</strong>。内网部署同样触发，无灰色地带。只能作需求参考</td>
+        <td class="c n">❌ 排除</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">zeasin/qihang-oms</td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>同上。网络文章普遍误标为 MIT，<strong>这是最容易踩的坑</strong></td>
+        <td class="c n">❌ 排除</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">lilishop/lilishop</td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>★4327 的 B2B2C 多商户商城，功能成熟但协议不可用于闭源商用</td>
+        <td class="c n">❌ 排除</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm">erzhongxmu/JeeWMS</td>
+        <td><span class="tag t-strong">GPL-3.0</span></td>
+        <td><strong>OMS+WMS+BMS+TMS 四合一，功能最诱人，但会污染整个 Apache-2.0 组合导致整体被迫开源</strong>。最高优先级协议风险</td>
+        <td class="c n">❌ 排除</td>
+      </tr>
+      <tr>
+        <td class="nm">zhuoshao/Y-oms-wms-tms-bms</td>
+        <td><span class="tag t-strong">GPL-3.0</span></td>
+        <td>README 极详尽（宣称已对接旺店通/奇门/快递鸟）但 0 star、2022 年代码转储。<strong>README 详尽不构成可用性依据</strong></td>
+        <td class="c n">❌ 排除</td>
+      </tr>
+      <tr>
+        <td class="nm">newbee-ltd/newbee-mall</td>
+        <td><span class="tag t-strong">GPL-3.0</span></td>
+        <td>GPL-3.0 且非 OMS 架构，缺平台对接能力</td>
+        <td class="c n">❌ 排除</td>
+      </tr>
+      <tr>
+        <td class="nm">medusajs/medusa</td>
+        <td><span class="tag t-cond">MIT + 商业条款</span></td>
+        <td><strong>混合许可</strong>，核心包与商业模块条款不同，需逐包审查，法务成本高</td>
+        <td class="c p">△ 需审查</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⚠ 特别注意：协议污染是"沿组合边界"扩散的</span>
+    <p>
+      上表中 JeeWMS（GPL-3.0）那一行值得单独强调。<strong>GPL 的传染性不是"用了它的代码所以我的代码要开源"这么简单</strong>——
+      当 GPL 代码与你的代码组成"单一作品"（同进程链接、合并分发）时，<strong>整体按 GPL 处理</strong>。
+      因此把 GPL 的 WMS 和 Apache-2.0 的 OMS 拼成一套系统交付，结果是<strong>整套系统被迫开源</strong>，
+      包括你辛苦自研的、本可以闭源的核心逻辑。<strong>这是比"功能不全"严重得多的风险。</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>企业落地检查清单</h2>
+
+  <h3>7.1 选型前必问（按此顺序）</h3>
+  <div class="q">
+    <div class="q-item">
+      <div class="q-num">1</div>
+      <div class="q-body">
+        <h4>我们要不要闭源？</h4>
+        <p>要闭源 → 只考虑宽松许可（MIT / Apache-2.0 / BSD）与弱著佐权（MPL / EPL / LGPL，需隔离）。<strong>强著佐权（GPL / AGPL / SSPL）直接出局</strong>，除非公司战略就是开源。</p>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">2</div>
+      <div class="q-body">
+        <h4>软件会以什么形式交付？</h4>
+        <p>分发给客户 → GPL 会触发，须评估。只做 SaaS → GPL 不触发（唯一操作空间），但 <strong>AGPL / SSPL 照样触发</strong>。内网自用 → AGPL 仍触发。</p>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">3</div>
+      <div class="q-body">
+        <h4>协议传染边界在哪里？</h4>
+        <p>确认是文件级（MPL）/ 模块级（EPL）/ 库级（LGPL）/ 整体级（GPL）。<strong>然后检查工程上能否维持这个边界</strong>——这是弱著佐权能否安全商用的关键。</p>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">4</div>
+      <div class="q-body">
+        <h4>协议文本是否明确？</h4>
+        <p><strong>NOASSERTION / 自定义协议 / 空 LICENSE 文件 = 视为有风险</strong>。必须先取得明确许可文本并由法务出具书面意见，否则不进入 PoC。本次 <code>wms2/mywms</code> 即属此类。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>7.2 已确定采用后的合规动作</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>协议</th><th>必须做的事</th><th>常见遗漏点</th></tr></thead>
+    <tbody>
+      <tr><td class="nm">MIT / BSD / ISC</td><td>在所有副本中保留版权声明与许可文本</td><td>重构代码时把注释里的版权头删掉了</td></tr>
+      <tr><td class="nm">Apache-2.0</td><td>保留版权声明 + <strong>NOTICE 文件</strong> + <strong>在修改过的文件中声明修改</strong></td><td><strong>NOTICE 文件最容易漏</strong>；"声明修改"也常被忽略</td></tr>
+      <tr><td class="nm">MPL-2.0</td><td>改过的 MPL 文件以 MPL 开源 + 保留声明</td><td>复制粘贴 MPL 代码进自有文件，扩大污染面</td></tr>
+      <tr><td class="nm">EPL</td><td>修改的模块以 EPL 开源 + 明确标注模块归属</td><td>没在文档里说清哪些模块是 EPL</td></tr>
+      <tr><td class="nm">LGPL</td><td>库本身开源 + 保证用户可替换（动态链接优先）</td><td><strong>静态链接时没提供目标文件</strong>；移动端商店限制</td></tr>
+      <tr><td class="nm">GPL / AGPL</td><td>衍生作品整体开源 + 提供完整对应源码</td><td>以为"内网/SaaS 不分发就没事"（AGPL 不成立）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>7.3 给凯淳本次选型的一句话结论</h3>
+
+  <div class="callout">
+    <span class="t">协议层面的最终建议</span>
+    <p>
+      如果法务原本的硬性要求是 <strong>MIT</strong>，需要重新审视：在 OMS / WMS 领域，<strong>MIT 几乎没有成熟可选项目</strong>
+      （仅存的是 0 star 个人分叉）。而 <strong>Apache-2.0 同属宽松许可，允许闭源商用、修改、再分发，
+      且额外提供明示专利授权与专利反诉终止保护——对"规避知识产权风险"这个原始目标，保护力度实际强于 MIT。</strong>
+    </p>
+    <p style="margin-bottom:0">
+      按 Apache-2.0 作准入标准，本次选型得到最优解：<strong>ShopeX ONEX OMS + GreaterWMS 2.x，双 Apache-2.0 组合，整体可闭源商用</strong>。
+      同时必须<strong>书面排除 JeeWMS（GPL-3.0）与启航系（AGPL-3.0）</strong>，并在团队内明确：
+      <strong>这两个项目功能再全也不能进代码库，只能当产品需求文档读。</strong>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="src">
+    <strong>说明与免责</strong><br>
+    · 本报告为开源许可证技术评估参考，<strong>不构成法律意见</strong>。商业关键决策（尤其是涉及对外分发、并购尽调、客户合同承诺）请交由执业律师出具正式意见。<br>
+    · 协议条款以官方英文原文为准，中文释义为便于理解的概括；存在争议的边缘情形（如 LGPL 头文件传染、API 调用的衍生判定）请以法务判断为准。<br>
+    · 协议实践中"分发"（convey/distribute）与"网络交互"（network interaction）的界定在不同司法辖区存在解释空间，AGPL 第 13 条的适用范围尚无充分判例。<br>
+    · 项目协议信息经 GitHub REST API 于 2026-10-17 实测核验；开源项目可能变更协议，正式采用前请复核仓库 LICENSE 文件当前内容。<br>
+    · 本报告与《开源 OMS 专项调研报告》《开源 WMS 专项调研报告》配套使用。
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

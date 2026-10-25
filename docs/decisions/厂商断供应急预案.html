@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>厂商断供应急预案 · 通天晓技术支持中断应对</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#1A1D24; --ink2:#4A5160; --ink3:#8A91A0;
+  --line:#E3E6EC; --brand:#185FA5; --brand-soft:#E8F0FA;
+  --ok:#1E7E4A; --ok-soft:#E5F4EC; --warn:#B26A00; --warn-soft:#FDF1DE;
+  --risk:#B4342E; --risk-soft:#FBE9E8; --accent:#6B4FBB; --accent-soft:#EFEBFA;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161A; --card:#1D2026; --ink:#E8EAF0; --ink2:#B4BAC6; --ink3:#7C8494;
+    --line:#2C3038; --brand:#6FA3DC; --brand-soft:#1C2B3D;
+    --ok:#5CC08A; --ok-soft:#16281E; --warn:#E0A44C; --warn-soft:#2B2013;
+    --risk:#E8837C; --risk-soft:#2E1917; --accent:#A990F0; --accent-soft:#221C36; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:40px 28px 80px}
+.cover{padding:56px 0 36px;border-bottom:3px solid var(--risk);margin-bottom:36px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--risk);background:var(--risk-soft);border-radius:99px;padding:4px 14px;font-weight:700;margin-bottom:18px}
+h1{font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.sub{font-size:16.5px;color:var(--ink2);margin-top:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.meta span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+h2{font-size:22px;font-weight:800;margin:52px 0 18px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2 .n{color:var(--brand);font-family:var(--mono);font-size:16px;margin-right:10px;font-weight:700}
+h3{font-size:16.5px;font-weight:700;margin:28px 0 12px;color:var(--ink)}
+p{margin:10px 0;color:var(--ink2)}
+b{color:var(--ink)}
+ul,ol{margin:10px 0 10px 22px;color:var(--ink2)}
+li{margin:6px 0}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-soft);color:var(--brand);border-radius:4px;padding:1px 6px}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:14px;color:var(--ink3);letter-spacing:.1em}
+.toc ol{columns:2;column-gap:36px;margin-left:20px;font-size:14px}
+.toc li{break-inside:avoid}
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+th{background:var(--brand-soft);color:var(--ink);font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:4px solid;font-size:14px}
+.callout .t{font-weight:800;margin-bottom:6px;display:block}
+.c-key{background:var(--brand-soft);border-color:var(--brand);color:var(--ink2)} .c-key .t{color:var(--brand)}
+.c-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ink2)} .c-ok .t{color:var(--ok)}
+.c-warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink2)} .c-warn .t{color:var(--warn)}
+.c-risk{background:var(--risk-soft);border-color:var(--risk);color:var(--ink2)} .c-risk .t{color:var(--risk)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;white-space:nowrap;vertical-align:1px}
+.t-p0{background:var(--risk-soft);color:var(--risk)} .t-p1{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-acc{background:var(--accent-soft);color:var(--accent)}
+.fig{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.fig svg{width:100%;height:auto}
+.cap{font-size:12.5px;color:var(--ink3);margin-top:10px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3)}
+@media print{
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{page-break-before:always;margin-top:20px} h2:first-of-type{page-break-before:avoid}
+  .fig,.tw,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <span class="eyebrow">WISE 技术交付中心 · 应急预案</span>
+  <h1>厂商断供应急预案</h1>
+  <div class="sub">通天晓技术支持中断应对 · 双轨策略：商务保留修复通道 + 技术全面自立</div>
+  <div class="meta">
+    <span>版本 V1.0</span><span>2026-10-23</span><span>状态：需发起人本周决策</span>
+    <span>修订对象：《团队组建与遗留系统稳定保障方案》《迁移切换执行方案》</span>
+  </div>
+</div>
+
+<div class="callout c-risk">
+  <span class="t">态势判定：三重不利叠加，防御重心必须从 OFS 转向 WMS</span>
+  ① <b>合同已到期/临期</b>——厂商无任何合同义务提供支持，「SLA 书面重确认」路径失效，原遗留保障第三道防线（厂商兜底）<b>不成立</b>；
+  ② <b>WMS 已受波及</b>——仓内作业是全链路唯一「停摆即断收入」的环节（PDA/波次/发运停=当天所有品牌停发货），防御重心从即将下线的 OFS 转向必须继续运行的 WMS；
+  ③ <b>纠纷僵持且走向不确定</b>——必须按「彻底断供」做技术准备，同时保留商务修复通道（双轨并行，不赌任何一边）。
+</div>
+
+<div class="callout c-key">
+  <span class="t">预案核心策略（一句话）</span>
+  把「厂商支持」从依赖项降级为可选项：<b>技术上按永久断供设防</b>（接口资产抢救、WMS 黑盒自救体系、替换评估提前启动），
+  <b>商务上保留修复通道</b>（证据保全、谈判筹码、法务威慑分级使用），
+  <b>节奏上让自研 OMS 迁移成为解决纠纷的筹码而非人质</b>——OMS 越快自主，WMS 谈判地位越强，这是既有建议书结论在纠纷态势下的强化而非改变。
+</div>
+
+<div class="toc">
+  <h3>目录 CONTENTS</h3>
+  <ol>
+    <li><a href="#v1">断供影响面盘点</a></li>
+    <li><a href="#v2">72 小时紧急行动</a></li>
+    <li><a href="#v3">WMS 黑盒自救体系</a></li>
+    <li><a href="#v4">迁移方案修订：去厂商依赖</a></li>
+    <li><a href="#v5">WMS 替换决策提前</a></li>
+    <li><a href="#v6">商务与法务轨道</a></li>
+    <li><a href="#v7">修订后风险矩阵</a></li>
+    <li><a href="#v8">本周决策与行动清单</a></li>
+  </ol>
+</div>
+
+<h2 id="v1"><span class="n">01</span>断供影响面盘点</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:20%">受影响项</th><th style="width:10%">严重度</th><th style="width:36%">断供后果</th><th>原方案假设 → 现状</th></tr></thead>
+<tbody>
+<tr><td><b>WMS 日常支持</b></td><td><span class="tag t-p0">致命</span></td><td>仓内故障（PDA 掉线/波次卡死/接口异常）无人可问；固件与设备兼容性问题无解；数据修复无门</td><td>原假设「厂商 SLA 兜底」→ <b>已失效</b>，必须自建自救体系</td></tr>
+<tr><td><b>WMS 接口联调配合</b></td><td><span class="tag t-p0">致命</span></td><td>自研 OMS 对接 WMS 拿不到接口文档/测试环境/报文说明，M2 联调路径被卡</td><td>原缓解「发函确认联调排期」→ <b>不可行</b>，改走接口逆向（第 4 章）</td></tr>
+<tr><td><b>WMS 账号与许可</b></td><td><span class="tag t-p0">致命</span></td><td>合同到期后厂商可能停用账号/许可/云端组件，仓内作业直接停摆</td><td>原未覆盖 → <b>新增最高优先风险</b>，72 小时内核实（第 2 章）</td></tr>
+<tr><td><b>OFS 日常支持</b></td><td><span class="tag t-p1">高</span></td><td>OFS 故障无人支持，但它本来就在下线路上，影响窗口=迁移完成前</td><td>原假设厂商支持 → 降级为「自维护+加速下线」，可接受</td></tr>
+<tr><td><b>数据资产安全</b></td><td><span class="tag t-p0">致命</span></td><td>历史订单/库存/结算数据在厂商系统内，纠纷恶化时存在被扣押/损毁风险</td><td>原假设可导出 → <b>立即启动数据备份抢救</b>（第 2 章）</td></tr>
+<tr><td><b>知识抢救（离职经理回访）</b></td><td><span class="tag t-ok">不受影响</span></td><td>—</td><td>价值反而上升：回访专题 3（接口坑位）、4（排障路径）成为自救体系的核心输入，<b>优先级再提高</b></td></tr>
+</tbody>
+</table></div>
+
+<h2 id="v2"><span class="n">02</span>72 小时紧急行动（不等立项审批）</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:6%">#</th><th style="width:26%">行动</th><th style="width:38%">具体内容</th><th>责任人</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><b>核实账号/许可状态</b></td><td>WMS 与 OFS 的全部账号、license、云端组件（如有）到期状态逐一核实；<b>确认厂商技术上能否远程停用</b>（本地部署 vs 云端依赖）；有停用风险的立即评估续费换缓冲</td><td>技术负责人 + 运维 A</td></tr>
+<tr><td>2</td><td><b>数据备份抢救</b></td><td>OFS/WMS 数据库全量备份落地自有存储（每日增量+每周全量，备份可恢复性实测一次）；历史报表/对账单批量导出归档——<b>数据在自己手里，谈判才有底气</b></td><td>运维 A/B</td></tr>
+<tr><td>3</td><td><b>接口资产抢救</b></td><td>现有 OFS↔WMS 接口：抓包留样（四类报文各 ≥10 个真实样本）、数据库接口日志表导出、现有接口文档/邮件往来全部归档——这是逆向工程的原料（第 4 章）</td><td>运维 B + 后端</td></tr>
+<tr><td>4</td><td><b>证据保全</b></td><td>合同纠纷时间线、厂商拒绝/延迟支持的书面记录（工单/邮件/聊天）、因断供造成的损失记录——法务轨道的弹药（第 6 章）</td><td>发起人 + 行政</td></tr>
+<tr><td>5</td><td><b>合同与资产盘点</b></td><td>OFS/WMS 合同条款（到期日/续约条款/数据归属/退出义务）、付费历史、部署形态（本地/云）、硬件归属（PDA/服务器是谁的资产）</td><td>发起人 + 法务</td></tr>
+<tr><td>6</td><td><b>离职经理回访提前</b></td><td>原 5 场回访中第 3、4 场（接口坑位/排障路径）提到第 1、2 场执行——它们直接喂给自救体系；同步追加 1 场「WMS 专题」（仓内配置/设备对接/厂商内部升级机制）</td><td>技术负责人</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">行动 1 是全预案的第一优先级</span>
+  如果厂商技术上能远程停用 WMS（云端 license 校验/云组件依赖），仓内作业存在「突然死亡」风险，其余一切安排都失去意义。
+  72 小时内必须得到明确答案：能 → 立即评估付费续约买缓冲期（哪怕纠纷未解），不能 → 按本地部署自救路径推进。
+</div>
+
+<h2 id="v3"><span class="n">03</span>WMS 黑盒自救体系</h2>
+<p>WMS 是黑盒且无厂商支持，自救体系的目标不是「变成 WMS 专家」，而是<b>把故障影响控制在可承受范围内</b>：能自愈的自愈、不能自愈的降级作业、最坏情况有兜底方案。</p>
+
+<h3>3.1 四级故障响应模型</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:12%">级别</th><th style="width:30%">定义</th><th style="width:30%">响应动作</th><th>能力来源</th></tr></thead>
+<tbody>
+<tr><td><b>L1 已知故障</b></td><td>Runbook 覆盖的 Top20 高频故障（PDA 掉线、单据卡状态、打印异常等）</td><td>运维按 Runbook 处理，30 分钟内恢复</td><td>离职经理回访第 4 场 + 事故案例库</td></tr>
+<tr><td><b>L2 数据级故障</b></td><td>单据状态错乱、库存账实不符、接口数据异常</td><td>运维按 SQL 手册做数据修复（预置修复脚本+双人复核）</td><td>运维升级路径第 2 月能力 + 接口留样比对</td></tr>
+<tr><td><b>L3 系统级故障</b></td><td>服务不可用、性能雪崩、升级引发异常</td><td>服务重启/回滚预案执行；<b>启动手工降级作业</b>（见 3.2）</td><td>部署拓扑文档 + 回滚快照</td></tr>
+<tr><td><b>L4 黑盒深处故障</b></td><td>厂商代码级 bug、数据库结构损坏</td><td>外部救援：第三方 WMS 服务商/厂商前员工顾问/开源社区（GreaterWMS 等同类系统专家）；同时启动 WMS 替换加速评估</td><td>预备签约的外部救援渠道（3.3）</td></tr>
+</tbody>
+</table></div>
+
+<h3>3.2 手工降级作业预案（L3/L4 期间保发货）</h3>
+<ul>
+  <li><b>场景</b>：WMS 整体不可用，但电商订单仍在涌入，仓内不能停。</li>
+  <li><b>预案</b>：OMS 侧订单导出为拣货单（Excel/打印）→ 仓内纸质拣货+人工复核 → 发货后单号回录 OMS → 平台回传照常。库存冻结平台同步（防止超卖），恢复后盘点回补。</li>
+  <li><b>容量</b>：按日均单量 30-50% 设计（大促不适用——所以大促前 WMS 健康检查成为硬性门禁）。</li>
+  <li><b>演练</b>：每季度 1 次半日演练，仓内主管+运维+客服参加，演练记录入 Runbook。</li>
+</ul>
+
+<h3>3.3 外部救援渠道预备（L4 兜底，本月内完成签约/建联）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">渠道</th><th style="width:38%">形式</th><th>成本与优先级</th></tr></thead>
+<tbody>
+<tr><td><b>通天晓前员工顾问</b></td><td>与离职经理回访同步建联，扩展到 WMS 侧前员工（技术/实施岗），按次付费救援</td><td>成本最低、知识最对口，<b>首选</b></td></tr>
+<tr><td><b>第三方 WMS 实施商</b></td><td>市场上做通天晓实施/二开的服务商（从其客户案例反查），签框架救援协议</td><td>次选，需尽调其真实能力</td></tr>
+<tr><td><b>同类开源系统专家</b></td><td>GreaterWMS/OpenWMS 社区与商业支持方——既是救援渠道，也是替换候选的实施力量</td><td>与 WMS 替换评估合并推进</td></tr>
+</tbody>
+</table></div>
+
+<h3>3.4 自救资产清单（M1-M2 期间建成，全部入仓库）</h3>
+<ul>
+  <li>《WMS 部署拓扑与账号权限手册》：服务器/数据库/中间件/PDA 网络拓扑，全部账号清单；</li>
+  <li>《WMS 排障 Runbook V2》：在回访第 4 场基础上扩到 WMS 专题，覆盖 Top30 故障；</li>
+  <li>《数据修复 SQL 手册》：常见数据级故障的修复脚本（带使用说明与回滚语句，双人复核制）；</li>
+  <li>《接口报文样本库》：四类报文真实样本+字段说明（逆向成果，第 4 章）；</li>
+  <li>《手工降级作业 SOP》+ 演练记录；</li>
+  <li>数据库每日备份+恢复演练记录（备份不能恢复=没有备份）。</li>
+</ul>
+
+<h2 id="v4"><span class="n">04</span>迁移方案修订：去厂商依赖</h2>
+<p>原迁移方案对厂商的依赖点有两处：WMS 接口联调配合（M2）、切换期厂商兜底。断供后修订如下：</p>
+
+<h3>4.1 WMS 接口：从「厂商联调」改为「逆向工程 + 影子验证」</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:16%">步骤</th><th style="width:44%">方法</th><th>产出与验证</th></tr></thead>
+<tbody>
+<tr><td><b>① 报文逆向</b></td><td>基于 72 小时抢救的接口留样（四类报文各 ≥10 个真实样本）+ OFS↔WMS 接口日志表 + 回访第 3 场（接口坑位），还原报文字段语义与状态机</td><td>《接口报文规格书》——替代厂商文档，技术负责人评审</td></tr>
+<tr><td><b>② 影子对接</b></td><td>自研 OMS 按规格书生成报文，先<b>不真发</b>：与 OFS 同期发出的真实报文逐字段比对（复用迁移方案的比对工具）</td><td>连续 7 天报文一致率 ≥99.9% 才准真发</td></tr>
+<tr><td><b>③ 灰度真发</b></td><td>试点品牌切换后，真实报文只覆盖单品牌小单量；WMS 侧行为（出库/回传）逐单人工核对</td><td>纳入 S2 门禁 G2</td></tr>
+<tr><td><b>④ 奇门备选通道</b></td><td>若私有报文逆向受阻，验证 WMS 的奇门标准通道是否开启（10-17 调研已确认通天晓 WMS 有标准 RESTful 平台）——奇门是公开规范，<b>不需要厂商配合</b>即可对接</td><td>M1 内完成可行性验证，作为规格书失败时的 Plan B</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-ok">
+  <span class="t">逆向可行性判断：高</span>
+  四类报文（出库订单/入库通知/退货预报/库存对账）是行业标准语义，且 OFS 每天都在发——留样充足、比对基准现成（OFS 就是「参考实现」）。
+  影子比对让逆向的错误在零风险环境下暴露。真正的残余风险是<b>低频异常报文</b>（如拦截/改址），对策：迁移期保留 OFS 热备，异常场景先走 OFS 通道，样本积累后补进规格书。
+</div>
+
+<h3>4.2 切换期兜底修订</h3>
+<ul>
+  <li>原「厂商 SLA 兜底」删除，替换为：<b>OFS 热备期从 6 个月延长至 9 个月</b>（自维护，见第 3 章自救体系同样覆盖 OFS）；</li>
+  <li>切换日 SOP 增加一条准入项：「WMS 侧近 7 天无 L2 以上故障」——WMS 不稳时不切 OMS，避免双系统同时处于变更态；</li>
+  <li>冻结窗口规则强化：纠纷升级期（商务谈判关键节点/法务行动期）视同大促冻结，切换暂停。</li>
+</ul>
+
+<h3>4.3 OFS 加速下线的战略含义</h3>
+<p>断供改变了 OFS 迁移的性质：从「优化项」变成「止损项」。OFS 每多运行一天，就多一天暴露在无支持的黑盒故障风险下。因此：<b>迁移节奏在门禁不放松的前提下优先保障</b>——资源冲突时（如双轨抢人），OFS 迁移的优先级相对 WMS 维护上调一档，由技术负责人按周裁定。</p>
+
+<h2 id="v5"><span class="n">05</span>WMS 替换决策提前</h2>
+<p>原方案 WMS 替换是 P2，触发条件之一是「厂商配合度恶化」——<b>该条件现已触发</b>，替换评估提前启动，但<b>替换执行仍不提前</b>（自研 OMS 迁移期不动仓内，两线作战是兵家大忌）。</p>
+
+<h3>5.1 提前做什么、不做什么</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:50%">提前做（M2-M4，低投入侦察）</th><th>不提前做</th></tr></thead>
+<tbody>
+<tr><td>候选评估更新：GreaterWMS（Apache-2.0，锁 2.x）+ 商业 WMS（富勒/科箭/唯智等国产厂商，买服务换支持）+ 通天晓同业竞品接盘方案（数据迁移服务）三条路线的对比矩阵</td><td>不启动任何 WMS 实施/POC（自研 OMS 迁移期内）</td></tr>
+<tr><td>仓内需求清单固化：FEFO/波次/自动化设备对接等通天晓现有能力的依赖清单（WMS 换了这些不能丢）</td><td>不与通天晓竞品厂商深入接触（避免刺激纠纷对方，商务轨道静默期）</td></tr>
+<tr><td>数据可迁出性验证：WMS 库存/单据数据能否完整导出（72 小时备份行动的副产品）</td><td>不做仓内流程重设计（那是替换立项后的事）</td></tr>
+</tbody>
+</table></div>
+
+<h3>5.2 修订后的 WMS 替换触发条件（满足任一即立项）</h3>
+<ul>
+  <li>自研 OMS 全量切换后稳定 ≥1 个月（原条件 3 个月，<b>缩短</b>——断供提高了 WMS 侧风险敞口）；</li>
+  <li>WMS 发生 L3 以上故障且外部救援渠道未能 24 小时内恢复；</li>
+  <li>商务/法务轨道确认关系不可修复，且 WMS 续约报价恶化；</li>
+  <li>账号/许可核实结果显示存在远程停用风险且无法通过续约消除。</li>
+</ul>
+<div class="callout c-warn">
+  <span class="t">重要平衡：不因为恐慌而仓促换 WMS</span>
+  WMS 目前还在运行、仓内作业未停——「受波及」不等于「已瘫痪」。在自研 OMS 迁移完成前强行双线换 WMS，会把可控风险变成不可控风险。
+  正确姿势：OMS 迁移照跑、WMS 自救体系建好、替换侦察同步做、触发条件到了再动。
+</div>
+
+<h2 id="v6"><span class="n">06</span>商务与法务轨道</h2>
+
+<h3>6.1 双轨策略的边界</h3>
+<p>技术轨道按「永久断供」设防，商务轨道保留修复可能——两轨<b>信息隔离、节奏独立</b>：技术团队不参与谈判，商务谈判不透露技术自救进度（避免削弱筹码）。发起人单点掌握两轨全貌。</p>
+
+<h3>6.2 商务修复通道（按序使用）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:18%">层级</th><th style="width:42%">动作</th><th>适用时机</th></tr></thead>
+<tbody>
+<tr><td><b>① 技术层沟通</b></td><td>以「接口联调」为名义恢复工作层接触，不触纠纷议题——既维持最低沟通管道，又为逆向工程争取时间窗口</td><td>立即（本周）</td></tr>
+<tr><td><b>② 商务层谈判</b></td><td>合同到期续签与纠纷一揽子谈判；筹码=自研 OMS 进展（对方知道我们具备替换能力）+ 数据已备份（扣押威胁失效）</td><td>72 小时行动完成后</td></tr>
+<tr><td><b>③ 法务威慑</b></td><td>律师函（数据归属/过渡期协助义务主张）；纠纷若涉及我方损失，评估诉讼/仲裁的成本收益</td><td>②破裂且损失可量化时</td></tr>
+</tbody>
+</table></div>
+
+<h3>6.3 法务准备清单（证据保全的用途）</h3>
+<ul>
+  <li>合同条款审阅重点：<b>数据归属条款</b>（我方业务数据归我方——这是备份与导出的法律依据）、<b>过渡期协助义务</b>（部分合同有退出协助条款）、争议解决方式（诉讼/仲裁管辖）；</li>
+  <li>损失记录：因断供导致的额外成本（外部救援费、自建投入、故障损失）逐笔留痕，为谈判与潜在诉讼定量；</li>
+  <li>红线：任何法务行动前评估对 WMS 在运行系统的反制风险——<b>账号/许可状态未核实清楚前，不发律师函</b>。</li>
+</ul>
+
+<h2 id="v7"><span class="n">07</span>修订后风险矩阵</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">风险</th><th style="width:8%">等级</th><th style="width:36%">缓解（本预案动作）</th><th>兜底</th></tr></thead>
+<tbody>
+<tr><td>厂商远程停用 WMS 账号/许可</td><td><span class="tag t-p0">极高</span></td><td>72h 行动 1 核实；有风险则付费续约买缓冲（纠纷归纠纷、续费归续费，分开处理）</td><td>手工降级作业（3.2）+ WMS 替换触发条件④立即立项</td></tr>
+<tr><td>数据被扣押/损毁</td><td><span class="tag t-p0">高</span></td><td>72h 行动 2 备份抢救+每日增量；数据归属条款法务确认</td><td>备份即兜底；恢复演练实测</td></tr>
+<tr><td>接口逆向不达 99.9% 一致率</td><td><span class="tag t-p1">中</span></td><td>影子比对暴露问题；奇门标准通道 Plan B（4.1④）</td><td>低频异常报文走 OFS 热备通道，样本积累后补规格书</td></tr>
+<tr><td>WMS 发生 L3/L4 故障</td><td><span class="tag t-p0">高</span></td><td>四级响应模型+外部救援渠道本月签约；每日备份可回滚</td><td>手工降级保发货；触发替换条件②</td></tr>
+<tr><td>纠纷升级刺激厂商采取对抗行动</td><td><span class="tag t-p1">中</span></td><td>双轨信息隔离；法务行动前评估反制；商务静默期不接触竞品</td><td>技术轨道已按永久断供设防，对抗行动伤害有限</td></tr>
+<tr><td>团队精力被应急分散，OFS 迁移延期</td><td><span class="tag t-p1">中</span></td><td>72h 行动一次性投入（约 5 人日）；自救资产建设并入 M1-M2 计划而非另立项目</td><td>门禁不放松、宁可顺延——顺延期间 OFS 风险由自救体系覆盖</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="v8"><span class="n">08</span>本周决策与行动清单</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:10%">类型</th><th style="width:52%">事项</th><th>责任与时限</th></tr></thead>
+<tbody>
+<tr><td><b>决策</b></td><td>批准双轨策略（技术按永久断供设防 + 商务保留修复通道）；批准 72 小时行动的资源投入（约 5 人日 + 可能的 WMS 续约缓冲预算）</td><td>发起人，本周内</td></tr>
+<tr><td><b>行动</b></td><td>72 小时六项行动启动（账号核实/数据备份/接口留样/证据保全/合同盘点/回访提前）</td><td>技术负责人牵头，72 小时内</td></tr>
+<tr><td><b>行动</b></td><td>外部救援渠道建联（前员工顾问优先）；手工降级预案初版编写</td><td>技术负责人，本月内</td></tr>
+<tr><td><b>行动</b></td><td>商务层以「接口联调」名义恢复工作层接触</td><td>发起人，本周内</td></tr>
+<tr><td><b>同步修订</b></td><td>《团队组建与遗留保障方案》5.1 第三道防线替换为本预案第 3 章；《迁移切换执行方案》按本预案第 4 章修订（热备 9 个月/切换准入项/冻结窗口强化）</td><td>文档修订随本预案批准生效</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">收尾判断</span>
+  断供没有推翻既有战略，反而验证了它：自研 OMS 从「优化项」升级为「止损项」，OFS 每多跑一天就多一天无保护暴露。
+  新增的防御重心是 WMS——它还在运行、不能停、暂不换，用「自救体系 + 外部救援 + 手工降级 + 替换侦察」四层把它护到自研 OMS 全量切换之后。
+  商务上保持克制与筹码：数据在手、替换能力在手，谈判地位比以往任何时候都强——<b>但这张牌打出去的时机由发起人掌握，技术侧只负责让这张牌越来越硬</b>。
+</div>
+
+<div class="foot">
+  厂商断供应急预案 V1.0 · 2026-10-23 · WISE 技术交付中心<br>
+  配套文档：《自研 OMS 决策建议书》V1.0 ·《团队组建与遗留系统稳定保障方案》V1.0 ·《迁移切换执行方案》V1.0 ·《底座复核与多品牌隔离设计》V1.0 ·《多品牌多店铺运营能力设计》V1.0
+</div>
+
+</div>
+</body>
+</html>

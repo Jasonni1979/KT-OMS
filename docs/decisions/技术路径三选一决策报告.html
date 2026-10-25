@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自研 OMS 技术路径三选一 · 决策报告</title>
+<style>
+  :root{
+    --brand:#185FA5;--brand-2:#0E4C87;--brand-soft:#E8F1F9;
+    --ink:#12161C;--ink-2:#3C4654;--ink-3:#6B7684;
+    --line:#DDE3EA;--bg:#FFFFFF;--bg-2:#F7F9FB;
+    --ok:#0F7B4F;--ok-bg:#E4F5EC;
+    --warn:#A8630A;--warn-bg:#FDF1E0;
+    --bad:#B3261E;--bad-bg:#FBEAE8;
+    --cond:#5B4A9E;--cond-bg:#EFECF7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+  header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;padding:52px 0 46px;margin-bottom:36px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:860px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+  section{margin-bottom:44px}
+  h2{font-size:21px;font-weight:700;color:var(--brand);padding-bottom:11px;border-bottom:2px solid var(--brand-soft);margin-bottom:20px;display:flex;align-items:baseline;gap:11px}
+  h2 .num{background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:16.5px;font-weight:650;margin:26px 0 12px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+  .verdict{background:var(--bg);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:10px;padding:22px 26px;margin-bottom:14px}
+  .verdict h3{margin-top:0;font-size:17px;color:var(--warn)}
+  .verdict p:last-child{margin-bottom:0}
+  .v-ok{border-left-color:var(--ok)}.v-ok h3{color:var(--ok)}
+  .v-bad{border-left-color:var(--bad)}.v-bad h3{color:var(--bad)}
+  .v-info{border-left-color:var(--brand)}.v-info h3{color:var(--brand)}
+  .callout{background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;padding:20px 24px;margin:20px 0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+  .callout p:last-child{margin-bottom:0}
+  .warnbox{background:var(--bad-bg);border:1px solid #F0C4C0;border-left:5px solid var(--bad);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:800px}
+  thead th{background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;padding:12px 13px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:13px}
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  td.nm{font-weight:600;color:var(--ink);white-space:nowrap}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tag{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:650;white-space:nowrap}
+  .t-ok{background:var(--ok-bg);color:var(--ok)}
+  .t-warn{background:var(--warn-bg);color:var(--warn)}
+  .t-bad{background:var(--bad-bg);color:var(--bad)}
+  .t-info{background:#E7EEF9;color:#1B4E86}
+  code{background:#EEF2F6;padding:1.5px 6px;border-radius:4px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2)}
+  .ev{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-bottom:12px}
+  .ev .no{display:inline-block;background:var(--brand);color:#fff;border-radius:6px;padding:1px 9px;font-size:12px;font-weight:700;margin-right:8px}
+  .ev .src{font-size:12px;color:var(--ink-3);font-family:"SF Mono",Menlo,monospace;margin-top:6px}
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:7px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .big{font-size:15px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">阶段 3 · 技术路线决策</div>
+    <h1>自研 OMS「沿用 PHP」三条路径<br>Fork 商派 vs 新架构自研 vs 混合 · 代码取证对比</h1>
+    <p class="sub">
+      基于对 ShopeX/OMS 源码的第二轮定向取证（矩阵中心耦合面、平台适配完整性、erpapi↔ome 耦合度、框架依赖），
+      对 Q4「沿用 PHP」的三条实施路径做工作量、风险与团队要求的量化对比，供决策。
+    </p>
+    <div class="meta-row">
+      <span class="pill">取证基线：main @ 2026-10-21</span>
+      <span class="pill">团队：4-6 人</span>
+      <span class="pill">规模：日均 3千-2万单</span>
+      <span class="pill">平台：淘/京/抖/拼/红/唯 6 家</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 0 ============ -->
+<section>
+  <h2><span class="num">0</span>摘要与推荐</h2>
+  <div class="verdict v-ok">
+    <h3>推荐：路径 B —— PHP 新架构自研（Hyperf 或 Laravel），商派代码降级为「参考实现」</3>
+    <p>决定性理由：① 取证证实<strong>开源商派的平台对接层无法独立使用</strong>——所有平台 API 硬编码走商派矩阵中心（<code>matrix-gw-open.shopex.cn</code>）+ license 证书认证，且<strong>不含抖音适配</strong>（0 个文件）。平台对接这个最大成本块（4-6 人月）三条路径都省不掉，Fork 的核心卖点失效。② 我们的两个地基需求（货主维度三元库存、多租户门户）在商派单货主大内核上属于「在已建好的楼上打地基」，改造风险高于按三元模型重新设计。③ Fork 最大的价值——不用从零理解业务——已经通过 6 份逆向文档兑现了。</p>
+  </div>
+  <div class="verdict v-info">
+    <h3>例外：若上线时间压力 &lt; 4 个月，选路径 A（Fork + 改造 + 采购商派矩阵服务）</h3>
+    <p>A 是唯一能在 3-4 个月出可用系统的路线，但前提是接受：向商派采购矩阵中心商业服务（数据过商派服务器、按年付费）、抖音适配自行开发、货主维度改造在 113 万行历史代码上进行。本质上是「用长期技术债和供应商锁定换上线速度」——与公司既定的自研决策方向相悖，只建议作为时间倒逼下的备选。</p>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>代码取证：4 个决定性事实</h2>
+
+  <div class="ev">
+    <span class="no">事实 1</span><strong>开源版的平台对接是「半截子」：报文映射在仓库里，签名与传输在商派的 SaaS 网关里</strong>
+    <p style="margin:8px 0 0">erpapi 的 76 个平台目录（645 个映射文件）只做「OMS 内部字段 ↔ 平台报文字段」的翻译；真正的 HTTP 出口硬编码为 <code>MATRIX_URL = 'https://matrix-gw-open.shopex.cn/'</code>，每次调用携带 <code>certi_id</code>（商派 license 证书）签名后发给商派矩阵中心，由矩阵中心代理请求淘宝/京东等平台 API。<strong>仓库内不含任何平台的签名算法与 SDK 实现</strong>（grep app_key/sign_method/secret 为 0 结果）。脱离商派服务，erpapi 一步都跑不通。</p>
+    <div class="src">证据：app/base/defined.php:21 · app/erpapi/lib/caller.php:239 center_call() · 44 个文件引用 certi_id · 972 个文件含 matrix</div>
+  </div>
+
+  <div class="ev">
+    <span class="no">事实 2</span><strong>必需 6 平台中，抖音适配完全缺失</strong>
+    <p style="margin:8px 0 0">matrix 目录逐一核对：淘宝 ✓(16 文件)、天猫 ✓(27)、京东 ✓ jd(7)+360buy(31)、拼多多 ✓(11)、小红书 ✓ xhs(8)+xiaohongshu(7)、唯品会 ✓ vop(8)——<strong>抖音 ✗（全仓库 grep douyin/抖音/抖店 = 0 个文件）</strong>。抖音是近年增量主力且报文/售后规则迭代最快，这个适配器无论如何都要从零写（估 1-1.5 人月）。</p>
+    <div class="src">证据：app/erpapi/lib/shop/matrix/ 目录清单 · 全局 grep 0 结果</div>
+  </div>
+
+  <div class="ev">
+    <span class="no">事实 3</span><strong>报文映射层与 ome 数据模型深度耦合，「只 fork 对接层」不成立</strong>
+    <p style="margin:8px 0 0">erpapi 1411 个文件中 381 个直接 <code>app::get('ome')</code> 调用订单/售后模型；matrix 映射层 645 个文件中 156 个内嵌 ome 表读写（如 taobao/request/aftersale.php 直接操作 return_product_taobao 模型）。这意味着路径 C（核心自研 + 对接层 fork）必须为 156 个文件重写模型访问适配层——复用价值大幅缩水。</p>
+    <div class="src">证据：grep app::get('ome') 统计 · app/erpapi/lib/shop/matrix/taobao/request/aftersale.php 样例</div>
+  </div>
+
+  <div class="ev">
+    <span class="no">事实 4</span><strong>框架是纯自研 ECOS，零主流生态，团队上手与维护全靠自力</strong>
+    <p style="margin:8px 0 0">composer.json 仅 4 个依赖（OSS SDK/Sentry/Monolog/guzzle-dev），MVC、队列、ORM(schema DSL)、事件(dbevent)、服务注册(services.xml) 全部自研。开源社区极小（87 star），遇到框架级 bug 无人可问。同时应公平指出：<strong>其工程质量不差</strong>——带 phpstan/phpunit/phpcs、Sentry 监控、Docker+supervisor 部署，且架构按远超日均 2 万单的规模设计，性能对我们的中规模场景绰绰有余。</p>
+    <div class="src">证据：composer.json · app/base/lib/ 框架源码结构 · README 安装章节</div>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>三路径工作量量化对比</h2>
+  <p>估算口径：4-6 人团队、含设计/开发/自测，不含需求澄清与验收等待；基于逆向文档已明确的模块范围（正向履约+多货主库存+售后+采购 4 条链路、6 平台、多 WMS 路由、金蝶对接、多租户门户、PIPL）。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>工作块</th><th>A · Fork 商派改造</th><th>B · PHP 新架构自研</th><th>C · 混合</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">环境与框架上手</td><td class="num">1.5 人月<br><small>ECOS 框架学习成本高</small></td><td class="num">1 人月<br><small>Hyperf/Laravel 团队易招易学</small></td><td class="num">2 人月<br><small>两套框架都要懂</small></td></tr>
+        <tr><td class="nm">核心域（订单/库存/售后/采购/财务对账）</td><td class="num">6-8 人月<br><small>货主维度三元改造侵入 ome 大内核每一处库存读写点，比想象贵</small></td><td class="num">10-13 人月<br><small>按逆向文档重新设计表与流程，三元记账原生设计</small></td><td class="num">10-13 人月<br><small>同 B</small></td></tr>
+        <tr><td class="nm">平台 gateway（签名/传输/授权/重试/日志）</td><td class="num">2-3 人月自建<br><small>或 0 人月但<strong>采购商派矩阵服务</strong>（年费+数据过境）</small></td><td class="num">2-3 人月</td><td class="num">2-3 人月</td></tr>
+        <tr><td class="nm">6 平台适配器（报文映射）</td><td class="num">2-3 人月<br><small>5 平台映射现成可改 + 抖音从零</small></td><td class="num">4-6 人月<br><small>6 平台全从零（有逆向文档做需求底稿）</small></td><td class="num">3-4 人月<br><small>fork 映射层需重写 156 文件的模型访问</small></td></tr>
+        <tr><td class="nm">多 WMS 路由（通天晓等）</td><td class="num">1-1.5 人月<br><small>wmsmgr 现成</small></td><td class="num">1.5-2 人月</td><td class="num">1.5-2 人月</td></tr>
+        <tr><td class="nm">多租户品牌方门户 + PIPL</td><td class="num">2.5-3.5 人月<br><small>商派无此能力，需在单租户架构上加隔离层</small></td><td class="num">2-3 人月<br><small>原生多租户设计</small></td><td class="num">2-3 人月</td></tr>
+        <tr><td class="nm">金蝶对接（统计+明细+排查工具）</td><td class="num">1-1.5 人月</td><td class="num">1-1.5 人月</td><td class="num">1-1.5 人月</td></tr>
+        <tr><td class="nm">数据迁移 + 双跑切换</td><td class="num">1-1.5 人月<br><small>若过渡期已在跑商派，同构迁移最省</small></td><td class="num">2-2.5 人月<br><small>异构迁移需字段映射</small></td><td class="num">2-2.5 人月</td></tr>
+        <tr><td class="nm">测试与稳定化</td><td class="num">2-2.5 人月<br><small>改造回归面大（113万行存量）</small></td><td class="num">2.5-3 人月</td><td class="num">2.5-3 人月</td></tr>
+        <tr style="background:var(--brand-soft)"><td class="nm">合计</td><td class="num"><strong>17-24 人月</strong><br>（+矩阵中心年费）</td><td class="num"><strong>26-35 人月</strong></td><td class="num"><strong>26-34 人月</strong></td></tr>
+        <tr style="background:var(--brand-soft)"><td class="nm">4-6 人对应周期</td><td class="num"><strong>3.5-5 个月</strong></td><td class="num"><strong>5.5-8 个月</strong></td><td class="num"><strong>5.5-8 个月</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">量化结论：C 路径性价比最低，首先排除</span>
+    <p>C 比 B 只省 0-1 人月（映射层复用被 156 个文件的模型耦合改造吃掉），却引入双框架认知负担与边界扯皮。<strong>真正的选择在 A 与 B 之间：A 省约 9-11 人月（约 2-3 个月工期），代价是矩阵中心供应商锁定 + ECOS 技术债 + 大内核改造风险。</strong></p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>风险与长期成本对比</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>A · Fork 改造</th><th>B · 新架构自研</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">数据主权</td><td><span class="tag t-bad">高风险</span> 平台报文经商派矩阵中心服务器中转（含消费者收货信息），与 PIPL 合规诉求、品牌方信任存在张力；自建 gateway 可解但工作量回升</td><td><span class="tag t-ok">无此风险</span> 直连平台开放 API，数据全程自有</td></tr>
+        <tr><td class="nm">供应商锁定</td><td><span class="tag t-bad">强锁定</span> certi_id 证书体系 + 矩阵服务续费；商派开源版功能与其商业版存在差异（抖音缺失即为例证），后续平台扩展受制于人</td><td><span class="tag t-ok">零锁定</span></td></tr>
+        <tr><td class="nm">改造 vs 重构风险</td><td><span class="tag t-warn">中高</span> 货主维度改造侵入 ome 大内核（196 表/1127 文件），存量回归面大；改坏一处库存逻辑即资损</td><td><span class="tag t-warn">中</span> 无存量包袱，风险集中在新代码质量；逆向文档已把业务规则显性化，踩坑概率低</td></tr>
+        <tr><td class="nm">团队与招聘</td><td><span class="tag t-warn">难</span> ECOS 自研框架无社区，新人只能读源码上手；核心成员离职即知识断层</td><td><span class="tag t-ok">易</span> Laravel/Hyperf 人才市场充足，文档生态完整</td></tr>
+        <tr><td class="nm">上线速度</td><td><span class="tag t-ok">快 2-3 个月</span> 业务模块开箱即用，过渡期若已在运行商派则运维经验可延续</td><td><span class="tag t-warn">慢</span> 需 5.5-8 个月，期间过渡方案（ShopeX 对接通天晓）要继续养</td></tr>
+        <tr><td class="nm">与 K-AIDE 协同</td><td><span class="tag t-warn">弱</span> ECOS 前端体系陈旧，统一设计 token/门户体验需大改</td><td><span class="tag t-ok">强</span> 前后端可全按 K-AIDE 设计体系新建</td></tr>
+        <tr><td class="nm">5 年总持有成本</td><td>矩阵服务费 × 5 年 + ECOS 维护人力（估 1-2 人常驻）+ 平台扩展依赖商派节奏</td><td>维护人力 1-2 人（与 A 相当），但平台扩展自主可控，无年费</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>决策矩阵：什么情况选哪条</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>如果…</th><th>选</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>上线时间是硬约束（&lt;4 个月），且可接受商派矩阵服务年费与数据中转</td><td><span class="tag t-info">A</span></td><td>速度唯一优先时的务实选择；但要立项时就把「矩阵中心替换」列入二期 roadmap，避免锁定固化</td></tr>
+        <tr><td>时间窗 6-9 个月可接受，追求长期自主可控（<strong>与既定自研决策一致</strong>）</td><td><span class="tag t-ok">B（推荐）</span></td><td>逆向文档已把商派 20 年业务沉淀转化为需求底稿，B 的「从零理解业务」成本已被前置消化</td></tr>
+        <tr><td>团队里有 ≥2 人深度熟悉商派/ECOS 代码（如过渡期运维团队）</td><td><span class="tag t-info">A 或 B 均可</span></td><td>A 的上手成本假设被打破时可重新核算；但数据主权与锁定问题不因此消失</td></tr>
+        <tr><td>希望先快速验证业务模型再定终态</td><td><span class="tag t-warn">过渡期方案</span></td><td>直接用现有「ShopeX 对接通天晓」过渡方案跑业务，自研按 B 并行推进——不需要为验证而 fork</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">无论选哪条，两件事都躲不掉，请提前立项</span>
+    <p>① <strong>自建平台 gateway</strong>（或采购商派矩阵服务）：签名、授权托管、限流、重试、报文日志——这是所有平台对接的地基，2-3 人月起；② <strong>抖音适配器从零开发</strong>：开源商派没有，别处也抄不到现成的，1-1.5 人月，且需申请抖音开放平台资质（有审核周期，建议立即启动申请）。</p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>路径 B 落地要点（若采纳推荐）</h2>
+  <ul class="tight">
+    <li><strong>框架</strong>：Hyperf（Swoole 协程，与商派队列/Redis-Lua 机制心智最接近，高并发库存预占天然适配）或 Laravel（生态与招人最优）。中规模（≤2 万单/日）两者都撑得住，按团队熟悉度定，建议 1 周内做 spike 验证后拍板。</li>
+    <li><strong>域拆分</strong>：按逆向文档 00 的 9 大域收敛为 7 个服务边界（订单履约 / 库存 / 售后 / 采购经销 / 财务对账 / 平台 gateway / 组织权限+门户），首期单体分模块（modular monolith），不急于微服务。</li>
+    <li><strong>数据模型三大地基改造</strong>（相对商派）：① 库存记账 <code>仓×SKU×货主</code> 三元 + 借调规则；② 全业务单据携带货主维度（含财务）；③ 租户级行隔离（品牌方门户）。</li>
+    <li><strong>继承商派 7 大机制</strong>：审单插件链（位标记改结构化原因表）、合单指纹+缓冲窗、拆单策略注册表、预占独立流水+Redis Lua、api_log/api_fail 双表分级重试、售后三段式、元数据驱动 CRUD（schema DSL 思想用 Laravel Resource/Hyperf 注解实现）。</li>
+    <li><strong>MVP 切分</strong>（4 条链路 × 4-6 人的现实排法）：M1（第 1-3 月）gateway+淘系/拼多多拉单 → 审单 → 推通天晓 → 发货回传 + 三元库存记账；M2（第 3-5 月）售后 + 京东/抖音/小红书/唯品会适配 + 库存同步全平台；M3（第 5-7 月）采购 + 金蝶对账 + 品牌方门户；M4（第 7-8 月）迁移双跑与切换。</li>
+  </ul>
+</section>
+
+<footer>
+  <p>自研 OMS 技术路径决策报告 · 凯淳股份 WISE 技术交付中心 · 2026-10-23 · 全部取证可在 <code>_research/OMS-main</code> 复核 · 姊妹文档：商派OMS逆向文档/（6 份）、阶段3-需求澄清问卷.md</p>
+</footer>
+
+</div>
+</body>
+</html>

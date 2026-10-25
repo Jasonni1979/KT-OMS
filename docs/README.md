@@ -1,0 +1,82 @@
+# KT-OMS 文档总索引
+
+> 本索引说明仓库内全部文档的**位置与用途**。文档按「来源与性质」分目录，避免同名文件散落。
+> 生成/校验：`docs/requirements/README-文档库总索引.md` 是需求文档库自身的总索引（107 份）。
+
+---
+
+## 1. 目录结构
+
+| 目录 | 内容 | 份数 | 说明 |
+|---|---|---|---|
+| [`requirements/`](requirements/) | **需求文档库** | 96 | SRS 76 份 + 依赖登记 + 扩展设计 + 质量闭环 4 份 + 库索引 |
+| [`database/dictionaries/`](database/dictionaries/) | **数据库数据字典** | 13 | DB-00 总册 / 附录A 事件字典 / DB-D01~D11 分域字典（373 表权威定义） |
+| [`database/sql/`](database/sql/) | **可执行建库 SQL** | 11 | MySQL 8.0 DDL + 初始字典数据（D01→D11 顺序导入 → 373 表） |
+| [`reverse/`](reverse/) | **商派 OMS 逆向文档** | 10 | 仓库结构 / 实体字典 / 核心业务流程 ×4 / 差距分析 / 新架构设计 / MVP 实施计划 / 总览报告 |
+| [`research/`](research/) | **开源 OMS-WMS 调研** | 5 | 开源 OMS / WMS 专项调研、协议对比与合规指南、过渡期方案 |
+| [`decisions/`](decisions/) | **决策与预案** | 9 | 自研决策建议书 ×2 / 技术路径三选一 / 技术栈变更 V2.1 / 断供应急预案 / 迁移切换方案 / 多品牌多店铺 / 底座复核 / 团队组建 |
+| [`clarification/`](clarification/) | **需求澄清** | 2 | 阶段3 需求澄清问卷 + 答题记录 |
+| [`演示/`](演示/) | **演示物料** | — | W5/W6/W7 录屏 + 全模块巡检录屏 + 截图 |
+| （根目录） | **交付说明与清单** | — | W5/W6/W7 交付说明 / 测试用例清单 / 需求覆盖缺口清单 / 复盘报告 / 研发执行计划 / M0-spike 报告 / 字段映射 / 权限豁免清单 |
+
+---
+
+## 2. 按用途速查
+
+### 想了解「要做什么」
+| 想知道 | 看 |
+|---|---|
+| 11 域 67 模块的完整需求 | [requirements/README-文档库总索引.md](requirements/README-文档库总索引.md) |
+| 周计划与排期 | [研发执行计划-M0至M3.md](研发执行计划-M0至M3.md) |
+| 需求是怎么定下来的 | [clarification/阶段3-需求澄清答题记录.md](clarification/阶段3-需求澄清答题记录.md) |
+| MVP 范围与实施步骤 | [reverse/08-MVP实施计划.md](reverse/08-MVP实施计划.md) |
+
+### 想了解「为什么这么做」
+| 想知道 | 看 |
+|---|---|
+| 自研 vs 采购的技术选型 | [decisions/技术路径三选一决策报告.html](decisions/技术路径三选一决策报告.html) · [decisions/技术栈变更决策报告V2.1.md](decisions/技术栈变更决策报告V2.1.md) |
+| 整体决策建议 | [decisions/自研OMS分析与决策建议书V2.html](decisions/自研OMS分析与决策建议书V2.html) |
+| 厂商断供怎么办 | [decisions/厂商断供应急预案.html](decisions/厂商断供应急预案.html) |
+| 迁移切换怎么做 | [decisions/迁移切换执行方案.html](decisions/迁移切换执行方案.html) |
+| 多品牌多店铺隔离设计 | [decisions/多品牌多店铺运营能力设计.html](decisions/多品牌多店铺运营能力设计.html) · [decisions/底座复核与多品牌隔离设计.html](decisions/底座复核与多品牌隔离设计.html) |
+
+### 想了解「商派原系统长什么样」
+| 想知道 | 看 |
+|---|---|
+| 逆向总览 | [reverse/商派OMS逆向工程总览报告.html](reverse/商派OMS逆向工程总览报告.html) |
+| 表结构与 ER | [reverse/01-数据库实体字典与ER关系.md](reverse/01-数据库实体字典与ER关系.md) |
+| 订单全生命周期 | [reverse/02-核心业务流程-订单全生命周期.md](reverse/02-核心业务流程-订单全生命周期.md) |
+| 库存与仓储 WMS | [reverse/03-核心业务流程-库存与仓储WMS.md](reverse/03-核心业务流程-库存与仓储WMS.md) |
+| 采购/经销/财务结算 | [reverse/04-核心业务流程-采购经销与财务结算.md](reverse/04-核心业务流程-采购经销与财务结算.md) |
+| 平台对接与售后 | [reverse/05-平台对接售后与技术架构.md](reverse/05-平台对接售后与技术架构.md) |
+| 差距分析 | [reverse/06-差距分析表.md](reverse/06-差距分析表.md) |
+
+### 想了解「代码做到哪了」
+| 想知道 | 看 |
+|---|---|
+| W5 审单引擎与工作台 | [W5-审单引擎与工作台-交付说明.md](W5-审单引擎与工作台-交付说明.md) |
+| W6 履约域（分仓/拆单/发货单） | [W6-履约域-交付说明.md](W6-履约域-交付说明.md) |
+| W7 履约通道（WMS 指令与回传） | [W7-履约通道-交付说明.md](W7-履约通道-交付说明.md) |
+| 测试覆盖与需求缺口 | [测试用例清单.md](测试用例清单.md) · [需求覆盖缺口清单.md](需求覆盖缺口清单.md) |
+| **W1–W7 全量复盘** | [复盘报告-W1至W7.md](复盘报告-W1至W7.md) |
+| 界面长什么样 | [演示/](演示/)（录屏 + 截图） |
+
+---
+
+## 3. 数据库交付物
+
+| 项 | 位置 | 权威性 |
+|---|---|---|
+| 数据字典（373 表字段定义） | [database/dictionaries/](database/dictionaries/) | ✅ 权威（`check_model_ddl.py` 比对的依据） |
+| 可执行建库 SQL | [database/sql/](database/sql/) | ✅ 权威（CI 复演按 D01→D11 导入 → 373 表零错误） |
+| 逐表 ORM 声明 | `backend/app/models/` | 与 DDL 的一致性由 `backend/tools/check_model_ddl.py` 自动门禁校验 |
+
+---
+
+## 4. 未入库内容（有意排除）
+
+| 内容 | 原因 |
+|---|---|
+| 商派原系统源码（`_research/OMS-main/`、`oms.tar.gz`，约 168 MB） | **第三方版权源码 + 体积**：逆向分析结论已入库（`reverse/`），源码本体不入库 |
+| 逆向分析脚本（`tdoc_*.py`） | 一次性分析工具，不属交付物 |
+| `需求文档/` 的仓库外副本 | 已全量入库 `docs/requirements/` + `docs/database/`，md5 一致 |

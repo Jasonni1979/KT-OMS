@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商派 ONEX OMS 逆向工程总览报告 · 自研重写参考</title>
+<style>
+  :root{
+    --brand:#185FA5;--brand-2:#0E4C87;--brand-soft:#E8F1F9;
+    --ink:#12161C;--ink-2:#3C4654;--ink-3:#6B7684;
+    --line:#DDE3EA;--bg:#FFFFFF;--bg-2:#F7F9FB;
+    --ok:#0F7B4F;--ok-bg:#E4F5EC;
+    --warn:#A8630A;--warn-bg:#FDF1E0;
+    --bad:#B3261E;--bad-bg:#FBEAE8;
+    --cond:#5B4A9E;--cond-bg:#EFECF7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+  header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;padding:52px 0 46px;margin-bottom:36px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:860px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+  section{margin-bottom:44px}
+  h2{font-size:21px;font-weight:700;color:var(--brand);padding-bottom:11px;border-bottom:2px solid var(--brand-soft);margin-bottom:20px;display:flex;align-items:baseline;gap:11px}
+  h2 .num{background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:16.5px;font-weight:650;margin:26px 0 12px;color:var(--ink)}
+  h4{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+  .verdict{background:var(--bg);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:10px;padding:22px 26px;margin-bottom:14px}
+  .verdict h3{margin-top:0;font-size:17px;color:var(--warn)}
+  .verdict p:last-child{margin-bottom:0}
+  .v-ok{border-left-color:var(--ok)}.v-ok h3{color:var(--ok)}
+  .v-info{border-left-color:var(--brand)}.v-info h3{color:var(--brand)}
+  .callout{background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;padding:20px 24px;margin:20px 0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+  .callout p:last-child{margin-bottom:0}
+  .warnbox{background:var(--bad-bg);border:1px solid #F0C4C0;border-left:5px solid var(--bad);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:800px}
+  thead th{background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;padding:12px 13px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:13px}
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--brand-soft)}
+  td.nm{font-weight:600;color:var(--ink);white-space:nowrap}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tag{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:650;white-space:nowrap}
+  .t-ok{background:var(--ok-bg);color:var(--ok)}
+  .t-warn{background:var(--warn-bg);color:var(--warn)}
+  .t-bad{background:var(--bad-bg);color:var(--bad)}
+  .t-info{background:#E7EEF9;color:#1B4E86}
+  .t-cond{background:var(--cond-bg);color:var(--cond)}
+  code{background:#EEF2F6;padding:1.5px 6px;border-radius:4px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin:20px 0}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+  .card h4{font-size:15px;font-weight:700;margin:0 0 8px;color:var(--ink)}
+  .card p{font-size:13.5px;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card .ico{font-size:20px;margin-bottom:8px;display:block}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:20px 0}
+  .stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 20px;text-align:center}
+  .stat .v{font-size:28px;font-weight:750;color:var(--brand);font-variant-numeric:tabular-nums;line-height:1.2}
+  .stat .k{font-size:12.5px;color:var(--ink-3);margin-top:5px}
+  .step{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:none}
+  .step-num{width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+  .step-body{flex:1}
+  .step-body h4{font-size:15px;font-weight:650;margin-bottom:6px;color:var(--ink)}
+  .step-body p{font-size:13.5px;margin-bottom:0}
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:7px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
+  .fnode{background:var(--bg);border:1.5px solid var(--brand);color:var(--brand);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;white-space:nowrap}
+  .fnode.hot{background:var(--brand);color:#fff}
+  .fnode.sub{border-color:var(--line);color:var(--ink-3);font-weight:500}
+  .farrow{color:var(--ink-3);font-size:15px}
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .src{font-size:12.5px;color:var(--ink-3);line-height:1.9}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">逆向工程 · 阶段 1-2 交付 · 总览</div>
+    <h1>商派 ONEX OMS 逆向工程总览报告<br>从 113 万行开源代码到自研重写的完整知识地图</h1>
+    <p class="sub">
+      对 <strong style="color:#fff">ShopeX/OMS</strong>（商派 ONEX OMS，Apache-2.0，main @ 2026-10-21）全量源码做静态逆向：
+      58 个业务模块、711 张数据表、四大业务域流程逐一还原，产出 6 份工程文档（约 43 万字节 Markdown，29 张 Mermaid 图）。
+      本报告为总览与决策摘要，明细见 <strong style="color:#fff">商派OMS逆向文档/</strong> 目录。
+    </p>
+    <div class="meta-row">
+      <span class="pill">协议：Apache-2.0 · 可闭源商用</span>
+      <span class="pill">代码基线：v8.3.0 后 main 分支</span>
+      <span class="pill">逆向时间：2026-10-23</span>
+      <span class="pill">方法：静态分析 · 未动态运行</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>核心结论</h2>
+
+  <div class="verdict v-ok">
+    <h3>结论 1：商派 OMS 的业务模型完整度足以作为自研重写的「需求底稿」，逆向路线成立</h3>
+    <p>订单（三套状态机 + 规则引擎审单 + 16 种拆单策略）、库存（三层主体 + Redis/Lua 预占 + 出入库流水）、采购经销（38 表全链路 + 供应商台账）、财务（AR/核销/账期/运费对账/发票）、平台对接（77 个平台通道目录 + 五层 API 框架）——<strong>电商代运营 + 经销双场景所需的业务模型全部在源码中有可验证的成熟实现</strong>。重写时不需要从零发明业务规则。</p>
+  </div>
+
+  <div class="verdict v-info">
+    <h3>结论 2：值得整体借鉴的是 7 个「机制级」设计，而非代码本身</h3>
+    <p>① schema DSL 元数据驱动 CRUD；② 审单插件链 + 位标记；③ 合单指纹预计算 + 缓冲时间窗；④ 拆单策略注册表；⑤ 预占走独立流水表 + Redis Lua 原子操作（不落库存主字段）；⑥ api_log/api_fail 双表 + 错误码分级重试；⑦ 售后「申请单/执行单/退款单」三段式。这 7 个机制是商派 20 年电商 ERP 沉淀的精华，全部可以在新技术栈上重新实现。</p>
+  </div>
+
+  <div class="verdict">
+    <h3>结论 3：商派架构有 4 个明确缺陷，自研时必须规避</h3>
+    <p>① <strong>ome 大内核</strong>（196 表 1127 文件混装订单/商品/会员/库存/售后）→ 应按域拆分；② <strong>erpapi 巨型适配层</strong>且强依赖商派矩阵中心（SaaS 网关）→ 平台对接必须自建 gateway；③ <strong>每平台一张售后镜像表</strong>（15 张 return_product_*）→ 应改 JSON 扩展列；④ <strong>财务单据不带货主维度</strong> → 多品牌代运营场景必须补上（这是原系统最大业务缺口）。</p>
+  </div>
+
+  <div class="callout">
+    <span class="t">合规声明</span>
+    <p>ShopeX/OMS 为 Apache-2.0 协议：阅读源码、产出内部分析文档、借鉴业务模型、乃至复用代码后闭源商用均被允许（需保留版权声明与 NOTICE）。本逆向文档集只提取<strong>业务模型与流程逻辑</strong>，重写阶段不复制代码，无传染风险。工作底稿（schema.json / 提取脚本）保存在 <code>_research/</code>，全程可复现。</p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>逆向对象与数据规模</h2>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="v">113万</div><div class="k">PHP 代码行数（6,346 文件）</div></div>
+    <div class="stat"><div class="v">58</div><div class="k">业务模块（app/*）</div></div>
+    <div class="stat"><div class="v">711</div><div class="k">数据表（53 模块含 schema）</div></div>
+    <div class="stat"><div class="v">9,849</div><div class="k">数据列总数</div></div>
+    <div class="stat"><div class="v">774</div><div class="k">显式外键关系</div></div>
+    <div class="stat"><div class="v">77</div><div class="k">平台通道目录（erpapi）</div></div>
+  </div>
+
+  <h3>技术底座（重写时的对照参考）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>层面</th><th>商派实现</th><th>自研重写建议</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">框架</td><td>自研 PHP MVC（ECOS），schema DSL 驱动界面</td><td>技术栈自主（Java/Go/Node 均可），保留「元数据驱动 CRUD」思想</td></tr>
+        <tr><td class="nm">数据库</td><td>MySQL 5.7+/8.0，物理表 = <code>模块_表名</code>，前缀 sdb_</td><td>按域分 schema；核心表可沿用其字段语义</td></tr>
+        <tr><td class="nm">队列</td><td>自研 Swoole 秒级队列（base_queue）+ taskmgr 定时任务</td><td>收敛为一代：MQ + 常驻 worker + 统一调度器，保留任务白名单声明式配置</td></tr>
+        <tr><td class="nm">缓存/库存</td><td>Redis + Lua 原子扣减，miss 降级 DB</td><td>整体借鉴，含定时对账兜底</td></tr>
+        <tr><td class="nm">规则引擎</td><td>审单插件链（23 插件位）+ Lua 脚本（11 个）</td><td>保留插件链思想，位标记改结构化原因表</td></tr>
+        <tr><td class="nm">平台对接</td><td>erpapi 五层框架，经商派矩阵中心代理各平台 API</td><td>自建 gateway（session 托管/限流/SDK 池），五层框架照抄</td></tr>
+        <tr><td class="nm">模块解耦</td><td>services.xml 服务注册 + dbevent 数据库事件钩子</td><td>DI 标签 + 领域事件，保留扩展点命名法</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>模块全景与取舍地图</h2>
+  <p>58 个模块按凯淳「代运营 + 经销」双场景给出取舍判断（详表见文档 00）：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>业务域</th><th>核心模块</th><th>表数</th><th>取舍建议</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">订单核心</td><td>ome / omeauto / omeanalysts / brush / archive</td><td class="num">~270</td><td><span class="tag t-ok">全量借鉴</span></td><td>系统心脏，模型最成熟</td></tr>
+        <tr><td class="nm">库存仓储</td><td>iostock / siso / inventorydepth / tgstockcost / material / wms / wmsmgr / 调拨盘点</td><td class="num">~90</td><td><span class="tag t-ok">全量借鉴</span></td><td>库存口径与流水机制是重写难点，商派方案可直接参考</td></tr>
+        <tr><td class="nm">采购供应链</td><td>purchase / dealer / sales</td><td class="num">65</td><td><span class="tag t-ok">全量借鉴</span></td><td>经销业务核心；dealer 需补账期/信用额度</td></tr>
+        <tr><td class="nm">财务</td><td>finance / financebase / invoice / logisticsaccounts</td><td class="num">53</td><td><span class="tag t-ok">借鉴+扩展</span></td><td>必须增加货主维度；对接凯淳实际财务系统</td></tr>
+        <tr><td class="nm">平台对接</td><td>erpapi / openapi / taoexlib / qimen / vop / channel</td><td class="num">~25</td><td><span class="tag t-warn">机制借鉴</span></td><td>框架分层照抄；矩阵中心依赖必须替换为自建 gateway</td></tr>
+        <tr><td class="nm">组织权限</td><td>organization / desktop / pam / base</td><td class="num">~35</td><td><span class="tag t-warn">模型借鉴</span></td><td>组织树 + 权限继承契合多品牌；需改造为货主隔离底座</td></tr>
+        <tr><td class="nm">全渠道线下</td><td>o2o / wap / tbo2o / pos</td><td class="num">~40</td><td><span class="tag t-cond">按需裁剪</span></td><td>视凯淳线下业务决定，MVP 可不做</td></tr>
+        <tr><td class="nm">行业特化</td><td>goldentra（黄金）/ tgkpi（拣货绩效）</td><td class="num">22</td><td><span class="tag t-bad">裁剪</span></td><td>非我司场景</td></tr>
+        <tr><td class="nm">运维支撑</td><td>console / monitor / taskmgr / machinecenter / setup</td><td class="num">~70</td><td><span class="tag t-cond">重做</span></td><td>用现代可观测性方案替代</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>四大业务域流程速览</h2>
+
+  <h3>4.1 订单全生命周期（文档 02）</h3>
+  <div class="flow">
+    <span class="fnode">平台拉单/导入</span><span class="farrow">→</span>
+    <span class="fnode">缓冲池聚组</span><span class="farrow">→</span>
+    <span class="fnode hot">审单规则引擎（23插件位）</span><span class="farrow">→</span>
+    <span class="fnode">拆单（16策略）</span><span class="farrow">→</span>
+    <span class="fnode">合单（指纹分组）</span><span class="farrow">→</span>
+    <span class="fnode">配货分仓</span><span class="farrow">→</span>
+    <span class="fnode">生成发货单/推仓</span><span class="farrow">→</span>
+    <span class="fnode">发货回传</span><span class="farrow">→</span>
+    <span class="fnode sub">完成/归档</span>
+  </div>
+  <ul class="tight">
+    <li><strong>三套状态并行</strong>：process_status（确认/拆分）× pay_status（9 值）× ship_status（5 值）+ 总状态 status + 一批布尔辅助位（pause/abnormal/is_fail/is_not_combine/archive）。</li>
+    <li><strong>审核即履约路由</strong>：自动审单一次性完成选仓+拆单+选物流+合单+生成发货单；通过即推仓，不通过按位标记写入原因并分派人工审核组。</li>
+    <li><strong>拆单不产生新订单</strong>：拆分结果是「一单多发货单」，orders.splited_num + order_items.split_num 记录进度。</li>
+    <li><strong>合单指纹预计算</strong>：拉单时算好 combine_hash，「付款后等 N 分钟」缓冲窗换合单率——低成本高收益，值得照搬。</li>
+    <li><strong>复审快照机制</strong>：客服改单前快照+冻结库存+对比回滚，是处理改单风险的成熟方案。</li>
+  </ul>
+
+  <h3>4.2 库存与仓储（文档 03）</h3>
+  <div class="flow">
+    <span class="fnode">销售物料 SKU</span><span class="farrow">→ BOM 拆解 →</span>
+    <span class="fnode">基础物料 BM</span><span class="farrow">→ 按仓拆分 →</span>
+    <span class="fnode hot">branch_product（仓×SKU 记账行）</span><span class="farrow">→</span>
+    <span class="fnode">iostock 出入库流水</span><span class="farrow">→</span>
+    <span class="fnode">成本核算/库存深度回写</span>
+  </div>
+  <ul class="tight">
+    <li><strong>三层库存主体</strong>：销售物料（可组合装）→ 基础物料（最小管理单元）→ 仓库×物料（记账行：实际 store / 冻结 store_freeze / 在途 arrive_store / 成本 unit_cost）。</li>
+    <li><strong>预占不落主字段</strong>：订单占用走独立预占流水表 + Redis Lua 原子操作，这是商派高并发的关键设计，重写必抄。</li>
+    <li><strong>五口径库存</strong>：实际/可用/锁定/在途/次品，退货按良/不良质检分别入正品/次品库存。</li>
+    <li><strong>成本核算</strong>：tgstockcost 移动加权平均，出入库流水驱动。</li>
+  </ul>
+
+  <h3>4.3 采购经销与财务（文档 04）</h3>
+  <div class="flow">
+    <span class="fnode">采购申请</span><span class="farrow">→</span>
+    <span class="fnode">采购单（5状态分离）</span><span class="farrow">→</span>
+    <span class="fnode">到货入库（在途-）</span><span class="farrow">→</span>
+    <span class="fnode hot">对账单（期初/增加/已付/期末）</span><span class="farrow">→</span>
+    <span class="fnode">付款核销</span>
+  </div>
+  <ul class="tight">
+    <li><strong>现购按单挂账、赊购按入库挂账</strong>：符合财务实务（票到付款 vs 货到挂账），抽象为「应付单生成策略」。</li>
+    <li><strong>dealer 授权模型</strong>：BU→贸易公司→经销商→店铺四级组织 + 产品线授权到店（SKU 级、带时间窗、自发/代发切换），高度契合多品牌代运营；但缺账期/信用额度，需自建。</li>
+    <li><strong>转单按货权主体分组拆单</strong>：货权分离的关键机制，必须保留。</li>
+    <li><strong>财务四件套</strong>：AR/Bill/核销/账期 +「客户实付 vs 平台承担」双口径金额，核销分正常/差异/强制三档。</li>
+    <li><strong>运费对账</strong>：预估/实际双账单按物流单号匹配，记账→审核→关账批次流程。</li>
+  </ul>
+
+  <h3>4.4 平台对接与售后（文档 05）</h3>
+  <div class="flow">
+    <span class="fnode">平台消息 TMC/定时增量/单拉补偿</span><span class="farrow">→</span>
+    <span class="fnode hot">erpapi 五层框架</span><span class="farrow">→</span>
+    <span class="fnode">水位+幂等键落单</span><span class="farrow">→</span>
+    <span class="fnode">发货回传（事件驱动）</span><span class="farrow">→</span>
+    <span class="fnode">api_fail 分级重试</span>
+  </div>
+  <ul class="tight">
+    <li><strong>拉单三保险</strong>：平台消息推送 + 定时增量（水位 last_download_time）+ 单拉补偿；幂等键 is_repeat 防重。</li>
+    <li><strong>⚠ 矩阵中心依赖</strong>：商派所有平台 API 经其 SaaS 矩阵中心代理——自研必须替换为自建 gateway（session 托管、限流、平台 SDK 池），这是重写工作量最大的一块。</li>
+    <li><strong>售后三段式</strong>：统一申请单（return_product）+ 仓内执行单（reship）+ 退款单（refund_apply→refunds）；申请归申请、作业归作业、钱归钱。换货 = 退货链路 + 0 元新订单复用正向履约。</li>
+    <li><strong>平台镜像表模式</strong>：15 张 return_product_*（每平台一张）吸收报文差异——重写改 JSON 扩展列。</li>
+  </ul>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>数据库逆向成果</h2>
+  <p>711 张表全部解析入 <code>_research/schema.json</code>（9,849 列、774 外键、650 张带中文注释），文档 01 提供：</p>
+  <div class="cards">
+    <div class="card"><span class="ico">🗂</span><h4>核心域实体详解（71 张表全列展开）</h4><p>订单域 18 表（orders 主表 117 列）、发货物流域 11 表、售后域 14 表、商品域 10 表、库存域 9 表、会员域 5 表、支付域 4 表——每表含列定义/枚举值/外键/索引。</p></div>
+    <div class="card"><span class="ico">🔗</span><h4>全局 ER 总览</h4><p>订单主链：shop/members → orders → order_items/products → payments → delivery → refunds/return_product；库存主链：branch × products → branch_product → iostock。Mermaid erDiagram。</p></div>
+    <div class="card"><span class="ico">📇</span><h4>全量 711 表索引</h4><p>按模块折叠，表名+列数+中文注释全收录，重写字段设计时可逐表对照查询。</p></div>
+  </div>
+  <div class="callout">
+    <span class="t">表数压缩预估</span>
+    <p>711 张中：archive 36 张为归档镜像、console 55 张为运维面板、15 张平台售后镜像表可合并、大量平台特化表可 JSON 化。按域拆分 + 字段精简后，<strong>自研核心业务表预计可压缩至 350-450 张</strong>。</p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>文档集交付清单</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>编号</th><th>文档</th><th>体量</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">00</td><td>仓库结构与模块清单.md</td><td class="num">9 KB</td><td>仓库总览、框架机制、58 模块全景（按 9 大业务域分组）、代码量解读</td></tr>
+        <tr><td class="nm">01</td><td>数据库实体字典与ER关系.md</td><td class="num">145 KB</td><td>711 表全量索引、71 核心表全列展开、全局 ER 图、6 大业务域表清单</td></tr>
+        <tr><td class="nm">02</td><td>核心业务流程-订单全生命周期.md</td><td class="num">70 KB</td><td>状态机、主流程泳道图、16 拆单策略、审单插件链、异常/复审/取消、代码位置索引</td></tr>
+        <tr><td class="nm">03</td><td>核心业务流程-库存与仓储WMS.md</td><td class="num">52 KB</td><td>三层库存主体、五口径、预占机制、出入库流水、调拨/盘点/成本核算/库存同步/BOM</td></tr>
+        <tr><td class="nm">04</td><td>核心业务流程-采购经销与财务结算.md</td><td class="num">63 KB</td><td>采购全链路、经销商模型、财务四件套、运费对账、发票、组织架构多货主隔离</td></tr>
+        <tr><td class="nm">05</td><td>平台对接售后与技术架构.md</td><td class="num">100 KB</td><td>erpapi 五层架构、77 平台通道、拉单回传、店铺授权、奇门云仓、售后三链路、队列/事件/规则引擎机制</td></tr>
+        <tr><td class="nm">—</td><td>本报告（HTML 总览）</td><td class="num">—</td><td>决策摘要 + 重写建议汇总</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">位置：<code>OMS:WMS 自研/商派OMS逆向文档/</code> · 工作底稿：<code>OMS:WMS 自研/_research/</code>（源码快照 + schema.json + modules.json + 提取脚本，全程可复现）</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>下一步：阶段 3 需求映射（需要业务输入）</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-body"><h4>差距分析工作坊</h4><p>拿凯淳实际业务清单（品牌数、店铺平台分布、仓网结构、结算模式）对照商派模型，逐域标记：照搬 / 裁剪 / 新增。重点议题：多品牌货权隔离方案、财务数据源可插拔接口、dealer 账期信用自建。</p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><h4>新架构设计</h4><p>技术栈选型（建议 Java/Spring Boot 或 Go + MySQL + Redis + MQ）、域拆分边界（订单/商品/库存/履约/售后/采购/财务/对接 gateway/组织权限 9 域）、7 个机制级设计的落地方案。</p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><h4>MVP 范围圈定</h4><p>建议首刀：平台拉单 → 审单 → 分仓 → 推仓（对接通天晓 WMS）→ 发货回传 主链路 + 库存五口径 + 组织隔离底座；采购/财务/售后二期跟上——与既定「OMS 先行过渡期方案」衔接。</p></div></div>
+</section>
+
+<footer>
+  <p>商派 ONEX OMS 逆向工程总览报告 · 凯淳股份 WISE 技术交付中心 · 2026-10-23 · 源码基线 ShopeX/OMS main @ 2026-10-21（Apache-2.0）· 静态分析产物，方法名/表名/枚举值均可在 _research/OMS-main 中复核</p>
+</footer>
+
+</div>
+</body>
+</html>

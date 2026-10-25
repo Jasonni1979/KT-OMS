@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>团队组建与遗留系统稳定保障方案 · 自研 OMS 配套执行方案</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#1A1D24; --ink2:#4A5160; --ink3:#8A91A0;
+  --line:#E3E6EC; --brand:#185FA5; --brand-soft:#E8F0FA;
+  --ok:#1E7E4A; --ok-soft:#E5F4EC; --warn:#B26A00; --warn-soft:#FDF1DE;
+  --risk:#B4342E; --risk-soft:#FBE9E8; --accent:#6B4FBB; --accent-soft:#EFEBFA;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161A; --card:#1D2026; --ink:#E8EAF0; --ink2:#B4BAC6; --ink3:#7C8494;
+    --line:#2C3038; --brand:#6FA3DC; --brand-soft:#1C2B3D;
+    --ok:#5CC08A; --ok-soft:#16281E; --warn:#E0A44C; --warn-soft:#2B2013;
+    --risk:#E8837C; --risk-soft:#2E1917; --accent:#A990F0; --accent-soft:#221C36; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:40px 28px 80px}
+.cover{padding:56px 0 36px;border-bottom:3px solid var(--brand);margin-bottom:36px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:4px 14px;font-weight:700;margin-bottom:18px}
+h1{font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.sub{font-size:16.5px;color:var(--ink2);margin-top:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.meta span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+h2{font-size:22px;font-weight:800;margin:52px 0 18px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2 .n{color:var(--brand);font-family:var(--mono);font-size:16px;margin-right:10px;font-weight:700}
+h3{font-size:16.5px;font-weight:700;margin:28px 0 12px;color:var(--ink)}
+p{margin:10px 0;color:var(--ink2)}
+b{color:var(--ink)}
+ul,ol{margin:10px 0 10px 22px;color:var(--ink2)}
+li{margin:6px 0}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-soft);color:var(--brand);border-radius:4px;padding:1px 6px}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:14px;color:var(--ink3);letter-spacing:.1em}
+.toc ol{columns:2;column-gap:36px;margin-left:20px;font-size:14px}
+.toc li{break-inside:avoid}
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+th{background:var(--brand-soft);color:var(--ink);font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:4px solid;font-size:14px}
+.callout .t{font-weight:800;margin-bottom:6px;display:block}
+.c-key{background:var(--brand-soft);border-color:var(--brand);color:var(--ink2)} .c-key .t{color:var(--brand)}
+.c-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ink2)} .c-ok .t{color:var(--ok)}
+.c-warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink2)} .c-warn .t{color:var(--warn)}
+.c-risk{background:var(--risk-soft);border-color:var(--risk);color:var(--ink2)} .c-risk .t{color:var(--risk)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;white-space:nowrap;vertical-align:1px}
+.t-p0{background:var(--risk-soft);color:var(--risk)} .t-p1{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-acc{background:var(--accent-soft);color:var(--accent)}
+.fig{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.fig svg{width:100%;height:auto}
+.cap{font-size:12.5px;color:var(--ink3);margin-top:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}.toc ol{columns:1}}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.pcard h4{margin:0 0 8px;color:var(--ink);font-size:15px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3)}
+@media print{
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{page-break-before:always;margin-top:20px} h2:first-of-type{page-break-before:avoid}
+  .fig,.tw,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <span class="eyebrow">WISE 技术交付中心 · 执行方案</span>
+  <h1>团队组建与遗留系统稳定保障方案</h1>
+  <div class="sub">自研 OMS 配套执行方案 · 双轨制组织设计 + 通天晓知识抢救计划</div>
+  <div class="meta">
+    <span>版本 V1.0</span><span>2026-10-23</span><span>配套文档：《自研 OMS 决策建议书》V1.0</span>
+    <span>状态：待批准执行</span>
+  </div>
+</div>
+
+<div class="callout c-risk">
+  <span class="t">最紧急的一件事：知识抢救窗口只有 2-4 周，且不依赖立项审批</span>
+  熟悉通天晓的经理已离职、可付费回访——这是当前唯一的高质量知识源，且记忆随时间衰减。
+  <b>本周内</b>启动 5 场专题回访（业务规则 / 结算口径 / 接口坑位 / 排障路径 / 事故复盘），2 名运维全程参加并当日产出纪要。
+  这件事的产出同时是<b>自研 OMS 的需求输入</b>（OFS 里沉淀的审单规则、结算口径就是新系统的业务需求），一次投入两处收益。
+  即使自研立项被否，这份知识资产也直接降低遗留系统的单点风险。
+</div>
+
+<div class="callout c-key">
+  <span class="t">方案核心结论</span>
+  ① 组织采用<b>双轨制</b>：遗留保障轨（2 运维 + 厂商 SLA，不动）与自研开发轨（新增 3.5-4 FTE）并行，技术负责人一人跨双轨做「桥」；
+  ② 组建渠道为<b>外招 + 内转混合</b>：技术负责人与平台对接外招（带订单域/开放平台经验），后端与产品测试内转培养；
+  ③ <b>2 名运维严禁抽调进开发</b>——他们是遗留线最后的守线人，配置运维级能力按 3 个月路径升级到脚本/SQL 级；
+  ④ 推荐编制：<b>外招 2 + 内转 2（含 0.5 兼职）+ 2 运维不动</b>，另设可选 PHP 顾问（4-6 周）与降级配置两档；
+  ⑤ 冲突裁决原则：<b>遗留稳定 &gt; 开发进度</b>；大促前后 1 个月为冻结窗口。
+</div>
+
+<div class="toc">
+  <h3>目录 CONTENTS</h3>
+  <ol>
+    <li><a href="#t1">人员现状与约束</a></li>
+    <li><a href="#t2">双轨制组织设计</a></li>
+    <li><a href="#t3">开发团队组建方案</a></li>
+    <li><a href="#t4">通天晓知识抢救计划（紧急）</a></li>
+    <li><a href="#t5">遗留系统稳定保障体系</a></li>
+    <li><a href="#t6">双轨协同与冲突裁决规则</a></li>
+    <li><a href="#t7">编制与成本测算</a></li>
+    <li><a href="#t8">组建里程碑（12 周）</a></li>
+    <li><a href="#t9">风险与降级路径</a></li>
+  </ol>
+</div>
+
+<h2 id="t1"><span class="n">01</span>人员现状与约束</h2>
+
+<div class="tw"><table>
+<thead><tr><th style="width:22%">角色</th><th style="width:14%">现状</th><th>能力画像与约束</th></tr></thead>
+<tbody>
+<tr><td><b>通天晓熟悉经理</b></td><td><span class="tag t-p0">已离职</span></td><td>唯一深度掌握 OFS/WMS 业务规则与排障经验的人；<b>可联系、可付费回访</b>——知识抢救的唯一高质量窗口，2-4 周内有效</td></tr>
+<tr><td><b>运维人员 ×2</b></td><td><span class="tag t-p1">在岗</span></td><td>配置运维级：能改配置、处理工单、跑 SQL 排查，<b>不能做功能开发</b>；是遗留线仅存的内部守线人，不可抽调</td></tr>
+<tr><td><b>开发池（内转来源）</b></td><td><span class="tag t-ok">可用</span></td><td>有后端基础但无电商订单域经验、PHP 经验弱；需 2-3 周 PHP/Swoole 培训期</td></tr>
+<tr><td><b>外部人才市场</b></td><td><span class="tag t-ok">可用</span></td><td>上海电商订单域/开放平台人才供给充足；技术负责人级候选人到岗周期约 2-4 周</td></tr>
+<tr><td><b>通天晓厂商</b></td><td><span class="tag t-p1">依赖中</span></td><td>内部专家离职后，厂商成为代码级问题的唯一兜底；SLA 条款需重新书面确认（见 5.3）</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">现状的本质：知识断层已经发生，正在恶化</span>
+  经理离职带走的是「OFS 为什么这样配置」的隐性知识，2 名运维只持有「怎么操作」的显性知识。
+  断层不补，后果有二：遗留线出代码级故障时无人能判（只能等厂商）；自研 OMS 重写审单/结算规则时<b>没有需求来源</b>，只能靠猜和试错。
+  所以知识抢救既是稳定保障，也是需求工程——这是本方案把两件事合并处理的根本原因。
+</div>
+
+<h2 id="t2"><span class="n">02</span>双轨制组织设计</h2>
+
+<div class="fig">
+<svg viewBox="0 0 680 430" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="680" height="430" rx="14" fill="#FFFFFF"/>
+<title>双轨制组织架构图</title>
+<rect x="240" y="18" width="200" height="44" rx="10" fill="#EFEBFA" stroke="#6B4FBB" stroke-width="1.5"/>
+<text x="340" y="37" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#6B4FBB" text-anchor="middle">项目发起人 / 决策层</text>
+<text x="340" y="53" font-family="-apple-system,PingFang SC,sans-serif" font-size="10" fill="#4A5160" text-anchor="middle">立项 · 编制 · 冲突终裁</text>
+
+<rect x="230" y="86" width="220" height="50" rx="10" fill="#E5F4EC" stroke="#1E7E4A" stroke-width="2"/>
+<text x="340" y="106" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#1E7E4A" text-anchor="middle">技术负责人 / 架构（外招 · 桥）</text>
+<text x="340" y="123" font-family="-apple-system,PingFang SC,sans-serif" font-size="10" fill="#4A5160" text-anchor="middle">跨双轨：架构决策 + 遗留知识所有者 + 值班</text>
+<path d="M340 62 L340 86" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ta)"/>
+
+<rect x="40" y="170" width="270" height="36" rx="8" fill="#FDF1DE" stroke="#B26A00" stroke-width="1.5"/>
+<text x="175" y="193" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#B26A00" text-anchor="middle">遗留保障轨 · 守线到全量切换</text>
+<rect x="370" y="170" width="270" height="36" rx="8" fill="#E8F0FA" stroke="#185FA5" stroke-width="1.5"/>
+<text x="505" y="193" font-family="-apple-system,PingFang SC,sans-serif" font-size="12.5" font-weight="700" fill="#185FA5" text-anchor="middle">自研开发轨 · 3 个月 MVP</text>
+<path d="M300 136 L175 170" stroke="#B26A00" stroke-width="1.5" marker-end="url(#tw2)"/>
+<path d="M380 136 L505 170" stroke="#185FA5" stroke-width="1.5" marker-end="url(#tb)"/>
+
+<rect x="50" y="222" width="120" height="56" rx="9" fill="#FDF1DE" stroke="#B26A00" stroke-width="1"/>
+<text x="110" y="245" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">运维 A / B（现有）</text>
+<text x="110" y="263" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">配置运维→脚本/SQL 级</text>
+<rect x="180" y="222" width="120" height="56" rx="9" fill="#FDF1DE" stroke="#B26A00" stroke-width="1"/>
+<text x="240" y="245" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">通天晓厂商 SLA</text>
+<text x="240" y="263" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">代码级兜底 · 书面重确认</text>
+
+<rect x="380" y="222" width="120" height="56" rx="9" fill="#E8F0FA" stroke="#185FA5" stroke-width="1"/>
+<text x="440" y="245" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">平台对接（外招）</text>
+<text x="440" y="263" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">五平台 API + WMS 联调</text>
+<rect x="510" y="222" width="120" height="56" rx="9" fill="#E8F0FA" stroke="#185FA5" stroke-width="1"/>
+<text x="570" y="245" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">后端 ×1-2（内转）</text>
+<text x="570" y="263" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">审单/库存/对账二开</text>
+<rect x="380" y="290" width="120" height="50" rx="9" fill="#E8F0FA" stroke="#185FA5" stroke-width="1"/>
+<text x="440" y="311" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">产品/测试 0.5（内转）</text>
+<text x="440" y="328" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#4A5160" text-anchor="middle">业务口径 + 双跑比对</text>
+<rect x="510" y="290" width="120" height="50" rx="9" fill="#FFFFFF" stroke="#8A91A0" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="570" y="311" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#4A5160" text-anchor="middle">PHP 顾问（可选）</text>
+<text x="570" y="328" font-family="-apple-system,PingFang SC,sans-serif" font-size="9.5" fill="#8A91A0" text-anchor="middle">4-6 周代码走读带教</text>
+
+<rect x="40" y="368" width="600" height="44" rx="10" fill="#F2F4F7" stroke="#8A91A0" stroke-width="1"/>
+<text x="340" y="386" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1A1D24" text-anchor="middle">每周双轨同步会（30 分钟）：口径对齐 · 风险互通 · 值班交接</text>
+<text x="340" y="403" font-family="-apple-system,PingFang SC,sans-serif" font-size="10" fill="#4A5160" text-anchor="middle">冲突裁决：遗留稳定 &gt; 开发进度；终裁权在发起人</text>
+<path d="M175 278 L175 368" stroke="#8A91A0" stroke-width="1" stroke-dasharray="4 4"/>
+<path d="M505 340 L505 368" stroke="#8A91A0" stroke-width="1" stroke-dasharray="4 4"/>
+
+<defs>
+<marker id="ta" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8A91A0"/></marker>
+<marker id="tb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#185FA5"/></marker>
+<marker id="tw2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#B26A00"/></marker>
+</defs>
+</svg>
+<div class="cap">图 1 · 双轨制组织：技术负责人为桥，遗留轨守线、开发轨攻坚，2 运维不进入开发轨</div>
+</div>
+
+<h3>2.1 为什么是双轨而不是「一套人马兼顾」</h3>
+<ul>
+  <li><b>技能不重叠</b>：遗留线需要的是配置操作与厂商协调能力，开发线需要的是二开编码能力；让运维兼开发会两头失守。</li>
+  <li><b>责任可追溯</b>：切换期任何事故必须能立刻判定「遗留问题还是新系统问题」，双轨边界即责任边界。</li>
+  <li><b>回退能力的前提</b>：建议书承诺的全程可回退，依赖遗留线在整个切换期保持可运行状态——这要求遗留线有独立且不被稀释的守线力量。</li>
+</ul>
+
+<h3>2.2 技术负责人的「桥」职责（本方案最关键的一个岗位）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">职责</th><th>内容</th></tr></thead>
+<tbody>
+<tr><td><b>遗留知识所有者</b></td><td>主持 5 场离职经理回访，成为公司内部唯一「既懂 OFS 业务规则、又懂新系统架构」的人；知识手册的最终审校人</td></tr>
+<tr><td><b>架构与二开决策</b></td><td>底座裁剪清单、领域模型把关、WMS 适配器方案（见建议书第 4 章）</td></tr>
+<tr><td><b>值班与终判</b></td><td>遗留线 P1 故障的第二响应人（第一响应为运维）；判定故障归属轨并路由</td></tr>
+<tr><td><b>时间分配</b></td><td>M1：遗留 40% / 开发 60%；M2 起：遗留 20% / 开发 80%；全量切换后遗留归零</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="t3"><span class="n">03</span>开发团队组建方案</h2>
+
+<h3>3.1 岗位配置与到岗顺序</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:17%">岗位</th><th style="width:8%">人数</th><th style="width:10%">渠道</th><th style="width:37%">JD 关键点（筛选硬条件）</th><th style="width:12%">到岗窗口</th><th>顺序理由</th></tr></thead>
+<tbody>
+<tr><td><b>技术负责人/架构</b></td><td>1</td><td><span class="tag t-ok">外招</span></td><td>3 年以上订单/履约域经验（OMS/电商 ERP 背景优先）；能快速吃透存量代码（PHP/Swoole 或强学习意愿）；有对接架构经验</td><td>第 2-4 周<br><span class="tag t-p0">最高优先</span></td><td>必须主持知识抢救与底座研读，晚到一天整个计划顺延一天</td></tr>
+<tr><td><b>产品/测试（兼职）</b></td><td>0.5</td><td><span class="tag t-ok">内转</span></td><td>运营团队出身，熟悉代运营审单与结算口径；兼任双跑比对工具的业务验收人</td><td>第 2 周</td><td>需求与口径先于编码；内转零招聘周期</td></tr>
+<tr><td><b>后端开发</b></td><td>1-2</td><td><span class="tag t-ok">内转</span></td><td>内部开发池后端基础扎实；接受 2-3 周 PHP/Swoole 培训；对订单域有兴趣（意愿比现成技能重要）</td><td>第 4 周</td><td>培训期与 M1 底座研读期重叠，不浪费</td></tr>
+<tr><td><b>平台对接开发</b></td><td>1</td><td><span class="tag t-ok">外招</span></td><td>淘宝开放平台/京东 JOS/抖店开放平台实战经验；熟悉 OAuth 授权、消息推送、限流与幂等处理</td><td>第 4-6 周</td><td>M1-M2 对接高峰前到位即可</td></tr>
+<tr><td><b>PHP 顾问（可选）</b></td><td>短期</td><td><span class="tag t-acc">外聘</span></td><td>ShopeX/PHP 电商系统代码走读 + 二开规范带教；触发条件：内转后端 PHP 经验弱或技术负责人非 PHP 背景</td><td>第 2-8 周</td><td>把底座学习曲线从「团队摸索」变成「有人带」</td></tr>
+</tbody>
+</table></div>
+
+<h3>3.2 内转人员的筛选与培养</h3>
+<ul>
+  <li><b>筛选三问</b>：愿不愿意接一个要养 3 年以上的系统？能不能接受前 3 个月读存量代码的枯燥？原部门放人的时间窗是什么？（第三问需发起人层面协调，避免「名义转岗、实际兼着原活」）</li>
+  <li><b>培养路径</b>：W4-W6 PHP/Swoole 培训（顾问或技术负责人带）→ W6 起认领一个独立小模块（如监控告警 Job）→ M2 进入核心二开（审单/库存）。</li>
+  <li><b>防单点</b>：每个核心模块（审单/库存/对接/对账）必须有 2 人读过代码，每周代码走读会制度化，文档与领域模型图沉淀在仓库内。</li>
+</ul>
+
+<h3>3.3 外招的两个实操建议</h3>
+<ul>
+  <li><b>技术负责人面试加一场「读码题」</b>：给一段 ShopeX 底座的真实订单状态机代码，让候选人 45 分钟内讲清逻辑并指出两个潜在坑——比八股文面试更能预测上手速度。</li>
+  <li><b>offer 里写明项目性质</b>：「接管开源底座做企业自研、非外包交付、系统生命周期 3 年以上」——这类项目对订单域老兵有吸引力，写清楚能降低入职后落差流失。</li>
+</ul>
+
+<h2 id="t4"><span class="n">04</span>通天晓知识抢救计划（紧急 · 2-4 周窗口）</h2>
+
+<h3>4.1 五场专题回访（每场 2-3 小时，2 运维 + 技术负责人参加）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:6%">#</th><th style="width:20%">专题</th><th style="width:40%">必须挖出的内容</th><th>产出物</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><b>业务规则全量</b></td><td>OFS 中全部审单规则、拆合单逻辑、寻源/分仓规则、异常单处理惯例；哪些是「配置出来的」、哪些是「厂商改代码改出来的」</td><td>《OFS 业务规则清单》——自研 OMS 审单域的需求底稿</td></tr>
+<tr><td>2</td><td><b>结算与对账口径</b></td><td>代运营三方结算的账单来源、对账维度、差异处理惯例；经销成本口径；哪些环节靠人工 Excel 兜底</td><td>《结算口径说明书》——结算域 P0 需求 + 财务可插拔层输入</td></tr>
+<tr><td>3</td><td><b>接口与集成坑位</b></td><td>通天晓 WMS 四类报文的实际字段与文档差异、历史联调踩过的坑、各平台 API 的限流/幂等怪癖、私域订单的特殊链路</td><td>《接口坑位手册》——M2 WMS 联调的避雷图</td></tr>
+<tr><td>4</td><td><b>排障路径与权限</b></td><td>常见故障的排查顺序（看哪张表、哪个日志、哪个配置项）；OFS/WMS 全部账号权限清单与申请路径；厂商工单的正确提法（怎么提才快）</td><td>《排障 Runbook》+ 权限矩阵——2 运维日常作战手册</td></tr>
+<tr><td>5</td><td><b>事故复盘</b></td><td>近 2 年 P1/P2 事故逐条过：根因、止血动作、是否复发；大促保障的固定动作清单</td><td>《事故案例库》——监控告警项设计的直接依据</td></tr>
+</tbody>
+</table></div>
+
+<h3>4.2 执行规则</h3>
+<ul>
+  <li><b>当日纪要</b>：每场回访结束当天，由产品/测试（兼职）整理结构化纪要入仓库，经理本人确认签字（邮件确认即可）——避免二手信息失真。</li>
+  <li><b>付费方式</b>：按场次结算顾问费，5 场打包谈；明确保密与不竞争条款，降低对方顾虑。</li>
+  <li><b>挖「为什么」不挖「是什么」</b>：配置项截图运维自己就能截，经理的价值在于解释「这条规则为什么存在、改它会引发什么」——访谈提纲全部围绕 why 设计。</li>
+  <li><b>录屏留档</b>：经同意后全程录屏，作为纪要的原始凭证，后续新人入职培训直接用。</li>
+</ul>
+
+<div class="callout c-ok">
+  <span class="t">一次投入，两处收益</span>
+  五场回访的产出物 1、2 直接是建议书第 5 章 P0 功能清单的需求细化输入（审单规则、结算口径）；产出物 3、4、5 直接是第 5 章遗留保障体系的作战手册。
+  这也是为什么即使自研立项暂缓，本计划也应独立执行。
+</div>
+
+<h2 id="t5"><span class="n">05</span>遗留系统稳定保障体系</h2>
+
+<h3>5.1 三道防线</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:14%">防线</th><th style="width:30%">内容</th><th>责任人与触发</th></tr></thead>
+<tbody>
+<tr><td><b>第一道<br>预防</b></td><td>变更冻结制度：生产配置变更必须双人复核 + 留痕；大促前后 1 个月全量冻结（含自研侧切换）；《排障 Runbook》覆盖 Top20 高频故障</td><td>运维 A/B 执行；技术负责人抽查</td></tr>
+<tr><td><b>第二道<br>监控</b></td><td>遗留线最小监控集：OFS 订单积压量、平台授权 Token 有效期、WMS 接口失败率、库存对账差异——四项指标日报 + 阈值告警（M1 内由开发轨顺手建好，复用自研监控组件）</td><td>开发轨建工具；运维值班响应</td></tr>
+<tr><td><b>第三道<br>兜底</b></td><td><s>厂商 SLA 书面重确认</s> <b>【2026-10-23 断供修订】厂商已断供，SLA 兜底失效</b>，替换为：四级故障响应模型（L1 Runbook/L2 SQL 修复/L3 回滚+手工降级/L4 外部救援）+ 外部救援渠道预备（前员工顾问/第三方实施商/开源社区）+ 手工降级作业预案 + 离职经理回访通道保留 + 事故案例库。<b>详见《厂商断供应急预案》第 3 章</b></td><td>技术负责人；发起人保商务与救援渠道</td></tr>
+</tbody>
+</table></div>
+
+<h3>5.2 运维能力升级路径（配置运维级 → 脚本/SQL 级，3 个月）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:14%">阶段</th><th style="width:44%">目标能力</th><th>方式</th></tr></thead>
+<tbody>
+<tr><td>第 1 个月</td><td>能独立按 Runbook 处理 Top20 故障；能读懂 OFS 核心表结构（订单/库存/结算 10 张关键表）</td><td>回访第 4、5 场 + Runbook 实操演练（每人每周 1 次故障模拟）</td></tr>
+<tr><td>第 2 个月</td><td>能写排查 SQL（对账差异定位、卡单查询）；能改简单配置脚本并自测</td><td>技术负责人每周 1 小时 SQL/脚本带教；真实工单复盘</td></tr>
+<tr><td>第 3 个月</td><td>能独立完成月度库存对账与差异归因；能向厂商提交高质量工单（含复现路径与日志）</td><td>独立值班 1 个月（技术负责人二线）；工单质量纳入考核</td></tr>
+</tbody>
+</table></div>
+
+<h3>5.3 厂商 SLA 重确认清单（本周发函）</h3>
+<p><b>【2026-10-23 断供修订】</b>与通天晓发生技术纠纷、合同已到期/临期，厂商支持不可依赖。本清单降级为商务轨道的谈判议题清单（由发起人掌握节奏），技术侧防御改按《厂商断供应急预案》执行：72 小时紧急行动（账号/许可核实、数据备份抢救、接口资产抢救、证据保全）、WMS 黑盒自救体系、接口逆向工程替代厂商联调。</p>
+<ul>
+  <li>响应时效分级：P1（停单）/ P2（功能异常）/ P3（咨询）的响应与解决时限书面确认；</li>
+  <li>代码级问题的支持边界：内部专家离职后，厂商是否仍承担代码级排障？是否额外收费？</li>
+  <li>WMS 接口联调配合：对接排期、测试环境、报文清单（与建议书第 8 章风险项联动，<b>同一封函件</b>提出，减少商务往返）；</li>
+  <li>续约条款预沟通：OFS 合同到期时间与退出条款（为切换窗口与热备成本测算提供输入）。</li>
+</ul>
+
+<h2 id="t6"><span class="n">06</span>双轨协同与冲突裁决规则</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:24%">机制</th><th>规则</th></tr></thead>
+<tbody>
+<tr><td><b>每周双轨同步会</b></td><td>30 分钟固定议程：遗留线风险通报 → 开发线进度与口径问题 → 值班交接。纪要入仓库，缺席者必读</td></tr>
+<tr><td><b>冲突裁决</b></td><td>原则：<b>遗留稳定 &gt; 开发进度</b>。技术负责人可裁决日常冲突；涉及人力抽调或冻结窗口调整的，上报发起人终裁</td></tr>
+<tr><td><b>人力防火墙</b></td><td>2 名运维不进入开发轨排期；开发轨成员不承接遗留线日常工单（P1 事故支援除外，且事后补时）</td></tr>
+<tr><td><b>知识单向流动</b></td><td>遗留线产出的 Runbook/事故库/口径文档，开发轨必须消费（作为需求与告警设计输入）；开发轨产出的监控工具反哺遗留线——双轨唯一允许的「资源流动」是文档与工具，不是人</td></tr>
+<tr><td><b>切换期特别规则</b></td><td>灰度切流期间遗留线进入「热备值守」状态：运维每日核对回切预案可用性；任何品牌回切演练每季度 1 次</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="t7"><span class="n">07</span>编制与成本测算</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">项目</th><th style="width:22%">推荐配置</th><th style="width:26%">降级配置 A（编制紧）</th><th>降级配置 B（零外招）</th></tr></thead>
+<tbody>
+<tr><td><b>开发轨人力</b></td><td>外招 2（技术负责人+平台对接）+ 内转 2（后端 1-2 中取 1.5 + 产品测试 0.5）≈ 3.5-4 FTE</td><td>外招 1（仅技术负责人）+ 内转 2.5；平台对接由技术负责人兼，M2 对接高峰压力大</td><td>全内转 3.5 FTE；技术负责人由内部资深开发代理 + PHP 顾问补架构短板</td></tr>
+<tr><td><b>遗留轨人力</b></td><td>运维 2（不动）+ 厂商 SLA</td><td>同左</td><td>同左</td></tr>
+<tr><td><b>顾问费</b></td><td>PHP 顾问 4-6 周（可选触发）；离职经理 5 场回访费</td><td>经理回访费保留（<b>不可降级项</b>）</td><td>经理回访费 + PHP 顾问升为必选</td></tr>
+<tr><td><b>MVP 周期影响</b></td><td>3 个月（基准）</td><td>3.5-4 个月</td><td>4-5 个月，且 M1 研读期风险显著上升</td></tr>
+<tr><td><b>主要代价</b></td><td>2 个外招 headcount + 招聘周期 2-6 周</td><td>技术负责人过载，是单点风险</td><td>订单域经验缺失，审单/结算二开返工概率高</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">不可降级的三项</span>
+  ① 离职经理回访（知识抢救）；② 2 名运维不抽调；③ 技术负责人岗位必须有明确 owner（外招或内部代理+顾问补位，二选一，不能悬空）。
+  其余编制均可按上表降级，代价是周期顺延而非质量崩塌。
+</div>
+
+<h2 id="t8"><span class="n">08</span>组建里程碑（12 周，与建议书 M1-M3 对齐）</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:12%">周次</th><th style="width:44%">动作</th><th>出口条件</th></tr></thead>
+<tbody>
+<tr><td><b>W1</b><br><span class="tag t-p0">本周</span></td><td>联系离职经理锁定 5 场回访档期；发函通天晓（SLA 重确认 + WMS 联调排期，一函两事）；启动技术负责人外招；内转人选面谈</td><td>回访档期确认；函件发出；JD 上线</td></tr>
+<tr><td><b>W2-W3</b></td><td>回访第 1-3 场（业务规则/结算口径/接口坑位）；产品测试兼职到岗；技术负责人 offer 谈判</td><td>3 份纪要入仓库；技术负责人签约</td></tr>
+<tr><td><b>W4-W6</b></td><td>技术负责人到岗，主持回访第 4-5 场 + 底座研读；内转后端开始 PHP 培训；平台对接外招到岗；PHP 顾问进场（如触发）</td><td>Runbook V1 + 事故库 V1；裁剪清单定稿（= 建议书 M1 出口）</td></tr>
+<tr><td><b>W7-W12</b></td><td>开发轨全速进入 M2（二开 + WMS 联调）；运维按升级路径第 1-2 月执行；监控四指标上线反哺遗留线</td><td>测试环境全链路跑通；对账差异率 0（= 建议书 M2 出口）</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="t9"><span class="n">09</span>风险与降级路径</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">风险</th><th style="width:10%">等级</th><th style="width:32%">缓解</th><th>应急</th></tr></thead>
+<tbody>
+<tr><td>技术负责人外招 4 周内不到位</td><td><span class="tag t-p0">高</span></td><td>JD 上线同时启动内部代理人选评估；猎头与直招双通道</td><td>内部代理 + PHP 顾问顶架构位（降级配置 B），外招继续</td></tr>
+<tr><td>离职经理回访中途变卦/要价过高</td><td><span class="tag t-p0">高</span></td><td>W1 即签框架协议锁定场次与单价；优先保第 1、4 场（规则+排障）</td><td>砍到 3 场核心专题；缺口靠事故工单历史 + 厂商文档补</td></tr>
+<tr><td>内转人员原部门不放人</td><td><span class="tag t-p1">中</span></td><td>发起人层面先谈编制与交接期，再谈个人意愿</td><td>后端缺口转外招（周期 +2-4 周）</td></tr>
+<tr><td>运维升级不及预期，遗留线仍单点</td><td><span class="tag t-p1">中</span></td><td>故障模拟演练计入考核；Runbook 覆盖度每周检查</td><td>延长厂商 SLA 覆盖期，把代码级支持买足到全量切换后</td></tr>
+<tr><td>双轨抢人：开发忙时抽运维救火</td><td><span class="tag t-p1">中</span></td><td>人力防火墙写入周会议程，每次抽调必须发起人终裁并记录</td><td>—（规则性风险，靠制度不靠技术）</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">本周三件事（不依赖任何审批）</span>
+  ① 联系离职经理，锁定 5 场回访档期并谈打包价；② 一函两事发通天晓：SLA 书面重确认 + WMS 接口联调排期；③ 技术负责人 JD 上线 + 内转人选面谈启动。
+  三件事完成后，双轨制即可按 W2 节奏滚动，无需等立项会。
+</div>
+
+<div class="foot">
+  团队组建与遗留系统稳定保障方案 V1.0 · 2026-10-23 · WISE 技术交付中心<br>
+  配套文档：《自研 OMS 决策建议书》V1.0（2026-10-23）；前序调研四份（2026-10-17）
+</div>
+
+</div>
+</body>
+</html>

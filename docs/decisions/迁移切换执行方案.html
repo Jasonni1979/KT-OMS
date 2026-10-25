@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>迁移切换执行方案 · 通天晓 OFS → 自研 OMS</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#1A1D24; --ink2:#4A5160; --ink3:#8A91A0;
+  --line:#E3E6EC; --brand:#185FA5; --brand-soft:#E8F0FA;
+  --ok:#1E7E4A; --ok-soft:#E5F4EC; --warn:#B26A00; --warn-soft:#FDF1DE;
+  --risk:#B4342E; --risk-soft:#FBE9E8; --accent:#6B4FBB; --accent-soft:#EFEBFA;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161A; --card:#1D2026; --ink:#E8EAF0; --ink2:#B4BAC6; --ink3:#7C8494;
+    --line:#2C3038; --brand:#6FA3DC; --brand-soft:#1C2B3D;
+    --ok:#5CC08A; --ok-soft:#16281E; --warn:#E0A44C; --warn-soft:#2B2013;
+    --risk:#E8837C; --risk-soft:#2E1917; --accent:#A990F0; --accent-soft:#221C36; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:40px 28px 80px}
+.cover{padding:56px 0 36px;border-bottom:3px solid var(--brand);margin-bottom:36px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:4px 14px;font-weight:700;margin-bottom:18px}
+h1{font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.sub{font-size:16.5px;color:var(--ink2);margin-top:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.meta span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+h2{font-size:22px;font-weight:800;margin:52px 0 18px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2 .n{color:var(--brand);font-family:var(--mono);font-size:16px;margin-right:10px;font-weight:700}
+h3{font-size:16.5px;font-weight:700;margin:28px 0 12px;color:var(--ink)}
+p{margin:10px 0;color:var(--ink2)}
+b{color:var(--ink)}
+ul,ol{margin:10px 0 10px 22px;color:var(--ink2)}
+li{margin:6px 0}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-soft);color:var(--brand);border-radius:4px;padding:1px 6px}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:14px;color:var(--ink3);letter-spacing:.1em}
+.toc ol{columns:2;column-gap:36px;margin-left:20px;font-size:14px}
+.toc li{break-inside:avoid}
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+th{background:var(--brand-soft);color:var(--ink);font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:4px solid;font-size:14px}
+.callout .t{font-weight:800;margin-bottom:6px;display:block}
+.c-key{background:var(--brand-soft);border-color:var(--brand);color:var(--ink2)} .c-key .t{color:var(--brand)}
+.c-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ink2)} .c-ok .t{color:var(--ok)}
+.c-warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink2)} .c-warn .t{color:var(--warn)}
+.c-risk{background:var(--risk-soft);border-color:var(--risk);color:var(--ink2)} .c-risk .t{color:var(--risk)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;white-space:nowrap;vertical-align:1px}
+.t-p0{background:var(--risk-soft);color:var(--risk)} .t-p1{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-acc{background:var(--accent-soft);color:var(--accent)}
+.fig{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.fig svg{width:100%;height:auto}
+.cap{font-size:12.5px;color:var(--ink3);margin-top:10px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3)}
+@media print{
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{page-break-before:always;margin-top:20px} h2:first-of-type{page-break-before:avoid}
+  .fig,.tw,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <span class="eyebrow">WISE 技术交付中心 · 执行方案</span>
+  <h1>迁移切换执行方案</h1>
+  <div class="sub">通天晓 OFS → 自研 OMS · 五阶段门禁驱动 · 历史全量迁移 · 在途自然排空</div>
+  <div class="meta">
+    <span>版本 V1.0</span><span>2026-10-23</span>
+    <span>配套：《自研 OMS 决策建议书》《团队组建与遗留系统稳定保障方案》</span>
+    <span>状态：待批准执行</span>
+  </div>
+</div>
+
+<div class="callout c-key">
+  <span class="t">迁移三原则（已按确认决策定稿）</span>
+  ① <b>门禁驱动，无硬日期</b>：五个阶段各设量化门禁（G1-G5），指标不达标不进入下一阶段，宁可顺延不抢跑；
+  ② <b>老单老办法、新单新办法</b>：切换时刻起新订单进新系统，切换前已进入旧系统的在途单在旧系统自然走完，不做在途状态迁移；
+  ③ <b>历史全量迁移，但隔离存放</b>：历史订单/结算单全量迁入，但落入<b>只读历史库</b>并经统一查询视图呈现——满足「一个系统查全部」，同时脏数据不污染在线交易表、迁移可随时重跑。
+</div>
+
+<div class="callout c-warn">
+  <span class="t">平滑过渡的真正含义：任何时刻都只有一个「写者」</span>
+  迁移期最大的事故源不是数据丢不丢，而是<b>双写</b>：两套系统同时向平台回写库存、同时向 WMS 下发同一笔订单。
+  本方案所有切换动作都遵守单写者原则——店铺级/品牌级粒度上，任一时刻只有旧系统或新系统之一持有「履约写权」，切换即写权移交，移交前后各做一次库存终对账。
+</div>
+
+<div class="toc">
+  <h3>目录 CONTENTS</h3>
+  <ol>
+    <li><a href="#m1">迁移范围与数据分类</a></li>
+    <li><a href="#m2">五阶段节奏与门禁总览</a></li>
+    <li><a href="#m3">数据迁移执行方案</a></li>
+    <li><a href="#m4">切换日 SOP（分钟级）</a></li>
+    <li><a href="#m5">业务流程平滑过渡</a></li>
+    <li><a href="#m6">门禁指标与回退机制</a></li>
+    <li><a href="#m7">节奏把控机制</a></li>
+    <li><a href="#m8">风险与应对</a></li>
+  </ol>
+</div>
+
+<h2 id="m1"><span class="n">01</span>迁移范围与数据分类</h2>
+
+<div class="tw"><table>
+<thead><tr><th style="width:16%">数据类别</th><th style="width:12%">迁移批次</th><th style="width:34%">内容</th><th>目标位置与方式</th></tr></thead>
+<tbody>
+<tr><td><b>主数据</b></td><td><span class="tag t-p0">B1 · 切换前置</span></td><td>店铺、品牌/货主、商品与 SKU 映射、仓库、供应商、经销商、审单规则配置、价格体系</td><td>新系统在线表；全量初始化 + 每日增量同步直至切换</td></tr>
+<tr><td><b>库存</b></td><td><span class="tag t-p0">B1 · 切换前置</span></td><td>五态库存快照（在库/占用/在途/可售/冻结）、货主归属、批次效期</td><td>新系统在线表；切换日做终对账后接管写权</td></tr>
+<tr><td><b>未结余额</b></td><td><span class="tag t-p1">B2 · 试点切换前</span></td><td>未结算佣金/费用、未核销预收、在途调拨、未完结售后挂账</td><td>新系统结算域期初余额；逐笔核对签字</td></tr>
+<tr><td><b>在途订单</b></td><td><span class="tag t-ok">不迁移</span></td><td>切换前已进旧系统的订单（已审未发/已发未签/退货中）</td><td>旧系统自然排空；新系统仅建「旧单号索引」供客服查询关联</td></tr>
+<tr><td><b>历史订单/结算单</b></td><td><span class="tag t-acc">B3 · 全量</span></td><td>全部历史订单、退款单、结算单、对账单（含附件索引）</td><td><b>只读历史库</b>（独立库/归档分区）+ 统一查询视图；分批迁移、可重跑</td></tr>
+<tr><td><b>日志与审计</b></td><td><span class="tag t-acc">B3 · 全量</span></td><td>操作日志、审单痕迹</td><td>只读历史库；仅供合规查询，不进在线检索</td></tr>
+</tbody>
+</table></div>
+
+<h3>1.1 为什么历史全量迁移要进「只读历史库」而不是在线表</h3>
+<ul>
+  <li><b>脏数据隔离</b>：多年积累的历史数据必有枚举缺失、金额尾差、状态不一致；进在线交易表会污染状态机校验与索引性能，进只读库则只做展示级容错。</li>
+  <li><b>可重跑</b>：只读库迁移是幂等批处理，任何一批失败可整批重跑，不影响在线业务——这是「全量迁移」敢于承诺的前提。</li>
+  <li><b>与业务切换解耦</b>：B3 不阻塞任何门禁，可在试点切换后继续滚动执行，只要在下线通天晓 OFS 前完成并验收即可。</li>
+  <li><b>查询体验不降级</b>：客服/财务通过统一查询视图（在线表 UNION 历史库）按订单号/店铺/时间检索，前端无感知。</li>
+</ul>
+
+<h2 id="m2"><span class="n">02</span>五阶段节奏与门禁总览</h2>
+
+<div class="fig">
+<svg viewBox="0 0 680 410" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="680" height="410" rx="14" fill="#FFFFFF"/>
+<title>五阶段迁移节奏与门禁</title>
+<text x="30" y="34" font-family="-apple-system,PingFang SC,sans-serif" font-size="13" font-weight="700" fill="#1A1D24">阶段（相对周次，门禁达标才推进）</text>
+<line x1="30" y1="56" x2="650" y2="56" stroke="#E3E6EC"/>
+<rect x="30" y="70" width="140" height="34" rx="8" fill="#E8F0FA" stroke="#185FA5"/>
+<text x="100" y="91" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#185FA5" text-anchor="middle">S0 迁移准备（M1-M2）</text>
+<rect x="190" y="70" width="140" height="34" rx="8" fill="#EFEBFA" stroke="#6B4FBB"/>
+<text x="260" y="91" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#6B4FBB" text-anchor="middle">S1 影子双跑（≥2周）</text>
+<rect x="350" y="70" width="140" height="34" rx="8" fill="#E5F4EC" stroke="#1E7E4A"/>
+<text x="420" y="91" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1E7E4A" text-anchor="middle">S2 试点品牌切换</text>
+<rect x="510" y="70" width="140" height="34" rx="8" fill="#E5F4EC" stroke="#1E7E4A" opacity="0.8"/>
+<text x="580" y="91" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1E7E4A" text-anchor="middle">S3 分批灰度切流</text>
+<path d="M170 87 L190 87" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ma)"/>
+<path d="M330 87 L350 87" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ma)"/>
+<path d="M490 87 L510 87" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ma)"/>
+<path d="M180 79 l8 8 l-8 8 l-8 -8 Z" fill="#B4342E"/>
+<path d="M340 79 l8 8 l-8 8 l-8 -8 Z" fill="#B4342E"/>
+<path d="M500 79 l8 8 l-8 8 l-8 -8 Z" fill="#B4342E"/>
+<text x="180" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="middle">准入：B1 同步 7 天差异 0</text>
+<text x="340" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="middle">G1 双跑一致≥99.9%</text>
+<text x="500" y="124" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="middle">G2 试点稳定2周</text>
+<path d="M580 104 L580 164" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ma)"/>
+<path d="M580 129 l8 8 l-8 8 l-8 -8 Z" fill="#B4342E"/>
+<text x="566" y="141" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="end">G3 逐品牌达标</text>
+<rect x="510" y="170" width="140" height="34" rx="8" fill="#E5F4EC" stroke="#1E7E4A" opacity="0.6"/>
+<text x="580" y="191" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#1E7E4A" text-anchor="middle">S4 全量+热备观察</text>
+<rect x="350" y="170" width="140" height="34" rx="8" fill="#F2F4F7" stroke="#8A91A0"/>
+<text x="420" y="191" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#4A5160" text-anchor="middle">S5 下线 OFS+只读归档</text>
+<path d="M508 187 L494 187" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ma)"/>
+<path d="M500 179 l8 8 l-8 8 l-8 -8 Z" fill="#B4342E"/>
+<path d="M348 187 L334 187" stroke="#8A91A0" stroke-width="1.5" marker-end="url(#ma)"/>
+<path d="M330 179 l8 8 l-8 8 l-8 -8 Z" fill="#B4342E"/>
+<text x="520" y="224" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="middle">G4 全品牌稳定1月+回灌演练</text>
+<text x="300" y="224" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#B4342E" text-anchor="middle">G5 热备≥9月+归档验收</text>
+<text x="30" y="254" font-family="-apple-system,PingFang SC,sans-serif" font-size="12" font-weight="700" fill="#1A1D24">数据批次与阶段的对应（B3 不阻塞业务切换）</text>
+<rect x="30" y="266" width="180" height="26" rx="6" fill="#185FA5" opacity="0.85"/>
+<text x="120" y="283" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">B1 主数据+库存（S0-S1）</text>
+<rect x="220" y="266" width="150" height="26" rx="6" fill="#B26A00" opacity="0.85"/>
+<text x="295" y="283" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">B2 未结余额（S1-S2）</text>
+<rect x="380" y="266" width="270" height="26" rx="6" fill="#6B4FBB" opacity="0.8"/>
+<text x="515" y="283" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">B3 历史全量（S2 起滚动，S5 前验收）</text>
+<rect x="30" y="310" width="620" height="86" rx="10" fill="#FDF1DE" stroke="#B26A00"/>
+<text x="46" y="332" font-family="-apple-system,PingFang SC,sans-serif" font-size="11.5" font-weight="700" fill="#B26A00">冻结窗口（任何切换动作禁止）</text>
+<text x="46" y="352" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">· 大促前后各 1 个月（双11/618/年货节等，按年度营销日历标定）</text>
+<text x="46" y="370" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">· 每月结算日前后 2 天 · 切换窗口仅限周二至周四凌晨，周一/周五及节假日前禁止</text>
+<text x="46" y="388" font-family="-apple-system,PingFang SC,sans-serif" font-size="10.5" fill="#4A5160">· 遗留线 P1 故障未闭环期间，全项目冻结</text>
+<defs>
+<marker id="ma" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8A91A0"/></marker>
+</defs>
+</svg>
+<div class="cap">图 1 · 五阶段门禁节奏：S0-S5 与数据批次 B1-B3 的对应关系，菱形为量化门禁，冻结窗口内禁止一切切换动作</div>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th style="width:14%">阶段</th><th style="width:36%">核心动作</th><th style="width:24%">门禁（达标才推进）</th><th>回退代价</th></tr></thead>
+<tbody>
+<tr><td><b>S0 迁移准备</b><br>M1-M2</td><td>迁移工具与映射表开发；B1 主数据/库存初始化+日增量同步；比对工具上线；回退预案 V1</td><td>—（进入 S1 的条件：B1 同步连续 7 天差异 0）</td><td>近零</td></tr>
+<tr><td><b>S1 影子双跑</b><br>≥2 周</td><td>新系统只读拉单、全流程影子处理（审单/寻源/模拟下发），逐字段比对；B2 期初余额核对</td><td><b>G1</b>：连续 2 周一致率≥99.9%、P1=0、对账差异 0、回退演练通过</td><td>近零（旧系统仍主跑）</td></tr>
+<tr><td><b>S2 试点切换</b><br>2-4 周</td><td>试点品牌写权移交（切换日 SOP）；旧系统在途单排空；B3 历史迁移启动</td><td><b>G2</b>：试点稳定 2 周（履约时效不降、客诉不升、日对账差异 0）</td><td>低（品牌级回切）</td></tr>
+<tr><td><b>S3 分批灰度</b><br>4-8 周</td><td>按品牌逐个切流，每批 1-3 个品牌；每批执行切换日 SOP；B3 滚动推进</td><td><b>G3</b>：每品牌稳定 1 周 + 日对账差异 0 才放下一批</td><td>低（单品牌回切）</td></tr>
+<tr><td><b>S4 全量+热备</b><br>≥1 月观察</td><td>全品牌切流完成；通天晓 OFS 转热备只读（<b>断供修订：热备期 6→9 个月，自维护</b>）；回灌演练 1 次；B3 收尾验收</td><td><b>G4</b>：全品牌稳定 1 个月、回灌演练通过、B3 验收签字</td><td>中（需回灌，故热备不可省）</td></tr>
+<tr><td><b>S5 下线归档</b><br>热备≥9 月后</td><td>通天晓 OFS 正式下线；旧库转只读归档（或导出数仓）；统一查询视图全量覆盖</td><td><b>G5</b>：热备满 9 个月、归档查询验收、财务年度对账无遗留</td><td>—（终点）</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="m3"><span class="n">03</span>数据迁移执行方案</h2>
+
+<h3>3.1 迁移工具链（S0 交付，三个组件）</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:20%">组件</th><th style="width:40%">职责</th><th>关键设计</th></tr></thead>
+<tbody>
+<tr><td><b>抽取-转换-装载器（ETL）</b></td><td>从通天晓 OFS 库抽取 → 按映射表转换 → 写入新系统/只读历史库</td><td>批处理幂等（按批次键重跑不产生重复）；每批留校验和与行数账；失败批自动隔离待人工处置</td></tr>
+<tr><td><b>字段映射表</b></td><td>旧表字段 → 新模型字段的唯一权威定义，含枚举值翻译（旧状态码→新状态机）</td><td>存仓库、版本化、双人评审；<b>映射表即迁移的验收标准</b>，评审人=技术负责人+产品测试</td></tr>
+<tr><td><b>比对校验器</b></td><td>迁移后逐批对账：行数、金额合计、状态分布、抽样逐字段比对</td><td>输出差异报告（可定位到单号）；差异清零是批次验收的硬条件</td></tr>
+</tbody>
+</table></div>
+
+<h3>3.2 三个批次的执行细则</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:10%">批次</th><th style="width:26%">执行方式</th><th style="width:32%">校验口径</th><th>验收签字人</th></tr></thead>
+<tbody>
+<tr><td><b>B1 主数据+库存</b></td><td>S0 全量初始化；之后每日凌晨增量同步；切换日停止同步、做终对账</td><td>SKU 映射覆盖率 100%；库存五态逐仓逐货主合计一致；店铺授权清单与平台后台核对</td><td>技术负责人 + 运维（遗留线代表）</td></tr>
+<tr><td><b>B2 未结余额</b></td><td>S1 末快照抽取，逐笔生成新系统期初单；结算日前后 2 天禁止执行</td><td>逐笔金额核对（佣金/费用/预收/挂账）；合计与财务台账一致</td><td>财务代表 + 产品测试</td></tr>
+<tr><td><b>B3 历史全量</b></td><td>S2 起按年份分批滚动（先近后远）；只读历史库；幂等可重跑</td><td>行数与金额合计对账 + 每批 1% 抽样逐字段；统一查询视图抽查 20 个历史订单可查可显</td><td>产品测试 + 客服代表</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-warn">
+  <span class="t">映射表评审是迁移质量的总闸门</span>
+  历史数据的问题 90% 出在枚举翻译与口径差异（旧系统一个状态码对应新系统两个状态、金额含税口径不同等）。
+  映射表评审会必须拉上<b>离职经理回访纪要</b>（知识抢救产出物 1、2）逐条对照——那些「为什么这样配」的隐性知识正是映射规则的来源。
+</div>
+
+<h2 id="m4"><span class="n">04</span>切换日 SOP（分钟级，单品牌粒度）</h2>
+<p>每个品牌/批次的切流都执行同一份 SOP。窗口：周二至周四 00:00-06:00；总时长目标 ≤ 90 分钟；任何一步超时或异常即触发回退分支。</p>
+<div class="tw"><table>
+<thead><tr><th style="width:12%">时间</th><th style="width:44%">动作</th><th>责任人 / 校验点</th></tr></thead>
+<tbody>
+<tr><td><b>T-1 日</b></td><td>切换公告（客服/运营/财务）；冻结该品牌配置变更；回退预案与回切脚本就绪确认；值班表发布</td><td>技术负责人签发《切换准入单》，缺一项不切</td></tr>
+<tr><td><b>T-0 00:00</b></td><td>旧系统该品牌「停收新单」：平台消息推送改投新系统（或旧系统收单后不处理、由新系统拉取，二选一按平台能力定）</td><td>平台对接；校验：旧系统新单增量=0</td></tr>
+<tr><td><b>00:10</b></td><td>旧系统在途单盘点：列出未完结单清单，确认全部留在旧系统排空；新系统建旧单号索引</td><td>运维；校验：清单与旧系统报表一致</td></tr>
+<tr><td><b>00:30</b></td><td>库存终对账：旧系统五态快照 vs 新系统同步值，逐仓逐货主比对；差异>0 则暂停并排查（不带着差异切写权）</td><td>运维+后端；校验：差异=0 才继续</td></tr>
+<tr><td><b>00:50</b></td><td>写权移交：新系统开启该品牌审单/下发/库存回写；旧系统该品牌转只读</td><td>技术负责人；校验：首笔真实订单全链路走通（人工盯单）</td></tr>
+<tr><td><b>01:10</b></td><td>平台侧验证：库存同步值与平台后台一致；发货回传链路抽测 3 单</td><td>平台对接；校验：平台可售库存=新系统可售库存</td></tr>
+<tr><td><b>02:00</b></td><td>观察期开始：监控四指标（积压/授权/接口失败率/对账差异）15 分钟粒度；客服话术切换</td><td>值班双人（开发轨 1+运维 1）</td></tr>
+<tr><td><b>T+1 09:00</b></td><td>切换复盘会：前夜指标通报、遗留问题清单、是否维持/回切决议</td><td>技术负责人决议，报发起人备案</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-risk">
+  <span class="t">回退分支（任一触发即执行，不犹豫）</span>
+  库存终对账差异无法在 60 分钟内归因 → 回退；切换后 2 小时内出现 P1（停单/超卖/错发）→ 回退；平台库存同步异常且 30 分钟未恢复 → 回退。
+  回退动作=写权交还旧系统（旧系统本就保留全量数据与只读态，交还即恢复写），新系统该品牌数据作废重同步。<b>回退不是失败，是门禁在起作用</b>——每次回退复盘后重新排队切换。
+</div>
+
+<h2 id="m5"><span class="n">05</span>业务流程平滑过渡</h2>
+
+<h3>5.1 六大流程的过渡设计</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:16%">流程</th><th style="width:42%">过渡设计</th><th>过渡期特别规则</th></tr></thead>
+<tbody>
+<tr><td><b>订单履约</b></td><td>老单老办法/新单新办法；在途单旧系统排空，新系统建旧单号索引供查询</td><td>排空期（约 1-2 周）客服需双系统查单，提供统一查询视图提前上线</td></tr>
+<tr><td><b>售后/退货</b></td><td>旧订单的退货在旧系统处理直至排空；切换后新发起的退货无论对应新旧订单，统一在新系统建退货单（关联旧单号）</td><td>退货预报双发：排空期内新系统退货单同步通知旧系统 WMS 通道，避免仓内漏收</td></tr>
+<tr><td><b>库存同步</b></td><td>单写者原则：写权在谁，平台库存同步就由谁发；切换前后各一次终对账</td><td>切换后 72 小时安全库存上浮 10%，防同步抖动超卖</td></tr>
+<tr><td><b>结算对账</b></td><td>按结算周期切：切换日所在结算周期仍由旧系统出账，下一周期起新系统出账；B2 期初余额衔接</td><td>切换后首个结算周期双系统各出一份对账单人工核对，一致后旧系统停出</td></tr>
+<tr><td><b>客服查单</b></td><td>统一查询视图（在线表 UNION 只读历史库 UNION 旧单号索引）一次上线，客服单入口</td><td>视图上线早于 S2，先在旧系统主跑期试用打磨</td></tr>
+<tr><td><b>财务取数</b></td><td>财务可插拔适配层双挂：过渡期同时供旧/新口径，切换后新口径为主、旧口径保留至年度对账结束</td><td>年度审计所需历史凭证从只读历史库出，出具《历史数据可用性说明》给财务</td></tr>
+</tbody>
+</table></div>
+
+<h3>5.2 人的过渡：培训与话术</h3>
+<ul>
+  <li><b>运营/客服</b>：S1 期间用影子环境培训（影子数据即真实订单回放）；每品牌切换前 3 天发《该品牌切换须知》（查单入口、退货路径、异常上报通道）。</li>
+  <li><b>财务</b>：B2 核对与首周期双对账全程参与，是结算域验收签字人。</li>
+  <li><b>运维</b>：切换日双人值班中的遗留线代表；排空期旧系统值守责任不变，直至该品牌在途单清零。</li>
+</ul>
+
+<h2 id="m6"><span class="n">06</span>门禁指标与回退机制</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:10%">门禁</th><th style="width:44%">量化指标</th><th>测量方式</th></tr></thead>
+<tbody>
+<tr><td><b>G1</b></td><td>影子双跑连续 2 周：订单处理结果逐字段一致率≥99.9%；P1 事故 0；OMS-WMS 日对账差异 0；回退演练 1 次通过</td><td>比对工具自动报告 + 周会评审</td></tr>
+<tr><td><b>G2</b></td><td>试点品牌稳定 2 周：48h 履约时效不高于旧系统基线；客诉率不升；日对账差异 0；无 P1</td><td>监控看板 + 客服工单统计</td></tr>
+<tr><td><b>G3</b></td><td>每品牌切流后稳定 1 周且日对账差异 0，才允许下一批排期</td><td>切换复盘会决议记录</td></tr>
+<tr><td><b>G4</b></td><td>全品牌稳定 1 个月；回灌演练通过（模拟全量回切并验证数据完整性）；B3 历史迁移验收签字</td><td>演练报告 + 验收单</td></tr>
+<tr><td><b>G5</b></td><td>热备满 9 个月；归档查询验收（抽样历史订单可查）；财务年度对账无遗留差异</td><td>财务确认函</td></tr>
+</tbody>
+</table></div>
+<p><b>回退分级</b>：单品牌回切（S2/S3 常规手段，分钟级）→ 批次暂停（S3 中停止后续排期，已切品牌不动）→ 全量回切（S4 热备期内，按回灌预案执行，需发起人批准）。三级回退的脚本与数据预案在 S0 全部就绪，<b>预案不就绪=门禁不达标</b>。</p>
+
+<h2 id="m7"><span class="n">07</span>节奏把控机制</h2>
+<ul>
+  <li><b>门禁看板</b>：G1-G5 指标实时看板（复用自研监控组件），周会只过三件事——门禁达标否、冻结窗口冲突否、回退预案有效性否。</li>
+  <li><b>顺延不抢跑</b>：门禁不达标自动顺延，不顺延需要发起人书面豁免（留痕）；连续两次豁免同一门禁=该门禁设计有问题，回炉修订而非继续豁免。</li>
+  <li><b>批次粒度可调</b>：S3 每批品牌数按前批表现动态调整（表现好 1→3 个/批，出过回退则降回 1 个/批）——节奏的「油门」在批次粒度上，不在门禁上。</li>
+  <li><b>与年度日历对齐</b>：每年 1 月标定大促冻结窗口；切换排期表避开结算日；S4/S5 的时点天然落在热备 9 个月之后，与合同续约节点对照（见建议书待确认问题 3）。</li>
+  <li><b>退出机制</b>：任何阶段若连续 2 个月门禁不达标且根因是系统能力不足（而非执行问题），触发项目级复盘：回退到影子模式继续打磨，或上报决策层重议路线——迁移方案自带「承认失败」的出口，避免沉没成本绑架。</li>
+</ul>
+
+<h2 id="m8"><span class="n">08</span>风险与应对</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:26%">风险</th><th style="width:8%">等级</th><th style="width:34%">应对</th><th>兜底</th></tr></thead>
+<tbody>
+<tr><td>历史数据脏数据量超预期，B3 校验长期不过</td><td><span class="tag t-p1">中</span></td><td>只读库做展示级容错（缺失枚举归入「历史遗留」类）；差异分级：金额类零容忍、展示类可豁免并登记</td><td>B3 不阻塞 S4，仅阻塞 S5 下线</td></tr>
+<tr><td>排空期双系统查单造成客服混乱</td><td><span class="tag t-p1">中</span></td><td>统一查询视图提前于 S2 上线并试用；旧单号索引全覆盖</td><td>排空期设查单专席</td></tr>
+<tr><td>切换夜库存终对账差异反复</td><td><span class="tag t-p0">高</span></td><td>S1 起每日预对账演练，把差异归因经验沉淀进 Runbook；切换夜差异 60 分钟归因时限</td><td>超时即回退，次日复盘重排</td></tr>
+<tr><td>结算周期切换产生跨期差异</td><td><span class="tag t-p1">中</span></td><td>按结算周期整周期切换 + 首周期双对账；B2 期初余额逐笔签字</td><td>财务保留旧系统出账能力至年度对账结束</td></tr>
+<tr><td>灰度期某品牌回切后数据与新系统不一致</td><td><span class="tag t-p1">中</span></td><td>回切=新系统该品牌数据作废重同步（不做双向合并）；回切 SOP 明确数据处置</td><td>—（规则性保障）</td></tr>
+<tr><td>热备 9 个月成本被质疑想提前下线</td><td><span class="tag t-p2">低</span></td><td>G5 门禁写死热备时长；提前下线需发起人+财务双签</td><td>—（制度保障）</td></tr>
+<tr><td><b>厂商断供冲击接口联调</b><span class="tag t-acc">10-23 新增</span></td><td><span class="tag t-p0">高</span></td><td>WMS 接口从「厂商联调」改为「逆向工程+影子验证」：报文留样还原规格书 → 与 OFS 真实报文影子比对连续 7 天一致率≥99.9% 才准真发；奇门标准通道作 Plan B（详见《厂商断供应急预案》第 4 章）</td><td>低频异常报文走 OFS 热备通道；切换准入新增「WMS 近 7 天无 L2 以上故障」</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout c-key">
+  <span class="t">一句话总结节奏</span>
+  用「影子双跑证明系统可信 → 单品牌证明切换可信 → 逐品牌证明规模化可信 → 热备证明回退可信」四级信任递进换取平滑过渡；
+  数据侧用「B1 前置同步、B2 期初衔接、B3 隔离滚动」三条独立流水线保证任何时刻业务不中断、查询不降级、账目可对平。
+</div>
+
+<div class="foot">
+  迁移切换执行方案 V1.0 · 2026-10-23 · WISE 技术交付中心<br>
+  配套文档：《自研 OMS 决策建议书》V1.0 ·《团队组建与遗留系统稳定保障方案》V1.0（均 2026-10-23）
+</div>
+
+</div>
+</body>
+</html>

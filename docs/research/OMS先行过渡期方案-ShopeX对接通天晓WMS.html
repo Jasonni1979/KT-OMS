@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMS 先行过渡期方案 · ShopeX ONEX OMS + 通天晓 WMS</title>
+<style>
+  :root{
+    --brand:#185FA5;--brand-2:#0E4C87;--brand-soft:#E8F1F9;
+    --ink:#12161C;--ink-2:#3C4654;--ink-3:#6B7684;
+    --line:#DDE3EA;--bg:#FFFFFF;--bg-2:#F7F9FB;
+    --ok:#0F7B4F;--ok-bg:#E4F5EC;--ok-line:#B8E0CC;
+    --warn:#A8630A;--warn-bg:#FDF1E0;--warn-line:#F0D9B5;
+    --bad:#B3261E;--bad-bg:#FBEAE8;--bad-line:#F0C4C0;
+    --info:#185FA5;--cond:#5B4A9E;--cond-bg:#EFECF7;--cond-line:#D5CEEC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px 80px}
+  header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;padding:52px 0 46px;margin-bottom:36px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:840px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+  section{margin-bottom:46px}
+  h2{font-size:21px;font-weight:700;color:var(--brand);padding-bottom:11px;border-bottom:2px solid var(--brand-soft);margin-bottom:20px;display:flex;align-items:baseline;gap:11px}
+  h2 .num{background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:16.5px;font-weight:650;margin:28px 0 12px;color:var(--ink)}
+  h4{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+  .callout{background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;padding:20px 24px;margin:20px 0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+  .callout p:last-child{margin-bottom:0}
+  .warnbox{background:var(--bad-bg);border:1px solid var(--bad-line);border-left:5px solid var(--bad);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+  .okbox{background:var(--ok-bg);border:1px solid var(--ok-line);border-left:5px solid var(--ok);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .okbox .t{font-weight:700;color:var(--ok);margin-bottom:8px;display:block;font-size:15px}
+  .okbox p:last-child{margin-bottom:0}
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:860px}
+  thead th{background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;padding:12px 11px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:12.5px;vertical-align:bottom}
+  tbody td{padding:11px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.6}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--brand-soft)}
+  td.nm{font-weight:700;color:var(--ink);white-space:nowrap}
+  td.c{text-align:center}
+  .y{color:var(--ok);font-weight:700}
+  .n{color:var(--bad);font-weight:700}
+  .p{color:var(--warn);font-weight:700}
+  .tag{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:650;white-space:nowrap}
+  .t-apache{background:#E7EEF9;color:#1B4E86}
+  .t-ttx{background:var(--cond-bg);color:var(--cond)}
+  .t-new{background:var(--ok-bg);color:var(--ok)}
+  .t-old{background:#EEF0F3;color:var(--ink-3)}
+  code{background:#EEF2F6;padding:1.5px 6px;border-radius:4px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2)}
+  /* arch */
+  .arch{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:26px;margin:20px 0}
+  .arch-row{display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}
+  .abox{flex:1;min-width:140px;border-radius:10px;padding:15px 13px;text-align:center;border:2px solid var(--line);background:var(--bg)}
+  .abox .at{font-weight:700;font-size:13.5px;color:var(--ink);margin-bottom:5px;line-height:1.4}
+  .abox .as{font-size:11.5px;color:var(--ink-3);line-height:1.55}
+  .abox .al{font-size:11px;margin-top:8px;font-weight:700}
+  .abox.new{border-color:var(--ok);background:var(--ok-bg)}
+  .abox.keep{border-color:var(--cond);background:var(--cond-bg)}
+  .abox.die{border-color:var(--bad);background:var(--bad-bg);opacity:.85}
+  .abox.ext{border-style:dashed}
+  .aarrow{display:flex;align-items:center;justify-content:center;padding:0 7px;color:var(--brand);font-weight:700;font-size:19px;flex-shrink:0}
+  .arch-note{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--ink-3)}
+  /* phase */
+  .phase{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;background:var(--bg)}
+  .phase-head{padding:14px 20px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--bg-2)}
+  .phase-head .pn{font-weight:700;font-size:15.5px;color:var(--ink)}
+  .phase-head .pd{font-size:12.5px;color:var(--ink-3)}
+  .phase-body{padding:16px 20px}
+  .phase-body p{font-size:13.5px;margin-bottom:10px}
+  .phase-body p:last-child{margin-bottom:0}
+  .phase-body ul{padding-left:20px;margin:8px 0}
+  .phase-body li{font-size:13px;margin-bottom:5px;color:var(--ink-2)}
+  /* misc */
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:8px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:20px 0}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+  .card h4{font-size:14.5px;font-weight:700;margin-bottom:8px;color:var(--ink)}
+  .card p{font-size:13px;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card .ico{font-size:19px;margin-bottom:8px;display:block}
+  .kv{display:grid;grid-template-columns:150px 1fr;gap:10px 16px;font-size:13.5px}
+  .kv dt{font-weight:650;color:var(--ink)}
+  .kv dd{color:var(--ink-2)}
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .src{font-size:12.5px;color:var(--ink-3);line-height:1.9}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">分阶段替换策略 · 过渡期方案</div>
+    <h1>OMS 先行：ShopeX ONEX OMS 上线<br>通天晓 WMS 保留沿用</h1>
+    <p class="sub">
+      基于前序调研结论调整实施顺序：<strong style="color:#fff">先替换 OMS 侧</strong>（这也是当前技术运维与厂商合作痛点最集中的地方），
+      <strong style="color:#fff">WMS 暂不替换</strong>，继续使用通天晓 WMS，待 OMS 稳定运行后再评估 WMS。
+      本方案回答三个问题：<strong style="color:#fff">能不能对接、怎么对接、过渡期怎么管。</strong>
+    </p>
+    <div class="meta-row">
+      <span class="pill">依据：通天晓官方对接能力说明</span>
+      <span class="pill">依据：ShopeX OMS 模块实测</span>
+      <span class="pill">四阶段路径</span>
+      <span class="pill">含 WMS 后续决策触发条件</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>策略判断：这个顺序更优</h2>
+
+  <div class="okbox">
+    <span class="t">✅ 结论：可行，且是风险更低的替换顺序</span>
+    <p>
+      <strong>通天晓官方已明确说明其 WMS 支持第三方 OMS 对接</strong>：通天晓 WMS 具备标准开放的 RESTful API 接口平台，
+      预置了标准的<strong>出库订单、入库通知、退货预报、库存对账</strong>等报文格式，
+      "能够与业界主流的各品牌第三方 OMS 系统实现快速调通与数据双向同步"。
+      <strong>这意味着替换 OMS 不需要动 WMS，接口路径官方已声明支持。</strong>
+    </p>
+  </div>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>对比项</th><th>先换 OMS（本方案）</th><th>OMS + WMS 同时换（原方案）</th></tr></thead>
+    <tbody>
+      <tr><td class="nm">对通天晓的依赖</td><td class="y">从 OMS+WMS 双依赖降为<strong>仅 WMS 单依赖</strong></td><td class="n">过渡期内仍是双依赖</td></tr>
+      <tr><td class="nm">厂商谈判地位</td><td class="y"><strong>显著改善</strong>——OMS 一旦自主，WMS 的续约与配合压力下降</td><td class="p">基本不变</td></tr>
+      <tr><td class="nm">单次变更风险</td><td class="y">只动一个系统，爆炸半径小</td><td class="n">两个系统同时动，问题难定位</td></tr>
+      <tr><td class="nm">研发投入节奏</td><td class="y">集中攻 OMS，见效快</td><td class="p">双线作战，周期长</td></tr>
+      <tr><td class="nm">痛点覆盖度</td><td class="p">只解 OMS 侧痛点</td><td class="y">全覆盖</td></tr>
+      <tr><td class="nm">回退难度</td><td class="y">OMS 回退不影响仓内作业</td><td class="n">回退涉及面大</td></tr>
+      <tr><td class="nm">WMS 侧投入</td><td class="y">零投入，保留既有投资</td><td class="p">需同时自建三大缺口</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">为什么这个顺序更符合你们的诉求</span>
+    <p>
+      当前痛点是<strong>「技术运维和厂商合作遇到挑战」</strong>。OMS 是订单中台，是业务链路的最上游，
+      也是厂商依赖感最强、运维压力最直接的部分。<strong>先拿下 OMS，用最小的变更拿到最大的自主权</strong>：
+      一方面立刻缓解运维压力，另一方面把对通天晓的依赖砍掉一半，<strong>后续谈 WMS 续约或替换时腰杆更硬</strong>。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>过渡期目标架构</h2>
+
+  <h3>2.1 当前架构 → 目标架构</h3>
+
+  <div class="arch">
+    <div class="arch-row">
+      <div class="abox ext"><div class="at">电商平台</div><div class="as">淘宝/天猫 · 京东 · 拼多多<br>抖店 · 微信小店 · 私域</div></div>
+      <div class="aarrow">→</div>
+      <div class="abox die"><div class="at">通天晓 OFS</div><div class="as">订单履约系统<br>（运维痛点集中）</div><div class="al" style="color:var(--bad)">本方案下线</div></div>
+      <div class="aarrow">→</div>
+      <div class="abox keep"><div class="at">通天晓 WMS</div><div class="as">仓储管理系统<br>（仓内执行 + FEFO）</div><div class="al" style="color:var(--cond)">保留沿用</div></div>
+      <div class="aarrow">→</div>
+      <div class="abox ext"><div class="at">仓内作业</div><div class="as">PDA · 波次 · 复核<br>称重 · 发运</div></div>
+    </div>
+    <div class="arch-note"><strong>当前架构</strong>：全链路依赖通天晓，OFS 是运维与厂商协作痛点的集中点。</div>
+  </div>
+
+  <div class="arch">
+    <div class="arch-row">
+      <div class="abox ext"><div class="at">电商平台</div><div class="as">淘宝/天猫 · 京东 · 拼多多<br>抖店 · 微信小店 · 私域</div></div>
+      <div class="aarrow">→</div>
+      <div class="abox new"><div class="at">ShopeX ONEX OMS</div><div class="as">Apache-2.0 · PHP<br>订单归集 / 审单 / 寻源 / 结算</div><div class="al" style="color:var(--ok)">本方案新增</div></div>
+      <div class="aarrow">→</div>
+      <div class="abox keep"><div class="at">通天晓 WMS</div><div class="as">仓储管理系统<br>（能力不变，仅换对接方）</div><div class="al" style="color:var(--cond)">保留</div></div>
+      <div class="aarrow">→</div>
+      <div class="abox ext"><div class="at">仓内作业</div><div class="as">PDA · 波次 · 复核<br>称重 · 发运</div></div>
+    </div>
+    <div class="arch-note">
+      <strong>目标架构</strong>：OMS 侧自主可控（Apache-2.0 可闭源自研），WMS 侧沿用通天晓既有投资。
+      <strong>仓内作业零变动</strong>——PDA、波次、FEFO、自动化设备对接全部不动，运营团队无感知切换。
+    </div>
+  </div>
+
+  <h3>2.2 这个架构拿到的与没拿到的</h3>
+
+  <div class="cards">
+    <div class="card" style="border-top:4px solid var(--ok)">
+      <span class="ico">✅</span>
+      <h4>拿到的</h4>
+      <ul class="tight" style="margin:0;padding-left:18px">
+        <li>订单中台自主可控，源码在手可任意改造</li>
+        <li>Apache-2.0，无协议风险，可闭源自研</li>
+        <li>60+ 模块：多平台归集、库存五态、预售、结算、O2O、KPI</li>
+        <li>对通天晓依赖减半，谈判地位改善</li>
+        <li>OMS 侧运维不再受厂商排期制约</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--warn)">
+      <span class="ico">⚠️</span>
+      <h4>暂未拿到的</h4>
+      <ul class="tight" style="margin:0;padding-left:18px">
+        <li>WMS 侧仍是黑盒，仓内核级问题仍依赖厂商</li>
+        <li>FEFO、波次编排、自动化设备调度仍在通天晓手里</li>
+        <li>OMS 与 WMS 之间多一层接口，需自行保障一致性</li>
+        <li>库存口径对齐责任转移到自己团队</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>对接方案设计</h2>
+
+  <h3>3.1 两侧接口能力盘点</h3>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>侧</th><th>可用能力（已核实）</th><th>对本方案的意义</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="nm">ShopeX OMS<br><span style="font-size:12px;font-weight:400;color:var(--ink-3)">Apache-2.0</span></td>
+        <td>
+          · <code>qimen</code> 模块 — 支持奇门 WMS 场景标准对接<br>
+          · <code>openapi</code> / <code>erpapi</code> — 统一开放 API<br>
+          · <code>wms</code> / <code>wmsmgr</code> / <code>omevirtualwms</code> / <code>ediws</code> — WMS 相关模块<br>
+          · <code>ome</code> / <code>omeauto</code> — 订单中心与自动调度
+        </td>
+        <td class="y">OMS 侧具备<strong>多种对外对接路径</strong>，可按通天晓实际接口形态灵活选择</td>
+      </tr>
+      <tr>
+        <td class="nm">通天晓 WMS<br><span style="font-size:12px;font-weight:400;color:var(--ink-3)">商业软件</span></td>
+        <td>
+          · 标准开放 RESTful API 接口平台（官方说明）<br>
+          · 预置报文：出库订单 / 入库通知 / 退货预报 / <strong>库存对账</strong><br>
+          · 支持与主流第三方 OMS 双向同步（官方说明）<br>
+          · 大促协同：前置队列削峰 + 批量异步交互
+        </td>
+        <td class="y">接口形态与报文已标准化，<strong>官方声明支持第三方 OMS</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>3.2 三条可选对接路线</h3>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>路线</th><th>做法</th><th>优点</th><th>风险</th><th class="c">推荐度</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm">A · 标准 RESTful API<br><span style="font-size:12px;font-weight:400">（推荐）</span></td>
+        <td>ShopeX OMS 通过自有适配层调用通天晓 WMS 的标准 RESTful API，走官方预置报文格式</td>
+        <td>官方声明支持；接口稳定；适配层完全自有，可随时调整</td>
+        <td>需通天晓提供完整接口文档与测试环境</td>
+        <td class="c y">★★★★★</td>
+      </tr>
+      <tr>
+        <td class="nm">B · 奇门标准</td>
+        <td>走 ShopeX 的 <code>qimen</code> 模块，以奇门协议与 WMS 交互</td>
+        <td>协议标准化程度高，跨厂商通用</td>
+        <td><strong>通天晓官网未声明支持奇门</strong>，需向厂商确认，存在不支持的实质风险</td>
+        <td class="c p">★★★</td>
+      </tr>
+      <tr>
+        <td class="nm">C · 自建中间适配层</td>
+        <td>在 OMS 与 WMS 之间自建独立适配服务，协议转换、削峰、对账全自己做</td>
+        <td>彻底解耦，两侧可独立替换；为将来换 WMS 铺路</td>
+        <td>开发量最大，且要自行承担一致性与异常处理</td>
+        <td class="c p">★★★</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">建议：A 为主，C 的思路预留</span>
+    <p>
+      <strong>先走路线 A 跑通主线</strong>——用通天晓官方预置的出库订单 / 入库通知 / 退货预报 / 库存对账四类报文，
+      把「订单下发 → WMS 回传出库 → 库存同步 → 售后回传」这条主链路打通，尽快见效。
+      <strong>但适配层代码要按路线 C 的思路写</strong>：独立成一个服务、协议转换逻辑与 OMS 核心解耦、
+      不把通天晓的字段硬编码进 OMS 内核。<strong>这样将来换 WMS 时只需替换适配层，OMS 主体不动。</strong>
+    </p>
+  </div>
+
+  <h3>3.3 必须对齐的四个数据契约</h3>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>契约</th><th>OMS 侧口径（ShopeX）</th><th>需与通天晓 WMS 确认</th><th>对不齐的后果</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="nm">① 库存状态</td>
+        <td>五态：实际 / 可用 / 锁定 / 在途 / 次品</td>
+        <td>WMS 侧库存状态划分与字段定义</td>
+        <td class="n">口径不一致直接导致<strong>超卖或压货</strong></td>
+      </tr>
+      <tr>
+        <td class="nm">② 订单状态机</td>
+        <td>创建 → 审核 → 调度 → 发货 → 售后</td>
+        <td>WMS 侧出库单状态与回传时机</td>
+        <td class="n">状态不同步导致<strong>订单卡死 / 重复发货</strong></td>
+      </tr>
+      <tr>
+        <td class="nm">③ 批次效期</td>
+        <td>OMS 侧记录 SKU 维度</td>
+        <td>WMS 侧批次 / 效期 / FEFO 规则如何回传</td>
+        <td class="n">OMS 无法感知临期，<strong>错发临期品</strong></td>
+      </tr>
+      <tr>
+        <td class="nm">④ 库存对账</td>
+        <td>OMS 侧账务库存</td>
+        <td>WMS 侧实物库存与对账报文格式</td>
+        <td class="n">账实不符累积，<strong>最终引发资损</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⚠ 这四个契约是过渡期最大的技术风险，且不由你们单方面决定</span>
+    <p>
+      前三个契约中，<strong>OMS 侧口径可以自己定，但 WMS 侧字段与回传时机取决于通天晓</strong>。
+      这意味着<strong>过渡期仍然需要厂商配合</strong>——虽然只是接口层面，比原来的系统级依赖轻得多，
+      但如果厂商配合度低，这里是第一个卡点。
+      <strong>建议在项目启动第一天就把这四个契约的确认列为对通天晓的正式需求</strong>，
+      并要求提供接口文档 + 测试环境，用配合度作为后续 WMS 续约谈判的参考依据。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>四阶段实施路径</h2>
+
+  <div class="phase">
+    <div class="phase-head"><span class="pn">阶段 1 · 接口对齐与沙箱联调</span><span class="pd">预估 4–6 周 · 不动生产</span></div>
+    <div class="phase-body">
+      <p><strong>目标：</strong>确认通天晓 WMS 接口能力，跑通 OMS↔WMS 主链路，不动任何生产流量。</p>
+      <ul>
+        <li>向通天晓正式提接口需求：四类预置报文文档 + 测试环境 + 技术支持窗口</li>
+        <li>ShopeX ONEX OMS Docker 部署沙箱，导入脱敏历史商品 / 订单主数据</li>
+        <li>自建适配层（按路线 C 的解耦思路），对接通天晓测试环境</li>
+        <li>逐条验证四个数据契约，形成《接口差异清单》</li>
+        <li>产出：可运行的联调环境 + 接口差异清单 + 工作量评估</li>
+      </ul>
+      <p><strong>阶段门槛：</strong>主链路（订单下发 → 出库回传 → 库存同步 → 售后回传）在沙箱全通，且接口差异清单无阻塞项。</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="pn">阶段 2 · 单渠道双轨并行</span><span class="pd">预估 6–8 周 · 最小爆炸半径</span></div>
+    <div class="phase-body">
+      <p><strong>目标：</strong>ShopeX OMS 承接真实订单，与通天晓 OFS 并行运行，验证一致性与业务适配度。</p>
+      <ul>
+        <li>选<strong>一个非核心渠道</strong> + <strong>一个仓</strong>切入（建议先选订单量中等的渠道，避开大促期）</li>
+        <li>通天晓 OFS 与 ShopeX OMS 同时跑该渠道订单，结果每日比对</li>
+        <li>重点比对：订单金额、库存扣减、发货状态、售后结果四项</li>
+        <li>运营团队双系统操作，收集易用性与流程差异反馈</li>
+        <li>通天晓 OFS 保持可随时回切状态</li>
+      </ul>
+      <p><strong>阶段门槛：</strong>连续 4 周四项比对差异率 &lt; 0.1%，无 P1/P2 级事故，运营团队接受度达标。</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="pn">阶段 3 · 全渠道切换，OFS 下线</span><span class="pd">预估 8–12 周 · 灰度扩量</span></div>
+    <div class="phase-body">
+      <p><strong>目标：</strong>全渠道订单切至 ShopeX OMS，通天晓 OFS 正式下线，仅保留 WMS。</p>
+      <ul>
+        <li>按渠道逐个灰度切换，<strong>每切一个渠道观察 2 周</strong>，通过指标门槛才切下一个</li>
+        <li>切换顺序建议：低订单量 → 中 → 高；<strong>大促前 4 周停止切换新渠道</strong></li>
+        <li>历史数据迁移：订单、商品、库存、售后档案（建议至少迁移 24 个月）</li>
+        <li>通天晓 OFS 只读保留 3–6 个月用于审计追溯，之后下线</li>
+        <li>同步完成：ShopeX OMS 与通天晓 WMS 的正式接口上线与监控告警</li>
+      </ul>
+      <p><strong>阶段门槛：</strong>全渠道稳定运行一个大促周期（或 8 周）无重大事故，通天晓 OFS 退出生产。</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="pn">阶段 4 · 稳定期与 WMS 决策窗口</span><span class="pd">持续 · 观察 3–6 个月</span></div>
+    <div class="phase-body">
+      <p><strong>目标：</strong>OMS 稳定运行，同时用这段窗口评估 WMS 的真实必要性。</p>
+      <ul>
+        <li>监控 OMS 核心指标：订单处理时效、库存同步延迟、对账差异率、系统可用性</li>
+        <li>记录通天晓 WMS 的配合度、响应速度、问题修复周期——<strong>这些是 WMS 续约或替换的决策输入</strong></li>
+        <li>沉淀 WMS 侧痛点清单（哪些是接口问题、哪些是 WMS 内核问题）</li>
+        <li>基于真实数据决定 WMS 路线：继续用 / 换开源 / 自建（详见第 6 节触发条件）</li>
+      </ul>
+      <p><strong>阶段门槛：</strong>OMS 连续 3 个月无 P1 级事故，WMS 痛点清单与配合度数据齐备，可启动 WMS 决策。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>过渡期责任边界与运维管理</h2>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>事项</th><th>责任方</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="nm">OMS 系统运维 / 故障 / 迭代</td><td class="y">自有团队</td><td>源码在手，Apache-2.0 允许任意改造，不再受厂商排期制约</td></tr>
+      <tr><td class="nm">OMS 与 WMS 接口适配层</td><td class="y">自有团队</td><td>自建代码，协议转换与异常处理自主可控</td></tr>
+      <tr><td class="nm">WMS 系统运维 / 故障</td><td class="p">通天晓</td><td>仍是黑盒，仓内问题依赖厂商响应</td></tr>
+      <tr><td class="nm">WMS 接口文档 / 测试环境 / 配合改造</td><td class="p">通天晓</td><td><strong>过渡期唯一实质依赖点</strong>，需在启动时明确写入需求</td></tr>
+      <tr><td class="nm">库存口径一致性保障</td><td class="y">自有团队</td><td>OMS 侧口径自己定，但需对账机制兜底</td></tr>
+      <tr><td class="nm">仓内作业流程</td><td class="p">不变</td><td>PDA、波次、FEFO、自动化设备全部不动，运营无感知</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>过渡期必须建立的三条机制</h3>
+
+  <div class="cards">
+    <div class="card">
+      <span class="ico">📊</span>
+      <h4>① 每日库存对账</h4>
+      <p>OMS 账务库存 vs WMS 实物库存，每日自动比对并输出差异报表。</p>
+      <p><strong>这是防止资损的唯一兜底。</strong>差异超阈值自动告警并暂停该仓订单下发。</p>
+    </div>
+    <div class="card">
+      <span class="ico">🛡️</span>
+      <h4>② 一键回退预案</h4>
+      <p>保留通天晓 OFS 只读运行能力，任一渠道出问题可在约定时间内切回。</p>
+      <p><strong>回退演练要在切换前实际演练一次</strong>，不能只停留在纸面。</p>
+    </div>
+    <div class="card">
+      <span class="ico">📈</span>
+      <h4>③ 厂商配合度台账</h4>
+      <p>记录通天晓每次配合的响应时长、解决率、修复周期。</p>
+      <p><strong>这不是记仇，是 WMS 续约/替换谈判的核心依据</strong>——用数据说话而非感受。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>WMS 后续决策的触发条件</h2>
+
+  <p>本方案刻意把 WMS 决策推迟到阶段 4，用真实运行数据替代猜测。<strong>满足以下任一条，即启动 WMS 替换评估：</strong></p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>#</th><th>触发条件</th><th>对应动作</th></tr></thead>
+    <tbody>
+      <tr><td class="c">1</td><td>OMS 稳定运行 3 个月无 P1 级事故</td><td>启动 WMS 替换评估（开源或自研）</td></tr>
+      <tr><td class="c">2</td><td>通天晓 WMS 接口不配合或响应持续劣化</td><td>提前启动评估，同时强化自建适配层的解耦深度</td></tr>
+      <tr><td class="c">3</td><td>库存对账差异率长期高于 0.5% 且无法归因解决</td><td>评估是否 WMS 内核问题（黑盒难定位即为强信号）</td></tr>
+      <tr><td class="c">4</td><td>WMS 续约报价 / 条款显著劣化</td><td>启动替换，用已建好的适配层降低切换成本</td></tr>
+      <tr><td class="c">5</td><td>业务扩张需要 WMS 定制能力（新仓型、新设备、新业务模式）</td><td>评估自建，开源项目仅作参考实现</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">为什么推迟 WMS 决策反而可能更快拿到 WMS 自主权</span>
+    <p>
+      WMS 的三大缺口（多货主隔离、库存口径对齐、FEFO 批次效期）在前序调研中已确认<strong>开源侧无成熟答案，必须自建</strong>，
+      预估 2–3 人 × 6–10 周。<strong>先上 OMS 有三个额外收益：</strong>
+    </p>
+    <ul class="tight" style="margin-bottom:0">
+      <li><strong>OMS 跑通后，库存五态口径成为既定事实</strong>——WMS 侧只需向这个口径对齐，而不是两边同时设计再对齐，工作量明显下降</li>
+      <li><strong>自建适配层已在 OMS 侧落地</strong>——将来换 WMS 只需替换适配层另一端，OMS 主体不动</li>
+      <li><strong>对通天晓依赖减半后谈判地位改善</strong>——若届时 WMS 续约条款劣化，替换的决策成本和执行阻力都小得多</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>立即执行清单</h2>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:44px">#</th><th>行动</th><th>责任方</th><th>产出</th><th>优先级</th></tr></thead>
+    <tbody>
+      <tr><td class="c">1</td><td>向通天晓正式提出 WMS 接口需求：四类预置报文文档 + 测试环境 + 技术支持窗口</td><td>技术 + 商务</td><td>书面需求与响应记录</td><td class="n">P0 · 立即</td></tr>
+      <tr><td class="c">2</td><td>向法务确认 Apache-2.0 准入（替代原 MIT 要求），明确 NOTICE / 修改声明合规动作</td><td>法务</td><td>书面确认函</td><td class="n">P0 · 本周</td></tr>
+      <tr><td class="c">3</td><td>排查内部是否已引入 JeeWMS（GPL-3.0）/ 启航系（AGPL-3.0）</td><td>技术</td><td>合规排查结论</td><td class="n">P0 · 本周</td></tr>
+      <tr><td class="c">4</td><td>ShopeX ONEX OMS Docker 沙箱部署，锁定稳定版本</td><td>技术</td><td>可运行环境</td><td class="p">P1 · 2 周内</td></tr>
+      <tr><td class="c">5</td><td>自建 OMS↔WMS 适配层（协议解耦设计，不硬编码通天晓字段）</td><td>技术</td><td>适配服务 + 接口差异清单</td><td class="p">P1 · 4–6 周</td></tr>
+      <tr><td class="c">6</td><td>选定试点渠道与仓库（避开大促期）</td><td>业务 + 技术</td><td>试点方案</td><td class="p">P1 · 4 周内</td></tr>
+      <tr><td class="c">7</td><td>建立每日库存对账与一键回退机制，并实际演练一次</td><td>技术</td><td>对账报表 + 回退演练记录</td><td class="p">P1 · 切换前</td></tr>
+      <tr><td class="c">8</td><td>建立通天晓配合度台账（响应时长 / 解决率 / 修复周期）</td><td>技术 + 商务</td><td>持续更新的台账</td><td class="p">P2 · 启动即记</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="okbox">
+    <span class="t">✅ 一句话总结</span>
+    <p style="margin-bottom:0">
+      <strong>这个顺序可行，而且更聪明。</strong>通天晓官方已声明 WMS 支持标准 RESTful API 对接第三方 OMS，
+      所以<strong>换 OMS 不需要动 WMS，仓内作业零变动</strong>。用 4–6 周打通接口、6–8 周单渠道双轨、8–12 周全渠道灰度，
+      就能把通天晓 OFS 下线、OMS 拿到自主权，同时把对通天晓的依赖砍掉一半。
+      <strong>WMS 的三个硬缺口（多货主 / 库存口径 / FEFO）本来就必须自建，晚点建还能借 OMS 跑通后的口径红利——但适配层一定要按解耦思路写，给将来换 WMS 留好门。</strong>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="src">
+    <strong>依据与说明</strong><br>
+    · 通天晓 WMS 对接能力表述引自通天晓官网技术文章（"通天晓 WMS 具备标准开放的 RESTful API 接口平台，预置了标准的出库订单、入库通知、退货预报、库存对账等报文格式，能够与业界主流的各品牌第三方 OMS 系统实现快速调通与数据双向同步"）——<strong>属厂商自述，须在阶段 1 以实际接口文档验证</strong><br>
+    · ShopeX ONEX OMS 模块能力（<code>qimen</code> / <code>openapi</code> / <code>erpapi</code> / <code>wms</code> / <code>wmsmgr</code> / <code>omevirtualwms</code> / <code>ediws</code> / <code>ome</code> / <code>omeauto</code>）经 GitHub API 于 2026-10-17 逐个核实目录存在<br>
+    · 周期预估为基于同类项目经验的数量级判断，实际需在阶段 1 沙箱联调后修正<br>
+    · 本报告与《开源 OMS 专项调研报告》《开源 WMS 专项调研报告》《开源协议对比与企业应用合规指南》配套使用<br>
+    · 本报告为技术方案参考，不构成法律意见
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

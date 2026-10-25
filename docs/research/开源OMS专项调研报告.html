@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开源 OMS 专项调研报告 · 电商代运营 / 经销场景</title>
+<style>
+  :root{
+    --brand:#185FA5;--brand-2:#0E4C87;--brand-soft:#E8F1F9;
+    --ink:#12161C;--ink-2:#3C4654;--ink-3:#6B7684;
+    --line:#DDE3EA;--bg:#FFFFFF;--bg-2:#F7F9FB;
+    --ok:#0F7B4F;--ok-bg:#E4F5EC;
+    --warn:#A8630A;--warn-bg:#FDF1E0;
+    --bad:#B3261E;--bad-bg:#FBEAE8;
+    --info:#185FA5;--cond:#5B4A9E;--cond-bg:#EFECF7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+  header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;padding:52px 0 46px;margin-bottom:36px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:800px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+  section{margin-bottom:44px}
+  h2{font-size:21px;font-weight:700;color:var(--brand);padding-bottom:11px;border-bottom:2px solid var(--brand-soft);margin-bottom:20px;display:flex;align-items:baseline;gap:11px}
+  h2 .num{background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:16.5px;font-weight:650;margin:26px 0 12px;color:var(--ink)}
+  h4{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+  .verdict{background:var(--bg);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:10px;padding:22px 26px;margin-bottom:14px}
+  .verdict h3{margin-top:0;font-size:17px;color:var(--warn)}
+  .verdict p:last-child{margin-bottom:0}
+  .v-ok{border-left-color:var(--ok)}.v-ok h3{color:var(--ok)}
+  .v-bad{border-left-color:var(--bad)}.v-bad h3{color:var(--bad)}
+  .v-info{border-left-color:var(--info)}.v-info h3{color:var(--info)}
+  .callout{background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;padding:20px 24px;margin:20px 0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+  .callout p:last-child{margin-bottom:0}
+  .warnbox{background:var(--bad-bg);border:1px solid #F0C4C0;border-left:5px solid var(--bad);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:800px}
+  thead th{background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;padding:12px 13px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:13px}
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--brand-soft)}
+  td.nm{font-weight:600;color:var(--ink);white-space:nowrap}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tag{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:650;white-space:nowrap}
+  .t-mit{background:var(--ok-bg);color:var(--ok)}
+  .t-apache{background:#E7EEF9;color:#1B4E86}
+  .t-weak{background:var(--warn-bg);color:var(--warn)}
+  .t-strong{background:var(--bad-bg);color:var(--bad)}
+  .t-cond{background:var(--cond-bg);color:var(--cond)}
+  .t-none{background:#EEF0F3;color:var(--ink-3)}
+  .y{color:var(--ok);font-weight:700}
+  .n{color:var(--bad);font-weight:700}
+  .p{color:var(--warn);font-weight:700}
+  .pulse{font-weight:650}
+  .p-hot{color:var(--ok)}.p-mid{color:var(--warn)}.p-cold{color:var(--bad)}
+  code{background:#EEF2F6;padding:1.5px 6px;border-radius:4px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin:20px 0}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+  .card h4{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--ink)}
+  .card p{font-size:13.5px;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card .ico{font-size:20px;margin-bottom:8px;display:block}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
+  .bar-label{width:200px;flex-shrink:0;color:var(--ink-2);font-weight:550}
+  .bar-track{flex:1;height:8px;background:#E8EDF2;border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px}
+  .bar-val{width:38px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-3);font-weight:600}
+  .step{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:none}
+  .step-num{width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+  .step-body{flex:1}
+  .step-body h4{font-size:15px;font-weight:650;margin-bottom:6px;color:var(--ink)}
+  .step-body p{font-size:13.5px;margin-bottom:0}
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:7px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .src{font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  .legend{font-size:12.5px;color:var(--ink-3);margin-top:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">专项调研 · 第一部分 · 仅 OMS</div>
+    <h1>开源 OMS 专项调研<br>面向电商代运营 + 经销双业务场景</h1>
+    <p class="sub">
+      聚焦国内开源项目，服务两类业务：<strong style="color:#fff">代运营</strong>（多品牌多店铺、平台授权、货权分离、三方结算）与
+      <strong style="color:#fff">经销</strong>（采购入库、成本核算、多仓调拨、批发价格体系）。
+      协议全量收录不做预过滤，含 MIT / Apache-2.0 / AGPL-3.0 / GPL-3.0 / 自定义等。
+    </p>
+    <div class="meta-row">
+      <span class="pill">数据来源：GitHub REST API 实测</span>
+      <span class="pill">候选项目：12 个逐一核验</span>
+      <span class="pill">核验时间：2026-10-17</span>
+      <span class="pill">WMS 部分另行调研</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>核心结论</h2>
+
+  <div class="verdict v-info">
+    <h3>结论 1：国内开源 OMS 的协议分布高度集中于 AGPL-3.0 与 Apache-2.0，纯 MIT 的可用项为零</h3>
+    <p>
+      12 个候选中，功能最贴合电商代运营/经销场景的两个项目——<code>zeasin/qihang-erp-open</code>（启航 ERP，平台覆盖最广）
+      与 <code>lilishop/lilishop</code>（B2B2C 多商户）——<strong>均为 AGPL-3.0</strong>。
+      真正协议干净的只有 <code>ShopeX/OMS</code>（商派 ONEX OMS，Apache-2.0），且它的业务完整度恰恰最高。
+    </p>
+  </div>
+
+  <div class="verdict v-ok">
+    <h3>结论 2：ShopeX ONEX OMS 是唯一「协议干净 + 业务完整 + 厂商级迭代」三重达标项</h3>
+    <p>
+      商派（ShopEx）官方开源，<strong>Apache-2.0</strong>，v8.10.0 于 2026-09-26 发版。
+      代码库含 <strong>60+ 个业务模块</strong>，其中 <code>taoguan*</code>（淘宝官仓）、<code>dealer</code>（经销商）、
+      <code>presale</code>（预售）、<code>vop</code>（京东 VOP）、<code>o2o</code>/<code>pos</code>（线上线下）、
+      <code>tgstockcost</code>（库存成本）、<code>purchase</code>（采购）、<code>finance</code>（财务）
+      —— 这些模块名直接对应代运营与经销的核心诉求，<strong>与通天晓 OFS 的业务模型重合度最高</strong>。
+    </p>
+  </div>
+
+  <div class="verdict v-bad">
+    <h3>结论 3：启航系（qihang）是「功能陷阱」——平台覆盖最广，但协议是 AGPL-3.0</h3>
+    <p>
+      <code>zeasin/qihang-erp-open</code> 支持淘宝天猫、京东、拼多多、抖店、微信小店、快手、小红书全平台，
+      还有多商户架构、京东云仓对接、Spring AI 2.0 原生集成——<strong>功能诱惑极大</strong>。
+      但 AGPL-3.0 下，只要通过网络提供服务就必须开放全部修改后源码，
+      <strong>对闭源商用是硬性排除项</strong>，只可作产品需求参考，不可作代码底座。
+    </p>
+  </div>
+
+  <div class="verdict">
+    <h3>结论 4：同一作者不同协议，说明这是刻意的开源商业模式设计</h3>
+    <p>
+      值得注意的细节：<code>zeasin/qihang-cb-erp</code>（<strong>跨境电商</strong>版，支持 idosell / Shein）用的是
+      <strong>Apache-2.0</strong>，而国内版 <code>zeasin/qihang-erp-open</code> 用的是 <strong>AGPL-3.0</strong>。
+      这不是疏漏，而是典型的开源核心（open-core）商业策略：<strong>用宽松协议做海外市场获客，用传染协议锁住国内主流市场</strong>。
+      引用其代码前需格外警惕协议边界。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>国内开源 OMS 全景清单（协议全量收录）</h2>
+
+  <p>下表所有数据经 GitHub REST API 实时核验，含 <code>license.spdx_id</code> 与 <code>pushed_at</code>。<strong>不做协议预过滤</strong>，全部列出后统一分析。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>项目</th><th>协议</th><th>技术栈</th><th class="num">Star</th><th class="num">Fork</th><th>最后提交</th><th>状态</th><th>业务定位</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="nm">ShopeX/OMS<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">商派 ONEX OMS</span></td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>PHP / 自研 MVC<br>Swoole 队列</td>
+        <td class="num">87</td><td class="num">18</td>
+        <td>2026-09-26</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td>企业级全渠道 OMS，60+ 模块，与 OFS 重合度最高</td>
+      </tr>
+      <tr>
+        <td class="nm">zeasin/qihang-erp-open<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">启航电商 ERP</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>Java / Spring Boot 4<br>Spring AI 2.0</td>
+        <td class="num">309</td><td class="num">73</td>
+        <td>2026-09-10</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td>AI 原生电商 ERP 中台，平台覆盖最广</td>
+      </tr>
+      <tr>
+        <td class="nm">zeasin/qihang-oms<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">启航 OMS 3.0</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>Java / Spring Boot 3<br>Vue2</td>
+        <td class="num">30</td><td class="num">16</td>
+        <td>2026-09-10</td>
+        <td class="pulse p-mid">● 一般</td>
+        <td>轻量订单中台，多租户，多平台</td>
+      </tr>
+      <tr>
+        <td class="nm">lilishop/lilishop<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">PickMall</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span></td>
+        <td>Java / Spring Cloud<br>Vue / Uniapp</td>
+        <td class="num">4,327</td><td class="num">1,047</td>
+        <td>2026-10-10</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td>B2B2C 多商户商城，偏平台型而非 OMS</td>
+      </tr>
+      <tr>
+        <td class="nm">tigshop/Tigshop</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>Java / PHP<br>SpringBoot3 + Vue3</td>
+        <td class="num">2,516</td><td class="num">149</td>
+        <td>2026-09-18</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td>多版本商城系统（B2B2C / S2B2C / B2B / O2O / 跨境）</td>
+      </tr>
+      <tr>
+        <td class="nm">zeasin/qihang-cb-erp<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">启航跨境 ERP</span></td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>Java</td>
+        <td class="num">117</td><td class="num">37</td>
+        <td>2026-08-17</td>
+        <td class="pulse p-mid">● 一般</td>
+        <td>跨境电商（idosell / Shein），非国内场景</td>
+      </tr>
+      <tr>
+        <td class="nm">openlinker-project/openlinker</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>TypeScript / Node</td>
+        <td class="num">48</td><td class="num">12</td>
+        <td>2026-10-16</td>
+        <td class="pulse p-hot">● 活跃</td>
+        <td>API-first 电商编排平台，跨平台商品/库存/订单同步</td>
+      </tr>
+      <tr>
+        <td class="nm">macrozheng/mall-swarm</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>Java / Spring Cloud</td>
+        <td class="num">13,164</td><td class="num">5,537</td>
+        <td>2026-07-31</td>
+        <td class="pulse p-mid">● 一般</td>
+        <td>商城系统，非 OMS，缺平台对接</td>
+      </tr>
+      <tr>
+        <td class="nm">kingchang/oms-erp</td>
+        <td><span class="tag t-apache">Apache-2.0</span></td>
+        <td>Spring Cloud</td>
+        <td class="num">0</td><td class="num">0</td>
+        <td>2024-06-01</td>
+        <td class="pulse p-cold">● 停滞 28 个月</td>
+        <td>宣称全渠道中台，实际空壳，<strong>不可用</strong></td>
+      </tr>
+      <tr>
+        <td class="nm">newbee-ltd/newbee-mall</td>
+        <td><span class="tag t-strong">GPL-3.0</span></td>
+        <td>Java / Spring Boot</td>
+        <td class="num">11,650</td><td class="num">2,786</td>
+        <td>2025-10-27</td>
+        <td class="pulse p-mid">● 一般</td>
+        <td>商城系统，GPL 传染，缺 OMS 能力</td>
+      </tr>
+      <tr>
+        <td class="nm">启航系分叉群<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">lkzhou1 / XDwanj / liubing0806 等</span></td>
+        <td><span class="tag t-mit">MIT</span> / <span class="tag t-strong">AGPL</span> / <span class="tag t-none">无</span></td>
+        <td>Java / Vue</td>
+        <td class="num">0–6</td><td class="num">0</td>
+        <td>2025 年</td>
+        <td class="pulse p-cold">● 无人维护</td>
+        <td>均为 0 star 个人分叉，<strong>不可作为选型依据</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="legend">注：`zeasin/qihang-cb-erp` 虽为 Apache-2.0，但定位跨境电商（idosell / Shein），与国内代运营/经销场景不符，仅列作协议参照。</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>协议合规性分析</h2>
+
+  <p>按「能否闭源商用」分三档。这是替换通天晓方案的法务前置条件。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>档位</th><th>协议</th><th>闭源商用</th><th>修改后是否需开源</th><th>专利保护</th><th>对应项目</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--ok-bg)">
+        <td class="nm" style="color:var(--ok)">A 档<br><span style="font-size:12px;font-weight:400">宽松许可</span></td>
+        <td><span class="tag t-mit">MIT</span><span class="tag t-apache">Apache-2.0</span><span class="tag t-weak">BSD-3</span></td>
+        <td class="y">✅ 允许</td><td class="n">❌ 不需要</td>
+        <td>Apache-2.0 有<br>（含反诉终止）</td>
+        <td>ShopeX/OMS、tigshop、qihang-cb-erp、openlinker、mall-swarm</td>
+        <td class="y">可用</td>
+      </tr>
+      <tr style="background:var(--bad-bg)">
+        <td class="nm" style="color:var(--bad)">C 档<br><span style="font-size:12px;font-weight:400">强著佐权</span></td>
+        <td><span class="tag t-strong">AGPL-3.0</span><span class="tag t-strong">GPL-3.0</span></td>
+        <td class="n">❌ 不允许</td>
+        <td class="p">⚠️ 必须开源，含网络服务场景</td>
+        <td>无</td>
+        <td>qihang-erp-open、qihang-oms、lilishop、newbee-mall</td>
+        <td class="n">排除</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⚠ 关键提示：AGPL-3.0 在电商场景的触发条件比想象中更容易满足</span>
+    <p>
+      AGPL-的传染判定不看「是否分发软件」，而看<strong>「是否让用户通过网络与之交互」</strong>。
+      这意味着：只要把启航 ERP 部署到内网给运营团队用，<strong>就已经构成网络交互</strong>，
+      即便一个客户都没接入，也有向使用者开放源码的义务。<strong>不存在"内部使用所以没事"的灰色地带。</strong>
+    </p>
+  </div>
+
+  <div class="callout">
+    <span class="t">对"原诉求 MIT 协议"的回应</span>
+    <p>
+      在 OMS 领域，纯 MIT 的可用项目<strong>为零</strong>（仅存的 MIT 项是 0 star 个人分叉）。
+      建议将法务准入标准调整为 <strong>Apache-2.0</strong>：它同样允许闭源商用与修改，
+      且比 MIT 多了专利授权与专利反诉终止条款——<strong>对"规避知识产权风险"这一原始目标，保护力度实际更强</strong>。
+      按此标准，<code>ShopeX/OMS</code> 是唯一同时满足协议与业务完整度的选项。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>代运营业务适配性分析</h2>
+
+  <p>电商代运营的核心诉求：<strong>多品牌多店铺统一管控、平台授权管理、货权与库存分离、三方结算分账、运营绩效</strong>。逐项对照：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>代运营关键能力</th><th>ShopeX ONEX OMS</th><th>启航 ERP</th><th>tigshop</th><th>lilishop</th></tr></thead>
+    <tbody>
+      <tr><td class="nm">多品牌 / 多货主隔离</td><td class="y">✓ <code>organization</code> 组织架构 + 权限继承</td><td class="y">✓ 多商户架构（总部-商户-店铺三级）</td><td class="p">△ 多商户但偏平台入驻模型</td><td class="p">△ B2B2C 平台模型</td></tr>
+      <tr><td class="nm">多店铺统一订单池</td><td class="y">✓ <code>ome</code> 订单中心 + <code>omeanalysts</code></td><td class="y">✓ 订单库聚合多平台多店铺</td><td class="n">✗ 以自有商城订单为主</td><td class="n">✗ 同左</td></tr>
+      <tr><td class="nm">平台授权 / AppKey 管理</td><td class="y">✓ <code>setup</code> + <code>taoexlib</code> 淘宝对接</td><td class="y">✓ 店铺 & 平台参数设置</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">淘宝官仓 / 平台仓</td><td class="y">✓ <code>taoguanallocate</code>、<code>taoguaninventory</code>、<code>taoguaniostockorder</code></td><td class="p">△ 京东云仓对接，淘宝官仓未见</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">库存状态机（可用/锁定/在途）</td><td class="y">✓ 五态口径 + <code>inventorydepth</code> 库存深度</td><td class="y">✓ 库存管理</td><td class="p">△ 基础库存</td><td class="p">△ 基础库存</td></tr>
+      <tr><td class="nm">预售 / 定金 / 下沉</td><td class="y">✓ <code>presale</code> 独立模块</td><td class="p">△ 未见独立预售模块</td><td class="y">✓ 定金预售（跨境版）</td><td class="n">✗</td></tr>
+      <tr><td class="nm">三方结算 / 分账</td><td class="y">✓ <code>finance</code>、<code>billcenter</code>、<code>financebase</code></td><td class="p">△ 财务对接为主</td><td class="p">△ T+N 结算（平台型）</td><td class="p">△ 店铺结算</td></tr>
+      <tr><td class="nm">O2O / 门店 / POS</td><td class="y">✓ <code>o2o</code>、<code>tbo2o</code>、<code>pos</code></td><td class="n">✗</td><td class="y">✓ O2O 多门店版</td><td class="p">△ 直播分销</td></tr>
+      <tr><td class="nm">售后全类型（退/换/补/拦截）</td><td class="y">✓ 仅退款、退货退款、换货（换入→换出校验）</td><td class="y">✓ 拦截/补发/退货/换货/退款</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">运营绩效 / KPI</td><td class="y">✓ <code>tgkpi</code> 独立模块</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">CRM / 会员</td><td class="y">✓ <code>crm</code>、<code>entermembercenter</code></td><td class="p">△ AI 客户洞察</td><td class="p">△ 会员池</td><td class="p">△ 分销返佣</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">代运营场景判断</span>
+    <p>
+      <strong>ShopeX ONEX OMS 在 11 项能力中 9 项为完整覆盖</strong>，且 <code>taoguan*</code>（淘宝官仓）、<code>tgkpi</code>（KPI）、
+      <code>presale</code>（预售）、<code>tgstockcost</code>（库存成本）这些模块名，几乎就是照着代运营业务画的。
+      它来自商派——这家公司本身就是国内电商代运营/品牌零售 IT 服务的老牌厂商，业务模型的成熟度不是业余开源项目能比的。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>经销业务适配性分析</h2>
+
+  <p>经销业务的核心诉求：<strong>采购入库、供应商管理、成本核算、多仓调拨、批发价格体系、渠道库存</strong>。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>经销关键能力</th><th>ShopeX ONEX OMS</th><th>启航 ERP</th><th>tigshop</th><th>lilishop</th></tr></thead>
+    <tbody>
+      <tr><td class="nm">采购管理 / 采购单</td><td class="y">✓ <code>purchase</code> 独立模块</td><td class="y">✓ 采购管理完整进销存</td><td class="p">△ 批发采购（B2B 版）</td><td class="p">△ 采购单</td></tr>
+      <tr><td class="nm">经销商 / 渠道体系</td><td class="y">✓ <code>dealer</code> 独立模块</td><td class="p">△ 多商户近似</td><td class="y">✓ B2B2B 批发 + 区域代理</td><td class="n">✗</td></tr>
+      <tr><td class="nm">库存成本核算</td><td class="y">✓ <code>tgstockcost</code> 独立模块</td><td class="p">△ 出入库管理</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">多仓 / 云仓</td><td class="y">✓ <code>warehouse</code>、<code>wmsmgr</code>、<code>omevirtualwms</code></td><td class="y">✓ 本地仓 + 云仓 + 京东云仓</td><td class="p">△ 仓库仓位</td><td class="n">✗</td></tr>
+      <tr><td class="nm">出入库单据</td><td class="y">✓ <code>iostock</code>、<code>taoguaniostockorder</code></td><td class="y">✓ 出入库全流程</td><td class="p">△ 出入库</td><td class="p">△ 出入库</td></tr>
+      <tr><td class="nm">物流对账 / 费用结算</td><td class="y">✓ <code>logisticsaccounts</code>、<code>logisticsmanager</code></td><td class="n">✗</td><td class="p">△ 运费模板</td><td class="n">✗</td></tr>
+      <tr><td class="nm">财务 / 业财一体</td><td class="y">✓ <code>finance</code>、<code>billcenter</code>、<code>invoice</code>、<code>financebase</code></td><td class="p">△ 接口对接财务系统</td><td class="p">△ 财务报表</td><td class="p">△ 店铺结算</td></tr>
+      <tr><td class="nm">物料 / 基础资料</td><td class="y">✓ <code>material</code>、<code>eccommon</code></td><td class="y">✓ 商品库 / 分类 / 品牌 / 供应商</td><td class="y">✓ 商品体系完善</td><td class="p">△ 商品管理</td></tr>
+      <tr><td class="nm">价格体系（供货价/批发价）</td><td class="p">△ 需确认</td><td class="p">△ 需确认</td><td class="y">✓ 供货价 + 阶梯价 + 控价区间</td><td class="n">✗</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">经销场景判断</span>
+    <p>
+      ShopeX ONEX OMS 同样占优（8/9 完整覆盖），<code>dealer</code>、<code>tgstockcost</code>、<code>logisticsaccounts</code> 三个模块
+      直接命中经销业务的成本与结算痛点。<strong>唯一明显短板是价格体系（供货价 / 阶梯价 / 控价区间）</strong>，
+      这块 tigshop 的 B2B 版反而更完整——如果经销业务比重大，可能需要交叉参考。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>电商平台对接能力矩阵</h2>
+
+  <p>这是替换通天晓 OFS 的硬指标。数据来自各项目 README 与代码模块实测。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>平台 / 能力</th><th>ShopeX ONEX OMS</th><th>启航 ERP</th><th>启航 OMS 3.0</th><th>tigshop</th><th>openlinker</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="nm">淘宝 / 天猫</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="n">✗</td><td class="p">△</td></tr>
+      <tr><td class="nm">京东（POP / 自营 / VOP）</td><td class="y">✓ <code>vop</code> 模块</td><td class="y">✓</td><td class="y">✓</td><td class="n">✗</td><td class="p">△</td></tr>
+      <tr><td class="nm">拼多多</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="n">✗</td><td class="p">△</td></tr>
+      <tr><td class="nm">抖音 / 抖店</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">微信小店 / 视频号</td><td class="p">△ 私域支持，未见独立微信小店</td><td class="y">✓</td><td class="y">✓</td><td class="p">△ 小程序商城</td><td class="n">✗</td></tr>
+      <tr><td class="nm">快手</td><td class="n">✗</td><td class="y">✓</td><td class="y">✓</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">小红书</td><td class="n">✗</td><td class="y">✓</td><td class="y">✓</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">电子面单取号 / 打印</td><td class="y">✓ 快递鸟集成</td><td class="y">✓ 淘宝/京东/拼多多/抖店/微信小店</td><td class="y">✓ 同左</td><td class="y">✓ 主流快递</td><td class="n">✗</td></tr>
+      <tr><td class="nm">奇门 WMS 标准对接</td><td class="y">✓ <code>qimen</code> 模块</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td></tr>
+      <tr><td class="nm">POS / 线下渠道</td><td class="y">✓ <code>pos</code>、<code>o2o</code></td><td class="n">✗</td><td class="p">△ 线下渠道手动录入</td><td class="y">✓ O2O 版</td><td class="n">✗</td></tr>
+      <tr><td class="nm">OpenAPI 对外开放</td><td class="y">✓ <code>openapi</code>、<code>erpapi</code></td><td class="y">✓ 完善开放接口</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓ API-first</td></tr>
+      <tr><td class="nm">库存多平台同步回写</td><td class="y">✓ 智能库存计算 + 规则引擎</td><td class="y">✓</td><td class="y">✓</td><td class="p">△</td><td class="y">✓ 核心定位</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⚠ 平台覆盖的关键盲区：微信小店、快手、小红书</span>
+    <p>
+      ShopeX ONEX OMS 在 <strong>微信小店、快手、小红书</strong>三个平台未见明确支持，而启航系已覆盖。
+      如果凯淳的渠道矩阵包含这三者（结合现有业务：小程序、企微私域是重要阵地），
+      <strong>这块需要自建对接层</strong>，不能指望开箱即用。
+      建议：OMS 主体用 ShopeX，平台适配层自建——<strong>恰好 <code>openlinker-project/openlinker</code>（Apache-2.0）可作为这层的参考实现</strong>。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>综合评分</h2>
+
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:24px 26px;margin:18px 0">
+    <h4 style="font-weight:700;margin-bottom:14px;color:var(--ink)">ShopeX ONEX OMS（Apache-2.0）　<strong style="color:var(--brand)">首选</strong></h4>
+    <div class="bar-row"><div class="bar-label">协议合规（闭源商用）</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--ok)"></div></div><div class="bar-val">100</div></div>
+    <div class="bar-row"><div class="bar-label">代运营业务覆盖</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--ok)"></div></div><div class="bar-val">90</div></div>
+    <div class="bar-row"><div class="bar-label">经销业务覆盖</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--brand)"></div></div><div class="bar-val">82</div></div>
+    <div class="bar-row"><div class="bar-label">平台对接广度</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--warn)"></div></div><div class="bar-val">72</div></div>
+    <div class="bar-row"><div class="bar-label">代码可维护性</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--warn)"></div></div><div class="bar-val">68</div></div>
+    <div style="margin-top:16px;font-size:13.5px;color:var(--ink-2)">
+      <strong>优势：</strong>协议干净、60+ 模块业务完整度最高、厂商级持续迭代、与 OFS 模型重合度最高、奇门 WMS 标准对接。<br>
+      <strong>代价：</strong>PHP 技术栈（若团队是 Java 系需评估）；Star 仅 87（社区热度低，但这是厂商开源非社区项目）；微信小店/快手/小红书需自建。
+    </div>
+  </div>
+
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:24px 26px;margin:18px 0">
+    <h4 style="font-weight:700;margin-bottom:14px;color:var(--ink)">启航 ERP（AGPL-3.0）　<strong style="color:var(--bad)">协议排除，仅作需求参考</strong></h4>
+    <div class="bar-row"><div class="bar-label">协议合规（闭源商用）</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--bad)"></div></div><div class="bar-val">5</div></div>
+    <div class="bar-row"><div class="bar-label">代运营业务覆盖</div><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--warn)"></div></div><div class="bar-val">70</div></div>
+    <div class="bar-row"><div class="bar-label">经销业务覆盖</div><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--warn)"></div></div><div class="bar-val">75</div></div>
+    <div class="bar-row"><div class="bar-label">平台对接广度</div><div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--ok)"></div></div><div class="bar-val">95</div></div>
+    <div class="bar-row"><div class="bar-label">代码可维护性</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:var(--ok)"></div></div><div class="bar-val">80</div></div>
+    <div style="margin-top:16px;font-size:13.5px;color:var(--ink-2)">
+      <strong>价值：</strong>平台覆盖最广（7 平台全含）、Java 技术栈、AI 原生、进销存完整。<strong>用途：</strong>拆解其平台适配层与订单状态机设计，作为自建的参照物，不作为代码底座。
+    </div>
+  </div>
+
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:24px 26px;margin:18px 0">
+    <h4 style="font-weight:700;margin-bottom:14px;color:var(--ink)">推荐组合：ShopeX ONEX OMS 主体 + openlinker 参考的平台适配层</h4>
+    <div class="bar-row"><div class="bar-label">协议合规（闭源商用）</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--ok)"></div></div><div class="bar-val">100</div></div>
+    <div class="bar-row"><div class="bar-label">代运营业务覆盖</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--ok)"></div></div><div class="bar-val">90</div></div>
+    <div class="bar-row"><div class="bar-label">经销业务覆盖</div><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--ok)"></div></div><div class="bar-val">85</div></div>
+    <div class="bar-row"><div class="bar-label">平台对接广度</div><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--ok)"></div></div><div class="bar-val">88</div></div>
+    <div class="bar-row"><div class="bar-label">代码可维护性</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--ok)"></div></div><div class="bar-val">82</div></div>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section>
+  <h2><span class="num">8</span>落地路径建议</h2>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>法务前置：把准入标准从 MIT 调整为 Apache-2.0</h4>
+      <p>OMS 领域纯 MIT 可用项为零。Apache-2.0 同为宽松许可，且额外提供专利授权与反诉终止保护。这一步不通过，后面全部作废。</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>沙箱 PoC：ShopeX ONEX OMS 导入真实历史订单</h4>
+      <p>重点验证 <code>taoguan*</code>（淘宝官仓）、<code>dealer</code>（经销）、<code>presale</code>（预售）、<code>tgstockcost</code>（成本核算）四个模块是否与通天晓 OFS 现有流程对得上。用 Docker 部署，一周内可出结论。</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>平台适配层自建，参考启航与 openlinker</h4>
+      <p>把电商平台对接抽成独立适配层（每平台一个 adapter），主体不动。启航的平台覆盖最广（7 平台），openlinker 是 API-first 架构参考。<strong>这层必须是自有的，避免被任何上游协议绑定。</strong></p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h4>双轨并行，按渠道增量切换</h4>
+      <p>通天晓 OFS 不立即下线。新渠道、新品牌店铺先走新 OMS，通过库存同步管道与通天晓对齐。任一渠道出问题可秒级回退。</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <h4>核心资产自有化</h4>
+      <p>订单状态机、库存五态口径、寻源/分单规则、结算分账模型——这四块必须完全自有，不依赖任何上游仓库的开源更新节奏。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section>
+  <h2><span class="num">9</span>立即执行的合规排查</h2>
+
+  <div class="warnbox">
+    <span class="t">⚠ 请技术团队今日内确认</span>
+    <ul class="tight" style="margin-bottom:0">
+      <li><strong>排查内部是否已 clone 或引用启航系仓库</strong>（<code>qihang-erp-open</code>、<code>qihang-oms</code>、<code>lilishop</code>）。AGPL-3.0 项目一旦进入内网部署即触发开源义务，越早移除越好。</li>
+      <li><strong>排查 <code>kingchang/oms-erp</code></strong>：Apache-2.0 但 0 star、停滞 28 个月、仓库实际为空壳。若已被当作"开源中台"引入，需立即停止。</li>
+      <li><strong>记录 <code>ShopeX/OMS</code> 的 NOTICE 与 LICENSE 文件</strong>：Apache-2.0 要求保留版权声明与 NOTICE，商用分发时不可删除。</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <span class="t">一句话总结</span>
+    <p>
+      <strong>OMS 侧的唯一可行答案是 ShopeX ONEX OMS（Apache-2.0）</strong>——它协议干净、业务完整度最高、
+      有厂商级迭代，且 <code>taoguan*</code> / <code>dealer</code> / <code>presale</code> / <code>tgstockcost</code> 这些模块就是照着代运营和经销画的。
+      代价是 PHP 技术栈与微信小店/快手/小红书的对接缺口，前者需评估团队适配成本，后者用自建适配层补。
+      <strong>启航系功能更全但 AGPL-3.0，只能当需求文档读，不能当代码用。</strong>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="src">
+    <strong>数据来源与核验方法</strong><br>
+    · 全部项目指标通过 GitHub REST API v3 实时拉取，含 <code>license.spdx_id</code>、<code>stargazers_count</code>、<code>forks_count</code>、<code>pushed_at</code>、<code>created_at</code>、<code>languages</code> 字段<br>
+    · ShopeX/OMS 业务能力通过 <code>/repos/ShopeX/OMS/contents/app</code> 逐个核实 60+ 模块目录存在性确认<br>
+    · 平台对接清单来自各项目 README 实测关键词提取，非营销宣称<br>
+    · 核验时间：2026-10-17；开源项目数据随时间变化，正式决策前请复核<br>
+    · 本报告仅覆盖 OMS，WMS 部分另行调研
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

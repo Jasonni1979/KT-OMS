@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自研 OMS 分析与决策建议书 V2.0 · 基于商派源码逆向与取证</title>
+<style>
+  :root{
+    --brand:#185FA5;--brand-2:#0E4C87;--brand-soft:#E8F1F9;
+    --ink:#12161C;--ink-2:#3C4654;--ink-3:#6B7684;
+    --line:#DDE3EA;--bg:#FFFFFF;--bg-2:#F7F9FB;
+    --ok:#0F7B4F;--ok-bg:#E4F5EC;
+    --warn:#A8630A;--warn-bg:#FDF1E0;
+    --bad:#B3261E;--bad-bg:#FBEAE8;
+    --cond:#5B4A9E;--cond-bg:#EFECF7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg-2);color:var(--ink);line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+  header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;padding:52px 0 46px;margin-bottom:36px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;opacity:.78;font-weight:600}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.01em;margin:10px 0 14px;line-height:1.35}
+  .sub{font-size:15.5px;opacity:.9;max-width:880px;line-height:1.8}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+  nav.toc{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 24px;margin-bottom:36px;font-size:13.5px}
+  nav.toc b{color:var(--brand);margin-right:10px}
+  nav.toc a{color:var(--ink-2);text-decoration:none;margin-right:16px;white-space:nowrap}
+  nav.toc a:hover{color:var(--brand)}
+  section{margin-bottom:46px}
+  h2{font-size:21px;font-weight:700;color:var(--brand);padding-bottom:11px;border-bottom:2px solid var(--brand-soft);margin-bottom:20px;display:flex;align-items:baseline;gap:11px}
+  h2 .num{background:var(--brand);color:#fff;width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:16.5px;font-weight:650;margin:26px 0 12px;color:var(--ink)}
+  h4{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--ink)}
+  p{margin-bottom:14px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:650}
+  .verdict{background:var(--bg);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:10px;padding:22px 26px;margin-bottom:14px}
+  .verdict h3{margin-top:0;font-size:17px;color:var(--warn)}
+  .verdict p:last-child{margin-bottom:0}
+  .v-ok{border-left-color:var(--ok)}.v-ok h3{color:var(--ok)}
+  .v-bad{border-left-color:var(--bad)}.v-bad h3{color:var(--bad)}
+  .v-info{border-left-color:var(--brand)}.v-info h3{color:var(--brand)}
+  .callout{background:var(--brand-soft);border:1px solid #C8DDF0;border-radius:10px;padding:20px 24px;margin:20px 0}
+  .callout .t{font-weight:700;color:var(--brand);margin-bottom:8px;display:block;font-size:15px}
+  .callout p:last-child{margin-bottom:0}
+  .warnbox{background:var(--bad-bg);border:1px solid #F0C4C0;border-left:5px solid var(--bad);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .warnbox .t{font-weight:700;color:var(--bad);margin-bottom:8px;display:block;font-size:15px}
+  .warnbox p:last-child{margin-bottom:0}
+  .tbl-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:800px}
+  thead th{background:var(--bg-2);color:var(--ink-2);font-weight:650;text-align:left;padding:12px 13px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:13px}
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--brand-soft)}
+  td.nm{font-weight:600;color:var(--ink)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tag{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:650;white-space:nowrap}
+  .t-ok{background:var(--ok-bg);color:var(--ok)}
+  .t-warn{background:var(--warn-bg);color:var(--warn)}
+  .t-bad{background:var(--bad-bg);color:var(--bad)}
+  .t-info{background:#E7EEF9;color:#1B4E86}
+  .t-cond{background:var(--cond-bg);color:var(--cond)}
+  code{background:#EEF2F6;padding:1.5px 6px;border-radius:4px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--brand-2)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin:20px 0}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+  .card h4{font-size:15px;font-weight:700;margin:0 0 8px;color:var(--ink)}
+  .card p{font-size:13.5px;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card .ico{font-size:20px;margin-bottom:8px;display:block}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:20px 0}
+  .stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 20px;text-align:center}
+  .stat .v{font-size:26px;font-weight:750;color:var(--brand);font-variant-numeric:tabular-nums;line-height:1.2}
+  .stat .k{font-size:12.5px;color:var(--ink-3);margin-top:5px}
+  .step{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:none}
+  .step-num{width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+  .step-body{flex:1}
+  .step-body h4{font-size:15px;font-weight:650;margin-bottom:6px;color:var(--ink)}
+  .step-body p{font-size:13.5px;margin-bottom:0}
+  ul.tight{margin:10px 0 14px;padding-left:22px}
+  ul.tight li{margin-bottom:7px;color:var(--ink-2);font-size:14px}
+  ul.tight li:last-child{margin-bottom:0}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
+  .fnode{background:var(--bg);border:1.5px solid var(--brand);color:var(--brand);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;white-space:nowrap}
+  .fnode.hot{background:var(--brand);color:#fff}
+  .fnode.sub{border-color:var(--line);color:var(--ink-3);font-weight:500}
+  .farrow{color:var(--ink-3);font-size:15px}
+  footer{border-top:1px solid var(--line);padding-top:22px;margin-top:50px;font-size:12.5px;color:var(--ink-3)}
+  .src{font-size:12.5px;color:var(--ink-3);line-height:1.9}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">WISE 技术交付中心 · 决策建议书</div>
+    <h1>自研 OMS 分析与决策建议书 <span style="font-size:20px;opacity:.85">V2.0</span><br>基于商派 ONEX OMS 源码逆向工程与代码取证的路线修正</h1>
+    <p class="sub">
+      V1.0（2026-10-23 上午）推荐「以 ShopeX ONEX OMS 为代码底座二次开发」。
+      随后我们对商派源码完成了<strong style="color:#fff">全量逆向（113 万行 / 58 模块 / 711 表）</strong>与
+      <strong style="color:#fff">定向代码取证</strong>，发现推翻该推荐前提的决定性事实。
+      本版（V2.0）完整呈现：背景 → 研究 → 需求 → 候选方案与优劣 → 推荐决策 → 行动计划，
+      并说明与 V1.0 的差异及原因。
+    </p>
+    <div class="meta-row">
+      <span class="pill">版本 V2.0 · 取代 V1.0</span>
+      <span class="pill">2026-10-23</span>
+      <span class="pill">状态：路线已定（路径 B）· 待管理层确认资源</span>
+      <span class="pill">依据：8 份逆向文档 + 41 问需求澄清 + 代码取证</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <b>目录</b>
+  <a href="#s0">核心结论</a>
+  <a href="#s1">01 背景与痛点</a>
+  <a href="#s2">02 研究过程与发现</a>
+  <a href="#s3">03 需求情况</a>
+  <a href="#s4">04 候选方案与优劣分析</a>
+  <a href="#s5">05 推荐决策与理由</a>
+  <a href="#s6">06 目标架构概要</a>
+  <a href="#s7">07 实施计划与投入</a>
+  <a href="#s8">08 风险与回退</a>
+  <a href="#s9">09 行动建议</a>
+</nav>
+
+<!-- ============ 0 ============ -->
+<section id="s0">
+  <h2><span class="num">0</span>核心结论（只读这一段也够）</h2>
+
+  <div class="verdict v-ok">
+    <h3>① 路线修正：从「Fork 商派二次开发」改为「PHP 新架构自研，商派降级为参考实现」</h3>
+    <p>代码取证发现：开源商派的<strong>平台对接层无法独立使用</strong>——所有平台 API 硬编码经「商派矩阵中心」（<code>matrix-gw-open.shopex.cn</code>）代理并需 license 证书认证，仓库内不含任何平台签名/SDK 实现；且<strong>不含抖音适配</strong>（必需 6 平台之一，0 个文件）。Fork 的最大卖点「平台对接现成」不成立，其残余价值（业务模型理解）已通过 8 份逆向文档提前兑现。</p>
+  </div>
+
+  <div class="verdict v-info">
+    <h3>② 逆向工程的价值已经落袋：不用商派的代码，但继承它的业务模型与 7 大机制</h3>
+    <p>711 张表、9,849 个字段、四大业务域流程全部文档化（约 43 万字节、29 张图）。审单插件链、合单指纹、拆单策略注册表、Redis+Lua 库存预占、api_fail 分级重试、售后三段式、元数据驱动 CRUD——商派 20 年电商 ERP 沉淀的机制精华全部转化为自研的需求底稿，「从零理解业务」的成本已被前置消化。</p>
+  </div>
+
+  <div class="verdict v-info">
+    <h3>③ 自研必须做三大模型改造，这是商派模型撑不住我们业务的地方</h3>
+    <p><strong>三元库存记账</strong>（仓×SKU×<u>货主</u>，支持隔离+借调）、<strong>货主维度贯穿全域单据</strong>（含财务——商派财务单据无货主维度，是其最大缺口）、<strong>租户级行隔离</strong>（品牌方多租户门户 + SaaS 化预留）。在 113 万行存量代码上做这三处地基改造，风险高于按新模型重新设计。</p>
+  </div>
+
+  <div class="verdict">
+    <h3>④ 投入与节奏：4-6 人 × 7-8 个月，M0-M4 五阶段，按品牌灰度切换</h3>
+    <p>M0 技术验证（2-4 周）→ M1 正向履约+库存（1-3 月）→ M2 售后+6 平台+多 WMS（3-5 月）→ M3 采购+金蝶对账+品牌方门户（5-7 月）→ M4 近 3 年订单迁移+灰度切换（7-8 月）。全程保留通天晓 OFS 回退能力。比 Fork 路线多 2-3 个月，换取数据主权、零供应商锁定与干净的长期架构。</p>
+  </div>
+
+  <div class="warnbox">
+    <span class="t">⑤ 本周必须启动的两件事</span>
+    <p><strong>抖音开放平台资质申请</strong>（审核周期长，适配器要从零写）；<strong>框架 spike</strong>（Hyperf vs Laravel，1 周定型）。另有金蝶版本确认、WMS 接口文档收集、业务量级数据补齐四项并行推进。</p>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <h2><span class="num">1</span>背景与痛点</h2>
+
+  <h3>1.1 现状</h3>
+  <p>公司作为电商代运营服务商，同时经营<strong>代运营</strong>（多品牌多店铺、平台授权经营、货权归品牌方、收服务费/佣金）与<strong>经销</strong>（凯淳买断货权、采购入库、成本核算）两类业务。当前订单履约全链路依赖通天晓 <strong>OFS + WMS</strong> 双系统，覆盖淘宝/天猫、京东、拼多多、抖音、小红书、唯品会及私域渠道。</p>
+
+  <h3>1.2 为什么要动（痛点，与 V1.0 一致）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>痛点</th><th>具体表现</th><th>影响</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">技术运维受制于厂商</td><td>问题响应依赖厂商排期，故障定位黑盒，定制需求周期长、报价不可控</td><td>大促保障被动，业务节奏被卡</td></tr>
+        <tr><td class="nm">厂商合作不确定性</td><td>续约议价能力弱；OFS+WMS 双系统绑定同一厂商</td><td>商务与经营安全风险</td></tr>
+        <tr><td class="nm">知识产权不在手</td><td>订单中台是业务最上游核心系统，代码与数据模型均不可控</td><td>长期竞争力无法沉淀</td></tr>
+        <tr><td class="nm">双业务耦合支持不足</td><td>代运营的货权分离/三方结算与经销的成本核算，在通用 OFS 中难以两全</td><td>财务对账靠人工，规模化受限</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.3 前序研究链路（本文档的位置）</h3>
+  <div class="flow">
+    <span class="fnode sub">10-17 开源调研<br>（12 项目协议核验）</span><span class="farrow">→</span>
+    <span class="fnode sub">10-23 上午 V1.0 建议书<br>（推荐 Fork 商派底座）</span><span class="farrow">→</span>
+    <span class="fnode">10-23 逆向工程<br>（8 份文档 · 711 表全解析）</span><span class="farrow">→</span>
+    <span class="fnode">10-23 代码取证<br>（4 个决定性事实）</span><span class="farrow">→</span>
+    <span class="fnode hot">本文档 V2.0<br>（路线修正为自研）</span>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+  <h2><span class="num">2</span>研究过程与发现</h2>
+
+  <h3>2.1 逆向工程（阶段 1-2，已完成）</h3>
+  <div class="stat-grid">
+    <div class="stat"><div class="v">113万</div><div class="k">PHP 代码行数（6,346 文件）</div></div>
+    <div class="stat"><div class="v">58+2</div><div class="k">业务模块（app/* 目录）</div></div>
+    <div class="stat"><div class="v">711</div><div class="k">数据表全量解析</div></div>
+    <div class="stat"><div class="v">9,849</div><div class="k">数据列（650 表带中文注释）</div></div>
+    <div class="stat"><div class="v">774</div><div class="k">显式外键关系</div></div>
+    <div class="stat"><div class="v">8 份</div><div class="k">逆向文档（43 万字节 / 29 图）</div></div>
+  </div>
+  <p>产出覆盖：仓库结构与模块清单（00）、数据库实体字典与 ER 关系（01）、订单全生命周期（02）、库存与仓储（03）、采购经销与财务（04）、平台对接售后与技术架构（05）、差距分析表（06）、新架构设计书（07）、MVP 实施计划（08）。全部方法名/表名/枚举值可在 <code>_research/OMS-main</code> 源码快照中复核，提取脚本可复现。</p>
+
+  <h3>2.2 代码取证：4 个改变路线判断的决定性事实</h3>
+
+  <div class="verdict v-bad">
+    <h3>事实 1 · 开源版的平台对接是「半截子」：签名与传输在商派的 SaaS 网关里</h3>
+    <p>erpapi 的 76 个平台目录（645 个映射文件）只做「OMS 字段 ↔ 平台报文」翻译；真正的 HTTP 出口硬编码 <code>MATRIX_URL = 'https://matrix-gw-open.shopex.cn/'</code>，每次调用携带 <code>certi_id</code>（商派 license 证书）签名后发给商派矩阵中心，由其代理请求平台 API。<strong>仓库内不含任何平台签名算法与 SDK 实现</strong>。脱离商派商业服务，erpapi 一步都跑不通；要继续用则需按年采购矩阵服务，且<strong>消费者订单数据经商派服务器中转</strong>——与 PIPL 合规诉求和品牌方信任直接冲突。<br><span class="src">证据：app/base/defined.php:21 · app/erpapi/lib/caller.php:239 center_call() · 44 文件引用 certi_id · 972 文件含 matrix</span></p>
+  </div>
+
+  <div class="verdict v-bad">
+    <h3>事实 2 · 必需 6 平台中，抖音适配完全缺失</h3>
+    <p>逐一核对 matrix 目录：淘宝 ✓(16 文件)、天猫 ✓(27)、京东 ✓(7+31)、拼多多 ✓(11)、小红书 ✓(8+7)、唯品会 ✓(8)——<strong>抖音 ✗（全仓库 grep douyin/抖音/抖店 = 0 文件）</strong>。抖音是近年增量主力且报文规则迭代最快，该适配器无论如何要从零写（1-1.5 人月），资质申请还有审核周期。<br><span class="src">证据：app/erpapi/lib/shop/matrix/ 目录清单 · 全局 grep 0 结果</span></p>
+  </div>
+
+  <div class="verdict">
+    <h3>事实 3 · 对接层与订单大内核深度耦合，「只 fork 对接层」不成立</h3>
+    <p>erpapi 1,411 个文件中 381 个直接调用 ome 订单/售后模型；matrix 映射层 645 个文件中 156 个内嵌 ome 表读写。混合路径（核心自研 + 对接层 fork）需为 156 个文件重写模型访问层，复用价值被改造成本吃掉。<br><span class="src">证据：grep app::get('ome') 统计 · matrix/taobao/request/aftersale.php 样例</span></p>
+  </div>
+
+  <div class="verdict">
+    <h3>事实 4 · 框架是零生态自研 ECOS，但工程质量不差</h3>
+    <p>composer 仅 4 个依赖，MVC/队列/ORM/事件/服务注册全自研，开源社区 87 star——框架级问题无人可问，新人只能读源码上手。公平地说：带 phpstan/phpunit/Sentry/Docker，架构按远超我们规模的量级设计，性能对中规模场景绰绰有余。<strong>问题不在质量，在生态与可维护性。</strong></p>
+  </div>
+
+  <h3>2.3 业务模型层面的关键发现（逆向文档沉淀，自研直接继承）</h3>
+  <div class="cards">
+    <div class="card"><span class="ico">🧠</span><h4>订单域</h4><p>三套状态机并行；审单=23 插件位责任链+位标记；拆单 16 策略注册表（拆单产物是发货单而非新订单）；合单指纹预计算+缓冲时间窗；复审快照+库存冻结。</p></div>
+    <div class="card"><span class="ico">📦</span><h4>库存域</h4><p>三层主体（销售物料→基础物料→仓×SKU）；五口径库存；预占走独立流水表+Redis Lua 原子扣减（不落主字段）——高并发关键设计；移动加权成本。</p></div>
+    <div class="card"><span class="ico">💰</span><h4>采购财务域</h4><p>采购单 5 状态分离；现购按单挂账/赊购按入库挂账；供应商台账（期初/增加/已付/期末）；核销三档+差异科目映射；运费预估/实际双账单对账。</p></div>
+    <div class="card"><span class="ico">🔌</span><h4>对接与售后域</h4><p>拉单三保险（消息推送+定时增量+单拉补偿）；api_log/api_fail 双表分级重试；售后三段式（申请单/执行单/退款单）；换货=退货+0元新单复用正向履约。</p></div>
+  </div>
+  <div class="callout">
+    <span class="t">商派模型的 4 个明确缺陷（自研必须规避）</span>
+    <p>① ome 大内核（196 表/1,127 文件混装订单商品会员库存售后）；② erpapi 强依赖矩阵中心；③ 每平台一张售后镜像表（15 张 return_product_*）；④ <strong>财务单据不带货主维度</strong>——多品牌代运营无法分账，是最大业务缺口。</p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+  <h2><span class="num">3</span>需求情况（41 问结构化澄清结果）</h2>
+  <p>通过 3 轮 41 问的结构化需求澄清（问卷 + 答题记录已归档），关键决策如下：</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>决策</th><th>架构含义</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">系统范围</td><td>分阶段：先 OMS+库存中台，WMS 库内作业二期评估</td><td>OMS 做「决策+记账+集成」，履约执行外置 WMS</td></tr>
+        <tr><td class="nm">库存隔离</td><td><strong>隔离 + 可借调</strong></td><td>三元记账 仓×SKU×货主 + 借调规则引擎</td></tr>
+        <tr><td class="nm">货权主体</td><td>凯淳买断 + 品牌代销 双类并存</td><td>货主维度贯穿全域；代销货不入凯淳存货账</td></tr>
+        <tr><td class="nm">财务</td><td>金蝶记账；OMS 出统计+明细+排查核对工具</td><td>财务域裁剪为「对账/核销/供给」，凭证外推，接口可插拔</td></tr>
+        <tr><td class="nm">MVP 范围</td><td>4 条链路：正向履约 / 多货主库存 / 售后 / 采购入库</td><td>经销 B2B、跨境、自助分析后置</td></tr>
+        <tr><td class="nm">业务规模</td><td>中规模：日均 3 千-2 万单</td><td>全链路异步化+Redis 预占；暂不分库分表但预留</td></tr>
+        <tr><td class="nm">平台</td><td>淘/京/抖/拼/红/唯 6 家</td><td>自建 gateway + 6 适配器（抖音从零）</td></tr>
+        <tr><td class="nm">仓网</td><td>多仓 + 多 WMS 并存（需路由）</td><td>WMS 适配层，按仓路由，通天晓为主</td></tr>
+        <tr><td class="nm">拆单</td><td>16 种策略全保留，要求可灵活插拔</td><td>策略注册表+纯函数策略，DI 注册可开关</td></tr>
+        <tr><td class="nm">审单</td><td>自动规则 + 人工工作台并重</td><td>插件链引擎 + 完整审单工作台（批量/分组/绩效）</td></tr>
+        <tr><td class="nm">库存同步</td><td>按店铺可配置（独立/比例/共享-安全库存）</td><td>同步策略链店铺级配置 + 超卖防护</td></tr>
+        <tr><td class="nm">商品特性</td><td>组合装 BOM / 效期 / 序列号 / 虚拟商品 全要</td><td>保留 material/storagelife/serial 三套模型</td></tr>
+        <tr><td class="nm">特殊单型</td><td>预售/团购/福袋 + O2O 门店发货自提；售后全链路自动化</td><td>对应履约分支与售后三段式自动化</td></tr>
+        <tr><td class="nm">经销 B2B</td><td>暂不做，后置</td><td>dealer/sales 移出 MVP，数据模型预留货主类型扩展位</td></tr>
+        <tr><td class="nm">周边集成</td><td>通天晓等 WMS + 金蝶 + 泛微 OA（审批）</td><td>三类集成：WMS 路由 / 金蝶供给 / OA 审批双向</td></tr>
+        <tr><td class="nm">主数据</td><td>混合归属：商品平台为准+OMS 扩展属性；客户 OMS 自建；供应商金蝶/OA</td><td>「外部主数据 + 本地扩展」分离建模</td></tr>
+        <tr><td class="nm">权限合规</td><td>多维数据权限 + 全量字段级审计 + 敏感操作审批（推泛微 OA）+ PIPL + 品牌方多租户门户</td><td>独立权限中心/审计中心/租户行隔离</td></tr>
+        <tr><td class="nm">性能</td><td>大促可扛级：拉单≤1min、库存同步≤10s、审单≥500单/min、页面≤1s</td><td>MQ+常驻 worker；Hyperf 协程栈优先</td></tr>
+        <tr><td class="nm">迁移切换</td><td>期初 + 近 3 年订单；按品牌分批灰度</td><td>异构迁移工具 + 库存期初对齐 + 品牌级切换单元</td></tr>
+        <tr><td class="nm">扩展预留</td><td>SaaS 化 + AI Agent 接口（K-AIDE）+ 对外 OpenAPI</td><td>首期即多租户设计；能力接口规范化</td></tr>
+        <tr><td class="nm">人力/技术栈</td><td>4-6 人；沿用 PHP（新架构）</td><td>Hyperf 优先 / Laravel 备选，spike 定型</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+  <h2><span class="num">4</span>候选方案与优劣分析</h2>
+
+  <h3>4.1 方案总览</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>方案</th><th>一句话描述</th><th>工作量</th><th>周期(4-6人)</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">方案 0 · 维持现状</td><td>继续通天晓 OFS+WMS，不动</td><td>0</td><td>—</td><td><span class="tag t-bad">排除</span> 痛点无解</td></tr>
+        <tr><td class="nm">方案 A · Fork 商派改造</td><td>clone 商派代码增量改造 + 采购矩阵中心服务</td><td class="num">17-24 人月</td><td class="num">3.5-5 月</td><td><span class="tag t-warn">时间倒逼备选</span></td></tr>
+        <tr><td class="nm">方案 B · PHP 新架构自研</td><td>Hyperf/Laravel 按逆向文档重新设计，商派为参考实现</td><td class="num">26-35 人月</td><td class="num">5.5-8 月</td><td><span class="tag t-ok">✅ 推荐（已拍板）</span></td></tr>
+        <tr><td class="nm">方案 C · 混合</td><td>核心域自研 + fork 商派对接层</td><td class="num">26-34 人月</td><td class="num">5.5-8 月</td><td><span class="tag t-bad">排除</span> 复用被耦合吃掉</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.2 方案 A vs 方案 B 逐项对比（真正的决策点）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>A · Fork 商派改造</th><th>B · 新架构自研</th><th>优势方</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">上线速度</td><td>3.5-5 个月，业务模块开箱即用</td><td>5.5-8 个月</td><td><span class="tag t-info">A 快 2-3 月</span></td></tr>
+        <tr><td class="nm">数据主权 / PIPL</td><td>平台报文（含消费者收货信息）经商派矩阵中心服务器中转；自建 gateway 可解但工作量回升至接近 B</td><td>直连平台开放 API，数据全程自有</td><td><span class="tag t-ok">B</span></td></tr>
+        <tr><td class="nm">供应商锁定</td><td>license 证书 + 矩阵服务年费续约；开源版与商业版功能有差（抖音缺失即例证），平台扩展受制于人</td><td>零锁定</td><td><span class="tag t-ok">B</span></td></tr>
+        <tr><td class="nm">三大模型改造风险</td><td>货主维度/三元库存/多租户要在 113 万行存量上动地基，回归面大，改坏库存逻辑即资损</td><td>三元记账/货主维度/租户隔离原生设计</td><td><span class="tag t-ok">B</span></td></tr>
+        <tr><td class="nm">平台对接成本</td><td>5 平台映射现成可改，但传输层要换（自建 gateway 2-3 人月照付）+ 抖音从零</td><td>gateway + 6 适配器全自建（4-6 人月）</td><td><span class="tag t-warn">A 略省 1-2 人月</span></td></tr>
+        <tr><td class="nm">团队与招聘</td><td>ECOS 自研框架零社区，新人读源码上手，核心离职即知识断层</td><td>Hyperf/Laravel 人才市场充足</td><td><span class="tag t-ok">B</span></td></tr>
+        <tr><td class="nm">长期维护（5年 TCO）</td><td>矩阵服务费×5年 + ECOS 维护 1-2 人常驻 + 扩展依赖商派节奏</td><td>维护 1-2 人（与 A 相当），扩展自主，无年费</td><td><span class="tag t-ok">B</span></td></tr>
+        <tr><td class="nm">与 K-AIDE / 前端体验</td><td>ECOS 前端体系陈旧，统一门户体验需大改</td><td>前端全新按主流体系建</td><td><span class="tag t-ok">B</span></td></tr>
+        <tr><td class="nm">迁移</td><td>若过渡期跑商派则同构迁移省 1 人月</td><td>异构迁移 +1 人月</td><td><span class="tag t-warn">A 略省</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <span class="t">量化差距：A 只比 B 省 9-11 人月（约 2-3 个月工期），却要付出锁定 + 数据主权 + 地基改造三重代价</span>
+    <p>决策本质是「用长期技术债和供应商锁定换 2-3 个月上线速度」。V1.0 推荐 A 的前提是「平台对接层现成可用」——取证证明该前提不成立（矩阵中心要采购、抖音要自研、传输层要替换），A 的省钱幅度大幅缩水，天平决定性倒向 B。<strong>Jason 已于 2026-10-23 拍板选 B。</strong></p>
+  </div>
+
+  <h3>4.3 方案 C 为何首先排除</h3>
+  <p>C（核心自研 + fork 对接层）比 B 只省 0-1 人月：matrix 映射层 645 文件中 156 个内嵌 ome 模型读写，剥离改造成本≈重写；且引入双框架认知负担与模块边界扯皮。无性价比。</p>
+
+  <h3>4.4 V1.0 → V2.0 决策变更记录（治理留痕）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项</th><th>V1.0（10-23 上午）</th><th>V2.0（本版）</th><th>变更依据</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">技术路线</td><td>ShopeX 代码底座 + 二次开发接管</td><td>PHP 新架构自研，商派为参考实现</td><td>取证事实 1-4：矩阵中心硬依赖、抖音缺失、erpapi↔ome 耦合、ECOS 零生态</td></tr>
+        <tr><td class="nm">业务优先级</td><td>代运营 P0、经销 P1</td><td>4 链路并进（履约/库存/售后/采购）；经销 B2B 后置</td><td>41 问澄清：Q6 四链路全选、Q25 经销后置</td></tr>
+        <tr><td class="nm">MVP 节奏</td><td>3 个月单品牌试点</td><td>M0-M4 共 7-8 个月，按品牌灰度</td><td>范围扩大（库存三元改造/多租户门户/6平台）+ 4-6 人现实排期</td></tr>
+        <tr><td class="nm">WMS 策略</td><td>不替换，通天晓对接</td><td>不变；增加多 WMS 路由抽象</td><td>Q13-14：多仓多 WMS 并存</td></tr>
+        <tr><td class="nm">回退能力</td><td>并行期通天晓 OFS 随时回切</td><td>不变</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+  <h2><span class="num">5</span>推荐决策与理由</h2>
+
+  <div class="verdict v-ok">
+    <h3>推荐（已拍板）：方案 B —— PHP 新架构自研</h3>
+    <p><strong>框架</strong>：Hyperf 3（Swoole 协程）优先，Laravel 11 备选，M0 一周 spike 压测定型。<strong>架构风格</strong>：模块化单体（7 域严格边界），大促瓶颈出现时库存域/gateway 域优先拆出。<strong>商派代码定位</strong>：参考实现——继承业务模型与 7 大机制，不 fork、不复制代码（Apache-2.0 合规无虞）。</p>
+  </div>
+
+  <h4>五条核心理由</h4>
+  <ul class="tight">
+    <li><strong>理由 1 · Fork 的经济性前提已崩塌</strong>：平台对接层（最大可复用资产）取证证明不可独立使用，A 方案实际只省 2-3 个月，却要背锁定与数据主权风险。</li>
+    <li><strong>理由 2 · 我们的三大核心需求恰好是商派模型的地基缺陷</strong>：货主隔离库存、货主维度财务、多租户门户——在存量代码上打地基补丁，比按新地基盖楼更贵更险。</li>
+    <li><strong>理由 3 · 逆向文档已兑现「不从零理解业务」</strong>：711 表全解析 + 四域流程 + 7 大机制文档化，B 方案最大的传统劣势（业务理解成本）已被前置消化。</li>
+    <li><strong>理由 4 · 与既定战略一致</strong>：自主可控、知产在手、K-AIDE 协同、SaaS 化预留——都要求干净的自有架构而非改造别人的旧楼。</li>
+    <li><strong>理由 5 · 团队可持续性</strong>：Hyperf/Laravel 人才市场充足，ECOS 只有商派自己会——「谁来长期养这套代码」的答案必须是「市场上招得到的人」。</li>
+  </ul>
+
+  <h4>例外条款（何时应重新考虑 A）</h4>
+  <p>仅当管理层设定 <strong>&lt;4 个月的硬性上线死线</strong>且接受矩阵中心年费与数据中转时，A 才值得重启评估；即便选 A，也须立项时将「矩阵中心替换」列入二期 roadmap，避免锁定固化。</p>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+  <h2><span class="num">6</span>目标架构概要</h2>
+  <p>详见《07-新架构设计书》。此处呈现决策层需要的三个视图：</p>
+
+  <h3>6.1 七大业务域 + 底座</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>域</th><th>职责</th><th>吸收商派资产</th><th>新增/改造</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">平台 Gateway</td><td>6 平台签名/授权托管/限流/重试/报文日志；对外 OpenAPI</td><td>五层框架机制 + api_log/api_fail 双表 + 拉单三保险</td><td>直连平台替代矩阵中心；抖音适配器从零</td></tr>
+        <tr><td class="nm">订单履约</td><td>订单全生命周期：审单/拆合单/分仓/发货单/推仓/回传</td><td>审单插件链、16 拆单策略、合单指纹、复审快照</td><td>位标记→结构化原因表；货主/租户维度；状态语义收敛</td></tr>
+        <tr><td class="nm">库存</td><td>三元记账/预占扣减/调拨盘点/成本/可售同步</td><td>三层物料+BOM、五口径、Redis Lua 预占、移动加权</td><td><strong>仓×SKU×货主三元 + 借调规则</strong>；同步策略按店铺可配置</td></tr>
+        <tr><td class="nm">售后</td><td>仅退款/退货退款/换货三链路，全链路自动化</td><td>三段式模型（申请/执行/退款）、良不良分仓</td><td>15 张平台镜像表 → JSON 扩展列</td></tr>
+        <tr><td class="nm">采购</td><td>申请→审批(OA)→采购单→入库→对账</td><td>5 状态分离、挂账策略、供应商台账、补货公式</td><td>货主维度；应付推金蝶</td></tr>
+        <tr><td class="nm">财务对账</td><td>对账/核销/结算/运费/发票 + 金蝶数据供给 + 排查工具</td><td>核销三档、双口径金额、预估实际双账单</td><td><strong>全单据带货主维度（补商派最大缺口）</strong>；金蝶集成层</td></tr>
+        <tr><td class="nm">履约集成</td><td>物流分单/电子面单（三类账号）/多 WMS 路由</td><td>区域路由、面单模板、wmsmgr 绑定模型</td><td>推仓指令状态机（推送/叫回/恢复/确认）</td></tr>
+        <tr><td class="nm">组织权限+门户</td><td>组织树/多维权限/租户隔离/品牌方门户/审计/审批</td><td>组织树+权限继承四步模型</td><td><strong>租户级行隔离（商派无）</strong>；字段级审计中心；泛微 OA 审批集成</td></tr>
+        <tr><td class="nm">平台底座</td><td>MQ/调度/规则引擎/PIPL/元数据 CRUD/迁移工具</td><td>taskmgr 声明式任务、schema DSL 思想、归档策略</td><td>PIPL 加密脱敏层；近 3 年订单异构迁移</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6.2 数据规模预期</h3>
+  <p>商派 711 表 → 凯淳目标 <strong>~335 表（压缩 53%）</strong>。压缩来源：36 张归档镜像表→冷热分离/分表；15 张平台售后镜像表→JSON 扩展；55 张 console 运维表→现代可观测性工具；裁剪模块（黄金/经销/POS/跨境等）。近 3 年订单（330 万-2,200 万单量级）首期即设计归档与分表策略。</p>
+
+  <h3>6.3 集成版图</h3>
+  <div class="flow">
+    <span class="fnode">6 电商平台</span><span class="farrow">⇄</span>
+    <span class="fnode hot">自建 Gateway</span><span class="farrow">⇄</span>
+    <span class="fnode hot">OMS 核心 7 域</span><span class="farrow">⇄</span>
+    <span class="fnode">多 WMS（通天晓等）</span>
+  </div>
+  <div class="flow">
+    <span class="fnode sub">金蝶 ⇠ 统计+明细供给</span>
+    <span class="fnode sub">泛微 OA ⇄ 审批流</span>
+    <span class="fnode sub">BI ⇠ 宽表/订阅</span>
+    <span class="fnode sub">K-AIDE ⇄ Agent 能力接口</span>
+    <span class="fnode sub">品牌方 ⇠ 多租户门户</span>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+  <h2><span class="num">7</span>实施计划与投入</h2>
+
+  <h3>7.1 里程碑（详见《08-MVP实施计划》）</h3>
+  <div class="step"><div class="step-num">M0</div><div class="step-body"><h4>技术验证与地基（2-4 周）</h4><p>框架 spike 定型 · gateway 打通淘宝真实拉单 · 三元库存 Redis Lua 预占原型压测 · K8s/CI/CD · 7 域核心表 DDL V1 · <strong>抖音资质申请提交</strong>。出口：最大不确定性全部消除。</p></div></div>
+  <div class="step"><div class="step-num">M1</div><div class="step-body"><h4>正向履约 + 库存（第 1-3 月，心脏）</h4><p>拉单→审单（插件链+人工工作台）→拆合单→分仓→推通天晓→发货回传；三元库存记账/预占/借调/五口径/成本；按店铺可配置库存同步；淘系+拼多多适配器。出口：一个真实品牌全自动跑通全链路，库存账实一致，大促级压测通过。</p></div></div>
+  <div class="step"><div class="step-num">M2</div><div class="step-body"><h4>售后 + 全平台 + 多 WMS（第 3-5 月）</h4><p>售后三段式全自动化；京东/抖音/小红书/唯品会适配器补全；多 WMS 路由；三类电子面单；团购/福袋/异常单/复审。出口：6 平台全打通，售后自动跑通。</p></div></div>
+  <div class="step"><div class="step-num">M3</div><div class="step-body"><h4>采购 + 财务对账 + 门户（第 5-7 月）</h4><p>采购全链路（审批推泛微 OA）；对账/核销/运费/发票 + 金蝶集成层 + 排查工具；品牌方多租户门户；权限/审计/审批中心；固定报表。出口：品牌方登录只看自己数据，财务单据可供给金蝶。</p></div></div>
+  <div class="step"><div class="step-num">M4</div><div class="step-body"><h4>迁移双跑 + 灰度切换（第 7-8 月）</h4><p>近 3 年订单异构迁移+清洗；期初库存对齐（含货主维度）；按品牌分批灰度（切换单元内店铺全旧或全新，避免库存双扣）；双跑对账；大促演练。出口：首品牌切换稳定，具备推全量能力。</p></div></div>
+
+  <h3>7.2 团队配置（4-6 人）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>角色</th><th>人数</th><th>职责</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">架构 / 后端 Lead</td><td class="num">1</td><td>架构定型、库存/订单核心域、技术攻坚（Redis Lua、gateway）</td></tr>
+        <tr><td class="nm">后端</td><td class="num">2-3</td><td>gateway / 售后 / 采购 / 财务 / 集成各域</td></tr>
+        <tr><td class="nm">前端</td><td class="num">1</td><td>审单工作台、品牌方门户、报表（Vue3 + 主流组件库）</td></tr>
+        <tr><td class="nm">测试（可兼）</td><td class="num">0.5-1</td><td>用例、压测、迁移对账</td></tr>
+        <tr><td class="nm">产品/需求</td><td class="num">兼</td><td>Jason + 业务方：需求确认、验收、灰度协调</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>4 人配置周期偏 8 个月上限；6 人可部分并行压缩至 6-7 个月。<strong>期望上线时间窗待管理层确认后锁定排期。</strong></p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+  <h2><span class="num">8</span>风险与回退</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>风险</th><th>等级</th><th>应对</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">抖音适配从零 + 资质审核周期</td><td><span class="tag t-bad">高</span></td><td>本周提交资质申请；M2 优先排期；期间抖音单量走过渡方案兜底</td></tr>
+        <tr><td class="nm">三元库存改造复杂度（预占并发正确性）</td><td><span class="tag t-bad">高</span></td><td>M0 原型压测前置；Redis Lua + 流水异步落库 + 定时对账三重保障；库存域最先开发</td></tr>
+        <tr><td class="nm">近 3 年订单迁移量级（最高 2,200 万单）</td><td><span class="tag t-bad">高</span></td><td>迁移工具 M1 并行设计；分批迁移；先期初+在途后历史；对账脚本验收</td></tr>
+        <tr><td class="nm">金蝶接口形态未知</td><td><span class="tag t-warn">中</span></td><td>财务部门尽快确认版本；集成层可插拔设计不绑定</td></tr>
+        <tr><td class="nm">多 WMS 路由抽象不当</td><td><span class="tag t-warn">中</span></td><td>尽早收集通天晓+第二家 WMS 接口文档，以此定抽象</td></tr>
+        <tr><td class="nm">灰度切换期库存双扣</td><td><span class="tag t-warn">中</span></td><td>切换单元=品牌（单元内店铺全旧或全新）；期初对齐脚本为切换前置门禁</td></tr>
+        <tr><td class="nm">Hyperf 团队熟悉度不足</td><td><span class="tag t-warn">中</span></td><td>M0 一周 spike；不达标退 Laravel（生态更稳）</td></tr>
+        <tr><td class="nm">4-6 人做 4 链路范围偏大</td><td><span class="tag t-warn">中</span></td><td>M1→M2→M3 串行推进；若人力到位延迟，先砍 M3 门户自动化程度（人工兜底）保 M1/M2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <span class="t">回退方案（全程保留）</span>
+    <p>灰度并行期内<strong>通天晓 OFS 随时可回切</strong>：切换以品牌为单位，未切换品牌继续在 OFS 运行；已切换品牌出现严重问题时，凭期初对齐脚本与双跑对账数据可回退到 OFS，WMS 仓内作业全程零感知（OMS 侧回退不影响仓内）。M4 完成全量切换并稳定一个完整大促周期后，方可下线 OFS。</p>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s9">
+  <h2><span class="num">9</span>行动建议</h2>
+
+  <h3>9.1 本周启动（不等任何待确认项）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>行动项</th><th>责任方</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td class="nm">抖音开放平台资质申请</td><td>运营 + 后端</td><td>审核周期长，全计划最长的外部依赖，最优先</td></tr>
+        <tr><td class="num">2</td><td class="nm">框架 spike（Hyperf vs Laravel）</td><td>架构 Lead</td><td>1 周：审单吞吐/库存预占并发/页面响应三项压测出结论</td></tr>
+        <tr><td class="num">3</td><td class="nm">核查其余 5 平台开放平台资质与授权现状</td><td>运营</td><td>淘宝/京东/拼多多/小红书/唯品会自研应用申请状态</td></tr>
+        <tr><td class="num">4</td><td class="nm">金蝶版本与开放接口形态确认</td><td>财务部门</td><td>K3 / EAS / 云星空，决定集成层设计</td></tr>
+        <tr><td class="num">5</td><td class="nm">仓库清单 + 通天晓/第二家 WMS 接口文档收集</td><td>供应链 / IT</td><td>仓库名称/类型/归属货主/对接 WMS 映射</td></tr>
+        <tr><td class="num">6</td><td class="nm">业务量级数据补齐</td><td>运营</td><td>品牌数/店铺数/SKU 数/日均与大促峰值单量——锁定容量设计</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>9.2 需管理层决策的事项</h3>
+  <ul class="tight">
+    <li><strong>确认期望上线时间窗</strong>：决定按 4 人（8 个月）还是 6 人（6-7 个月）配置，以及是否压缩 M3 范围。</li>
+    <li><strong>确认团队组建方式</strong>：内部调配 + 招聘，还是引入 1-2 名有电商中台经验的后端（库存/审单域攻坚）。</li>
+    <li><strong>批准 M0 启动</strong>：M0 只需 2-3 人 × 2-4 周，投入小、消除的不确定性最大，建议立即批准。</li>
+    <li><strong>过渡期策略确认</strong>：自研期间通天晓 OFS 继续运行（续约保留回退能力），既有「ShopeX 对接通天晓过渡方案」是否继续投入建议重新评估——V2.0 路线下其价值下降（商派同样要解决矩阵中心与抖音问题），<strong>建议暂停过渡方案投入，资源集中到自研 M0/M1</strong>。</li>
+  </ul>
+
+  <h3>9.3 文档资产索引（本建议书的全部依据，均可复核）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>文档</th><th>位置</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">逆向文档集 00-08（9 份）</td><td>商派OMS逆向文档/</td><td>模块清单/实体字典/四域流程/差距分析/架构设计书/MVP 计划</td></tr>
+        <tr><td class="nm">需求澄清问卷 + 答题记录</td><td>阶段3-需求澄清问卷.md / 答题记录.md</td><td>41 问全部决策留痕，含待确认清单</td></tr>
+        <tr><td class="nm">技术路径三选一决策报告</td><td>技术路径三选一决策报告.html</td><td>A/B/C 工作量量化与取证明细</td></tr>
+        <tr><td class="nm">逆向工程总览报告</td><td>商派OMS逆向文档/…总览报告.html</td><td>阶段 1-2 成果汇总</td></tr>
+        <tr><td class="nm">源码快照 + 提取脚本</td><td>_research/</td><td>OMS-main 源码、schema.json、可复现脚本</td></tr>
+        <tr><td class="nm">前序调研（4 份）</td><td>开源OMS-WMS调研/</td><td>开源全景/协议合规/过渡方案</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p>自研 OMS 分析与决策建议书 V2.0 · 凯淳股份 WISE 技术交付中心 · 2026-10-23 · 取代 V1.0 ·
+  依据：ShopeX/OMS 源码逆向（main @ 2026-10-21，Apache-2.0）+ 代码取证 + 41 问需求澄清 · 路线已由 Jason 拍板（路径 B），待管理层确认资源与时间窗</p>
+</footer>
+
+</div>
+</body>
+</html>
