@@ -7,7 +7,7 @@ import asyncio
 
 from sqlalchemy import select
 
-from app.core.db import SessionFactory, engine
+from app.core.db import SessionFactory, engine, without_data_scope
 from app.core.security import hash_password
 from app.models.account import OrgAccount, OrgAccountCredential, OrgAccountRole, OrgRole
 
@@ -15,6 +15,12 @@ INIT_PASSWORD = "Ktoms@2026"
 
 
 async def seed() -> None:
+    # 豁免通道登记点④：系统级初始化脚本（无用户上下文，fail-closed 下需显式豁免）
+    with without_data_scope():
+        await _seed_impl()
+
+
+async def _seed_impl() -> None:
     async with SessionFactory() as s:
         # 1) 超管角色（system 预置，data_scope_mode=all）
         role = await s.scalar(select(OrgRole).where(OrgRole.role_code == "R_SUPER"))

@@ -8,11 +8,17 @@ import asyncio
 
 from sqlalchemy import select
 
-from app.core.db import SessionFactory, engine
+from app.core.db import SessionFactory, engine, without_data_scope
 from app.models.org import OrgNode, OrgOwner
 
 
 async def seed() -> None:
+    # 豁免通道登记点③：系统级初始化脚本（无用户上下文，fail-closed 下需显式豁免）
+    with without_data_scope():
+        await _seed_impl()
+
+
+async def _seed_impl() -> None:
     async with SessionFactory() as s:
         # 1) group 根节点（唯一根，FR-01e）
         root = await s.scalar(select(OrgNode).where(OrgNode.org_code == "KC_ROOT"))

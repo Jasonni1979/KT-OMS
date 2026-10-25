@@ -3,7 +3,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
-  OWNER_STATUS_LABEL, OWNER_TYPE_LABEL, createOwner, listOrgNodes,
+  OWNER_STATUS_LABEL, OWNER_TYPE_LABEL, createOwner,
   listOwners, searchOrgNodes, updateOwner, type Owner, type OrgNode,
 } from '@/api/master'
 
