@@ -5,6 +5,7 @@
 """
 from app.core.permission import register_filterable
 from app.models.branch import FulBranch
+from app.models.material import InvMaterial
 from app.models.org import OrgOwner
 from app.models.shop import GwShop
 
@@ -24,4 +25,14 @@ register_filterable(GwShop, {
 register_filterable(FulBranch, {
     "tenant_id": FulBranch.tenant_id,
     "branch_id": FulBranch.id,
+})
+
+
+# 基础物料（SRS-D04.01 FR-02）：tenant_id + owner 维（货主维即 owner_id 列）
+# 注：品牌/分类无 owner 维（品牌可公共、分类全局共享），按 tenant 隔离即可
+# 销售物料（inv_sales_material）暂不注册 owner 维：未绑定时 owner_id=0（尚未归属任何货主），
+#     按 owner 维过滤会让「待绑定清单」（FR-01c）不可见 → 待绑定阶段须按 tenant + shop 维可见
+register_filterable(InvMaterial, {
+    "tenant_id": InvMaterial.tenant_id,
+    "owner_id": InvMaterial.owner_id,
 })
