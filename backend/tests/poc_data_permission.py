@@ -10,7 +10,6 @@
 前置: MySQL（3308）oms_org schema 已建表（deploy/init-db.sh）
 """
 import asyncio
-from dataclasses import dataclass, field
 
 from sqlalchemy import BigInteger, String, event, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine

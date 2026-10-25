@@ -31,6 +31,9 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# 全测试会话共享一个 event loop：模块级 fixture / engine 连接池不跨 loop（pytest-asyncio ≥1.0）
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 
 [tool.ruff]
 line-length = 110
@@ -38,6 +41,14 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+# B008: FastAPI Depends()/Query() 在默认参数中是框架惯用法，非缺陷
+# UP046: Generic[T]+TypeVar 与 PEP695 等价合法，保留兼容写法
+ignore = ["B008", "UP046"]
+
+[tool.ruff.lint.per-file-ignores]
+# M0 一次性 spike 验证脚本（非生产代码），豁免行长
+"tests/bench_*.py" = ["E501"]
+"tests/poc_*.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

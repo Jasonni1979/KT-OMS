@@ -3,8 +3,8 @@
 启动: cd backend && uv run uvicorn app.main:app --reload --port 8000
 文档: http://localhost:8000/docs (Swagger) / http://localhost:8000/redoc
 """
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

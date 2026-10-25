@@ -9,6 +9,10 @@ const routes: RouteRecordRaw[] = [
     redirect: '/dashboard',
     children: [
       { path: 'dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { title: '工作台', icon: 'Odometer' } },
+      { path: 'master/org', name: 'org-tree', component: () => import('@/views/master/OrgTreeView.vue'), meta: { title: '组织架构', icon: 'Share' } },
+      { path: 'master/owners', name: 'owners', component: () => import('@/views/master/OwnerListView.vue'), meta: { title: '货主档案', icon: 'User' } },
+      { path: 'master/shops', name: 'shops', component: () => import('@/views/master/ShopListView.vue'), meta: { title: '店铺档案', icon: 'Shop' } },
+      { path: 'master/branches', name: 'branches', component: () => import('@/views/master/BranchListView.vue'), meta: { title: '仓库档案', icon: 'House' } },
       { path: 'tenants', name: 'tenants', component: () => import('@/views/TenantListView.vue'), meta: { title: '租户列表(骨架演示)', icon: 'OfficeBuilding' } },
     ],
   },
