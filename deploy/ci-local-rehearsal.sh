@@ -100,6 +100,14 @@ echo "=== Job 3/4: Mock Platform (pytest) ==="
   && ok "mock pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mock.log | tail -1)）" \
   || { bad "mock pytest"; tail -15 /tmp/ci_mock.log; }
 
+echo "=== Job 3c/4: 跨域数据一致性体检（真实数据引用完整性）==="
+# 静态检查（类型/覆盖率）看不出跨域引用悬空；只有真数据体检能发现。
+# 覆盖：缺货明细→异常单/批次、异常单→类型/订单、审单原因标记泄漏/丢失、
+#       订单行→物料、发货单→订单、退款→订单 pay_status、售后→订单标记
+(cd "$ROOT/backend" && "$PY" -m app.scripts.data_consistency_check >/tmp/ci_datacheck.log 2>&1) \
+  && ok "数据一致性体检（$(grep -oE '合计 [0-9]+ 项体检，不一致 [0-9]+ 项' /tmp/ci_datacheck.log | tail -1)）" \
+  || { bad "数据一致性体检"; grep "✗" /tmp/ci_datacheck.log | head -10; }
+
 echo "=== Job 3b/4: Mock WMS (pytest) ==="
 # W7 新增：WMS 模拟器契约测试（指令下发/叫回/状态回放/回传幂等/错误注入）
 (cd "$ROOT/mocks/wms" && "$PY" -m pytest tests/ -q >/tmp/ci_mockwms.log 2>&1) \

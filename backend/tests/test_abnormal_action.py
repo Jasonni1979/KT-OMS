@@ -157,6 +157,14 @@ async def _clean(order_ids: list[int], rule_names: list[str]) -> None:
     async with engine.begin() as conn:
         if order_ids:
             lst = ",".join(str(i) for i in order_ids)
+            # ⚠ 清理顺序：**先子表后父表**（缺货明细 → 异常单）
+            #   否则异常单被删后缺货明细变孤儿（第三轮数据体检实测 17 条孤儿）
+            await conn.execute(
+                text(
+                    "DELETE FROM oms_order.ord_stockout WHERE abnormal_id IN "
+                    f"(SELECT id FROM oms_order.ord_abnormal WHERE order_id IN ({lst}))"
+                )
+            )
             await conn.execute(
                 text(f"DELETE FROM oms_order.ord_abnormal WHERE order_id IN ({lst})")
             )
