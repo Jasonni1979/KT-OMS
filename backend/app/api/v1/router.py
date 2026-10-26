@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends
 
 from app.api.v1 import (
+    abnormal,
     audit,
     auth,
     fulfill,
@@ -51,6 +52,10 @@ api_router.include_router(
     wms.router, prefix="",
     dependencies=[Depends(get_current_account)],
 )  # D09.01 路由 + D09.02 出库指令通道（W7 履约通道）
+api_router.include_router(
+    abnormal.router, prefix="",
+    dependencies=[Depends(get_current_account)],
+)  # D03.09 异常单与缺货处理（W8）
 
 # M1 起按域挂载：
 # api_router.include_router(org.router, prefix="/org")        # D10
