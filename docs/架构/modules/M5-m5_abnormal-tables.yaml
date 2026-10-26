@@ -1,0 +1,39 @@
+# M5 异常单域 —— 表所有权声明
+# 模块目录: backend/app/modules/m5_abnormal/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M5
+slug: m5_abnormal
+name: 异常单域
+write:
+  - oms_oms_order.ord_abnormal
+  - oms_oms_order.ord_abnormal_type_dict
+  - oms_oms_order.ord_reason_code_dict
+  - oms_oms_order.ord_stockout
+  - oms_oms_order.ord_oversold_batch
+  - oms_oms_order.ord_risk_list
+  - oms_oms_order.ord_pause_command_log
+  - oms_oms_order.ord_retrial
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  - module: M1
+    access: 读
+  - module: M2
+    access: 读
+  - module: M3
+    access: 读写
+  - module: M4
+    access: 读写
+  - module: M6
+    access: 写
+forbidden_write:
+  - oms_order.ord_order
+  - oms_order.ord_order_item
+  - oms_order.ord_audit_reason
+  - oms_order.*
+  - oms_fulfill.*
+  - oms_aftersale.*
+  - oms_gateway.*
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）

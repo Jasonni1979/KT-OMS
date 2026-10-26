@@ -1,0 +1,40 @@
+# M8 报表与监控 —— 表所有权声明
+# 模块目录: backend/app/modules/m8_insight/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M8
+slug: m8_insight
+name: 报表与监控
+write:
+  - oms_oms_report.rpt_aftersale
+  - oms_oms_report.rpt_alert_claim
+  - oms_oms_report.rpt_audit_perf
+  - oms_oms_report.rpt_bi_push_log
+  - oms_oms_report.rpt_fulfill_sla
+  - oms_oms_report.rpt_indicator_dict
+  - oms_oms_report.rpt_monitor_metric
+  - oms_oms_report.rpt_near_expire
+  - oms_oms_report.rpt_order_wide
+  - oms_oms_report.rpt_platform_compare
+  - oms_oms_report.rpt_product_sale_rank
+  - oms_oms_report.rpt_profit
+  - oms_oms_report.rpt_sales_daily
+  - oms_oms_report.rpt_sales_monthly
+  - oms_oms_report.rpt_service_fee
+  - oms_oms_report.rpt_settlement_wide
+  - oms_oms_report.rpt_slow_moving
+  - oms_oms_report.rpt_snapshot_task
+  - oms_oms_report.rpt_stock_age
+  - oms_oms_report.rpt_stock_snapshot
+  - oms_oms_report.rpt_stock_turnover
+  - oms_oms_report.rpt_stock_wide
+  - oms_oms_report.rpt_stockout
+  - oms_oms_report.rpt_timeout_alert
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  []
+forbidden_write:
+  - oms_除 report.*
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）

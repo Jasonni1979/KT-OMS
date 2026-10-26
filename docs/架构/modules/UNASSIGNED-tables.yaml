@@ -1,0 +1,26 @@
+# 未分配到任何模块的表（后续批次规划，非缺陷）
+# 门禁放行：这些表当前无写者，agent 不得随意认领
+
+unassigned:
+  - oms_order.ord_archive_config
+  - oms_order.ord_archive_log
+  - oms_order.ord_card_secret
+  - oms_order.ord_declare
+  - oms_order.ord_flag_change_log
+  - oms_order.ord_gift_log
+  - oms_order.ord_groupon
+  - oms_order.ord_instant_delivery
+  - oms_order.ord_instant_track
+  - oms_order.ord_luckybag_alloc
+  - oms_order.ord_order_archive
+  - oms_order.ord_order_invoice
+  - oms_order.ord_pickup
+  - oms_order.ord_presale
+  - oms_order.ord_promotion_activity
+  - oms_order.ord_promotion_gift
+  - oms_order.ord_promotion_rule
+  - oms_order.ord_promotion_scope
+  - oms_order.ord_shop_fulfill_config
+  - oms_order.ord_store_order
+  - oms_order.ord_store_profile
+  - oms_order.ord_virtual_delivery

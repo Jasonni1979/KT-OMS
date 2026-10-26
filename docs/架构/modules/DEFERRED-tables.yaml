@@ -1,0 +1,13 @@
+# 后续批次域 —— 本轮 8 模块**不覆盖**（整域留白）
+# 门禁放行：agent 不得认领这些表的写权
+#
+# oms_finance 42 张 · oms_purchase 25 张 · oms_dealer 14 张 = 81 张
+# 计划归属：W10 财务与采购接入时再切分独立模块
+
+deferred_domains:
+  - schema: oms_finance
+    tables: 42
+  - schema: oms_purchase
+    tables: 25
+  - schema: oms_dealer
+    tables: 14

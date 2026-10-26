@@ -1,0 +1,75 @@
+# M2 商品与库存账本 —— 表所有权声明
+# 模块目录: backend/app/modules/m2_stock/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M2
+slug: m2_stock
+name: 商品与库存账本
+write:
+  - oms_oms_stock.inv_activity_lock_pool
+  - oms_oms_stock.inv_alert_rule
+  - oms_oms_stock.inv_barcode
+  - oms_oms_stock.inv_batch
+  - oms_oms_stock.inv_batch_assign
+  - oms_oms_stock.inv_batch_stock
+  - oms_oms_stock.inv_bom_item
+  - oms_oms_stock.inv_bom_version
+  - oms_oms_stock.inv_brand
+  - oms_oms_stock.inv_consignment_value
+  - oms_oms_stock.inv_cost_change_log
+  - oms_oms_stock.inv_cost_config
+  - oms_oms_stock.inv_cost_snapshot
+  - oms_oms_stock.inv_estimate_batch
+  - oms_oms_stock.inv_expire_disposal
+  - oms_oms_stock.inv_expire_rule
+  - oms_oms_stock.inv_freeze_log
+  - oms_oms_stock.inv_fukubukuro_item
+  - oms_oms_stock.inv_fukubukuro_plan
+  - oms_oms_stock.inv_independent_quota
+  - oms_oms_stock.inv_io_bill
+  - oms_oms_stock.inv_io_bill_item
+  - oms_oms_stock.inv_io_bill_type
+  - oms_oms_stock.inv_io_callback_log
+  - oms_oms_stock.inv_lend_ledger
+  - oms_oms_stock.inv_lend_rule
+  - oms_oms_stock.inv_manual_freeze
+  - oms_oms_stock.inv_material
+  - oms_oms_stock.inv_material_cat
+  - oms_oms_stock.inv_ownership_transfer
+  - oms_oms_stock.inv_ownership_transfer_item
+  - oms_oms_stock.inv_pickone_candidate
+  - oms_oms_stock.inv_price_adjust_item
+  - oms_oms_stock.inv_price_adjust_plan
+  - oms_oms_stock.inv_price_archive
+  - oms_oms_stock.inv_price_sync_task
+  - oms_oms_stock.inv_price_version
+  - oms_oms_stock.inv_replenish_suggestion
+  - oms_oms_stock.inv_sales_forecast
+  - oms_oms_stock.inv_sales_material
+  - oms_oms_stock.inv_sellable_snapshot
+  - oms_oms_stock.inv_serial_no
+  - oms_oms_stock.inv_stock_adjust
+  - oms_oms_stock.inv_stock_change_log
+  - oms_oms_stock.inv_stock_config
+  - oms_oms_stock.inv_stock_ledger
+  - oms_oms_stock.inv_stock_recon_diff
+  - oms_oms_stock.inv_stock_snapshot
+  - oms_oms_stock.inv_stocktake_item
+  - oms_oms_stock.inv_stocktake_plan
+  - oms_oms_stock.inv_stocktake_task
+  - oms_oms_stock.inv_sync_log
+  - oms_oms_stock.inv_sync_strategy
+  - oms_oms_stock.inv_transfer_item
+  - oms_oms_stock.inv_transfer_order
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  - module: M1
+    access: 读
+forbidden_write:
+  - oms_order.*
+  - oms_fulfill.*
+  - oms_aftersale.*
+  - oms_gateway.*
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）

@@ -1,0 +1,55 @@
+# M6 售后与改单 —— 表所有权声明
+# 模块目录: backend/app/modules/m6_aftersale/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M6
+slug: m6_aftersale
+name: 售后与改单
+write:
+  - oms_oms_aftersale.aft_audit_task
+  - oms_oms_aftersale.aft_auto_audit_log
+  - oms_oms_aftersale.aft_auto_audit_rule
+  - oms_oms_aftersale.aft_buyer_profile
+  - oms_oms_aftersale.aft_defect_disposal
+  - oms_oms_aftersale.aft_exchange
+  - oms_oms_aftersale.aft_exchange_item
+  - oms_oms_aftersale.aft_exchange_log
+  - oms_oms_aftersale.aft_reason_dict
+  - oms_oms_aftersale.aft_refund
+  - oms_oms_aftersale.aft_refund_alloc
+  - oms_oms_aftersale.aft_refund_log
+  - oms_oms_aftersale.aft_reship
+  - oms_oms_aftersale.aft_reship_item
+  - oms_oms_aftersale.aft_reship_package
+  - oms_oms_aftersale.aft_reship_sn
+  - oms_oms_aftersale.aft_return_address
+  - oms_oms_aftersale.aft_return_apply
+  - oms_oms_aftersale.aft_return_apply_item
+  - oms_oms_aftersale.aft_return_apply_log
+  - oms_oms_aftersale.aft_return_logistics
+  - oms_oms_aftersale.aft_risk_flag
+  - oms_oms_aftersale.aft_timeout_monitor
+  - oms_oms_order.ord_order_modify
+  - oms_oms_order.ord_order_snapshot
+  - oms_oms_order.ord_modify_log
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  - module: M1
+    access: 读
+  - module: M4
+    access: 写
+  - module: M5
+    access: 读写
+  - module: M7
+    access: 写
+forbidden_write:
+  - oms_order.ord_order
+  - oms_order.ord_order_item
+  - oms_order.*
+  - oms_order.ord_audit_reason
+  - oms_stock.*
+  - oms_fulfill.*
+  - oms_gateway.*
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）

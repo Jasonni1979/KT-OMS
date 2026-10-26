@@ -1,0 +1,54 @@
+# M7 外部集成 —— 表所有权声明
+# 模块目录: backend/app/modules/m7_integration/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M7
+slug: m7_integration
+name: 外部集成
+write:
+  - oms_oms_gateway.gw_adapter_config
+  - oms_oms_gateway.gw_api_fail
+  - oms_oms_gateway.gw_api_log
+  - oms_oms_gateway.gw_credential_audit
+  - oms_oms_gateway.gw_enum_mapping
+  - oms_oms_gateway.gw_errcode_dict
+  - oms_oms_gateway.gw_msg_notify
+  - oms_oms_gateway.gw_openapi_app
+  - oms_oms_gateway.gw_openapi_log
+  - oms_oms_gateway.gw_openapi_register
+  - oms_oms_gateway.gw_order_buffer
+  - oms_oms_gateway.gw_order_buffer_item
+  - oms_oms_gateway.gw_order_buffer_promotion
+  - oms_oms_gateway.gw_platform_config
+  - oms_oms_gateway.gw_pull_watermark
+  - oms_oms_gateway.gw_ratelimit_config
+  - oms_oms_gateway.gw_recon_diff
+  - oms_oms_gateway.gw_rpc_pending
+  - oms_oms_gateway.gw_shop
+  - oms_oms_gateway.gw_shop_auth
+  - oms_oms_gateway.gw_shop_config
+  - oms_oms_gateway.gw_stock_sync_batch
+  - oms_oms_gateway.gw_stock_sync_item
+  - oms_oms_gateway.gw_writeback_task
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  - module: M1
+    access: 读
+  - module: M2
+    access: 读
+  - module: M3
+    access: 写
+  - module: M4
+    access: 写
+  - module: M5
+    access: 写
+forbidden_write:
+  - oms_order.*
+  - oms_fulfill.*
+  - oms_stock.*
+  - oms_aftersale.*
+  - oms_base.bas_event_outbox（白名单除外）
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）
+  - oms_base.bas_event_outbox

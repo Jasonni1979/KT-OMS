@@ -1,0 +1,48 @@
+# M3 订单与审单 —— 表所有权声明
+# 模块目录: backend/app/modules/m3_trade/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M3
+slug: m3_trade
+name: 订单与审单
+write:
+  - oms_oms_order.ord_order
+  - oms_oms_order.ord_order_item
+  - oms_oms_order.ord_receiver
+  - oms_oms_order.ord_order_pmt
+  - oms_oms_order.ord_order_fail
+  - oms_oms_order.ord_status_log
+  - oms_oms_order.ord_audit_reason
+  - oms_oms_order.ord_audit_plugin_perf
+  - oms_oms_order.ord_audit_work_log
+  - oms_oms_order.ord_audit_task
+  - oms_oms_order.ord_audit_batch_log
+  - oms_oms_order.ord_audit_group
+  - oms_oms_order.ord_audit_rule
+  - oms_oms_order.ord_combine_blacklist
+  - oms_oms_order.ord_combine_group
+  - oms_oms_audit.aud_data_access_log
+  - oms_oms_audit.aud_destroy_log
+  - oms_oms_audit.aud_entity_registry
+  - oms_oms_audit.aud_hash_anchor
+  - oms_oms_audit.aud_operation_log
+  - oms_oms_audit.aud_retention_policy
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  - module: M1
+    access: 读
+  - module: M2
+    access: 读
+  - module: M4
+    access: 读
+  - module: M5
+    access: 写
+forbidden_write:
+  - oms_fulfill.*
+  - oms_aftersale.*
+  - oms_gateway.*
+  - oms_order.*
+  - oms_order.*
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）

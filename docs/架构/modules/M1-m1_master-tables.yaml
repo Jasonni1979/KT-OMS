@@ -1,0 +1,71 @@
+# M1 基础主数据 —— 表所有权声明
+# 模块目录: backend/app/modules/m1_master/
+# 门禁: tools/check_table_ownership.py 依据本文件校验「一表一写者」
+module: M1
+slug: m1_master
+name: 基础主数据
+write:
+  - oms_oms_base.bas_alert_record
+  - oms_oms_base.bas_consume_idempotent
+  - oms_oms_base.bas_dead_letter
+  - oms_oms_base.bas_entity_meta
+  - oms_oms_base.bas_event_dict
+  - oms_oms_base.bas_export_task
+  - oms_oms_base.bas_field_meta
+  - oms_oms_base.bas_ie_template
+  - oms_oms_base.bas_import_error
+  - oms_oms_base.bas_import_task
+  - oms_oms_base.bas_message_trace
+  - oms_oms_base.bas_migration_mapping
+  - oms_oms_base.bas_notify_log
+  - oms_oms_base.bas_notify_route
+  - oms_oms_base.bas_notify_template
+  - oms_oms_base.bas_pipl_consent
+  - oms_oms_base.bas_pipl_ds_request
+  - oms_oms_base.bas_pipl_policy
+  - oms_oms_base.bas_plugin_registry
+  - oms_oms_base.bas_rule
+  - oms_oms_base.bas_rule_condition
+  - oms_oms_base.bas_rule_dict
+  - oms_oms_base.bas_rule_test_log
+  - oms_oms_base.bas_rule_version
+  - oms_oms_base.bas_schedule_log
+  - oms_oms_base.bas_schedule_task
+  - oms_oms_base.bas_seq
+  - oms_oms_base.bas_task_dependency
+  - oms_oms_org.org_account
+  - oms_oms_org.org_account_credential
+  - oms_oms_org.org_account_role
+  - oms_oms_org.org_approval_instance
+  - oms_oms_org.org_approval_scene
+  - oms_oms_org.org_approval_threshold
+  - oms_oms_org.org_data_permission
+  - oms_oms_org.org_field_perm
+  - oms_oms_org.org_filterable_entity
+  - oms_oms_org.org_idp_config
+  - oms_oms_org.org_node
+  - oms_oms_org.org_node_relation
+  - oms_oms_org.org_oa_callback_log
+  - oms_oms_org.org_owner
+  - oms_oms_org.org_owner_contract
+  - oms_oms_org.org_owner_settle_config
+  - oms_oms_org.org_perm_point
+  - oms_oms_org.org_perm_violation
+  - oms_oms_org.org_portal_account
+  - oms_oms_org.org_portal_export_log
+  - oms_oms_org.org_portal_message
+  - oms_oms_org.org_portal_notify_pref
+  - oms_oms_org.org_portal_read_log
+  - oms_oms_org.org_role
+  - oms_oms_org.org_role_perm
+  - oms_oms_org.org_session
+  - oms_oms_org.org_shop_owner_transfer
+  - oms_oms_org.org_tenant
+read_only:
+  # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
+  []
+external:
+  []
+forbidden_write:
+shared_write:
+  # 多写者白名单表（outbox 是事件基础设施，非业务数据）
