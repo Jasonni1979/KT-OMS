@@ -43,6 +43,7 @@ from app.models.gateway import (
     GwShopAuth,
 )
 from app.models.material import InvBarcode, InvMaterial
+from app.models.modify import OrdOrderModify, OrdOrderSnapshot
 from app.models.order import (
     OrdOrder,
     OrdOrderFail,
@@ -271,4 +272,17 @@ register_filterable(OrdAbnormalTypeDict, {
 # 审单原因码字典：tenant 维
 register_filterable(OrdReasonCodeDict, {
     "tenant_id": OrdReasonCodeDict.tenant_id,
+})
+
+# ============ 改单域（D03.08）============
+# 改单：tenant + owner + shop 三维
+register_filterable(OrdOrderModify, {
+    "tenant_id": OrdOrderModify.tenant_id,
+    "owner_id": OrdOrderModify.owner_id,
+    "shop_id": OrdOrderModify.shop_id,
+})
+# 快照：tenant + owner 维（只读归档）
+register_filterable(OrdOrderSnapshot, {
+    "tenant_id": OrdOrderSnapshot.tenant_id,
+    "owner_id": OrdOrderSnapshot.owner_id,
 })

@@ -10,6 +10,7 @@ from app.api.v1 import (
     import_center,
     master,
     material,
+    modify,
     monitor,
     order,
     stock,
@@ -61,6 +62,10 @@ api_router.include_router(
     monitor.router, prefix="",
     dependencies=[Depends(get_current_account)],
 )  # D11.03 履约监控看板（W8-3）
+api_router.include_router(
+    modify.router, prefix="",
+    dependencies=[Depends(get_current_account)],
+)  # D03.08 订单修改与改地址（W8-3）
 
 # M1 起按域挂载：
 # api_router.include_router(org.router, prefix="/org")        # D10
