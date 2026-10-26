@@ -258,3 +258,36 @@ class OrdDispatchRule(Base, TimestampMixin, TenantMixin, VersionMixin):
     strategy: Mapped[str] = mapped_column(String(16), nullable=False, default="round_robin")
     filter_on_duty: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="enabled")
+
+
+class OrdRetrial(Base, TimestampMixin, TenantMixin, VersionMixin):
+    """复审单（D03.08 改单复审 / D03.09 FR-02d 转复审动作的载体）
+
+    本期由异常单动作 `to_retrial` 落单；D03.08 的改单执行链路在 W8-3 落地。
+    """
+
+    __tablename__ = "ord_retrial"
+    __table_args__ = {"schema": "oms_order"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    is_deleted: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
+    #: 货主（DDL NOT NULL 无默认值 → 显式声明，INSERT 必填）
+    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    retrial_bn: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    order_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    #: 复审单关联的改单单号（D03.08）
+    modify_bn: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    #: abnormal（异常单转复审）/ modify（改单触发）…
+    retrial_type: Mapped[str] = mapped_column(String(16), nullable=False, default="")
+    #: wait / processing / approved / rejected
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="wait")
+    hit_detail: Mapped[Any] = mapped_column(JSON, nullable=True)
+    snapshot_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    assign_group: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    assign_op: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    handle_opinion: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    handle_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    handle_op: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    sla_deadline: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    shop_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    brand_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)

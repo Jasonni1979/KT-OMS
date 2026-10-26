@@ -385,3 +385,79 @@ async def release_retry(
     svc = StockoutStrategyService(session, await get_redis())
     return ok(await svc.release_and_retry(abnormal_id, operator="api"))
 
+
+# ============ 自动分派 + 动作执行（W8-2b · FR-02c/FR-02d）============
+
+
+@router.get("/abnormal/{abnormal_id}/actions", summary="该异常单可用的动作集")
+async def list_actions(
+    abnormal_id: int, session: AsyncSession = Depends(get_session)
+):
+    """按类型字典的 action_set 返回可用动作（FR-02d：按类型配置可用动作集）
+
+    未实现的动作（转售后/退款，属 W9）也返回，但带 `enabled: false` + 原因，
+    前端据此置灰并明示，不隐藏。
+    """
+    from app.services.abnormal_action import PENDING_ACTIONS, AbnormalActionService
+
+    svc = AbnormalActionService(session, await get_redis())
+    allowed = await svc.allowed_actions(abnormal_id)
+    items = [
+        {
+            "action": a,
+            "enabled": a not in PENDING_ACTIONS,
+            "reason": PENDING_ACTIONS.get(a, ""),
+        }
+        for a in allowed
+    ]
+    return ok({"items": items, "total": len(items)})
+
+
+@router.post("/abnormal/{abnormal_id}/auto-dispatch", summary="自动分派（规则引擎）")
+async def auto_dispatch(
+    abnormal_id: int, session: AsyncSession = Depends(get_session)
+):
+    """按分派规则引擎自动分派（FR-02c）
+
+    维度：异常类型/店铺/货主/品牌；规则未命中 → 类型默认处理组 → 都无则
+    返回「待人工分派」。
+    """
+    from app.services.abnormal import AbnormalService
+
+    svc = AbnormalService(session, await get_redis())
+    row, decision = await svc.auto_dispatch(abnormal_id, operator="api")
+    return ok(
+        {
+            "dispatched": row is not None,
+            "group_id": int(getattr(row, "group_id", 0) or 0) if row else 0,
+            "status": getattr(row, "status", "") if row else "",
+            "decision": decision,
+        }
+    )
+
+
+@router.post("/abnormal/{abnormal_id}/action", summary="执行处理动作")
+async def execute_action(
+    abnormal_id: int,
+    payload: dict,
+    session: AsyncSession = Depends(get_session),
+):
+    """执行异常单处理动作（FR-02d）
+
+    body: {action, note?, extra?}
+    action 必须在该类型的 action_set 白名单内，否则 422。
+    """
+    from app.services.abnormal_action import AbnormalActionService
+
+    action = str(payload.get("action") or "").strip()
+    extra = payload.get("extra") or {}
+    svc = AbnormalActionService(session, await get_redis())
+    result = await svc.execute(
+        abnormal_id,
+        action,
+        operator=str(payload.get("operator") or "api"),
+        note=str(payload.get("note") or ""),
+        extra=extra if isinstance(extra, dict) else {},
+    )
+    return ok(result)
+

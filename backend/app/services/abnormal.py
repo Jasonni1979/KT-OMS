@@ -23,6 +23,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.logging import get_logger
 from app.core.timeutil import utcnow
 from app.models.abnormal import (
     ABNORMAL_CATEGORY_OTHER,
@@ -77,6 +78,9 @@ ADDRESS_TYPES = (
 
 #: 状态机终态
 CLOSED_STATUSES = (ABNORMAL_STATUS_RESOLVED, ABNORMAL_STATUS_CANCELLED)
+
+
+logger = get_logger("abnormal")
 
 
 class AbnormalService:
@@ -268,9 +272,45 @@ class AbnormalService:
         )
         await self.s.commit()
         await self.s.refresh(row)
+        # FR-02c：落单后自动分派（规则引擎 → 类型默认组 → 留待人工）
+        # ⚠ 失败不阻断落单（异常单已创建是事实，分派可人工补）
+        try:
+            await self.auto_dispatch(row.id, operator="system")
+        except Exception as e:  # noqa: BLE001 —— 自动分派失败不影响异常单落库
+            logger.warning(
+                "abnormal_auto_dispatch_failed", detail=str(e), abnormal_id=row.id
+            )
+        await self.s.refresh(row)
         return row, True
 
     # ============ 时间线（FR-02b）============
+
+    async def auto_dispatch(
+        self, abnormal_id: int, *, operator: str = "system", note: str = ""
+    ) -> tuple[OrdAbnormal | None, dict]:
+        """自动分派（FR-02c：按类型默认处理组 / 分派规则引擎）
+
+        分派规则引擎维度：异常类型/店铺/货主/品牌（+ 存量规则的 reason_code）。
+        规则未命中 → 类型默认处理组 → 都没有则留「待分派」等人工分派。
+        """
+        from app.services.abnormal_dispatch import AbnormalDispatchEngine
+
+        row = await self.get(abnormal_id)
+        if row.status != ABNORMAL_STATUS_WAIT_DISPATCH:
+            return None, {"ok": False, "reason": "非待分派状态"}
+        engine = AbnormalDispatchEngine(self.s)
+        decision = await engine.decide(row)
+        gid = int(decision.get("group_id") or 0)
+        if gid <= 0:
+            return None, {**decision, "ok": False, "reason": "无匹配规则且类型无默认处理组"}
+        updated = await self.dispatch(
+            abnormal_id,
+            group_id=gid,
+            op_id=int(decision.get("op_id") or 0),
+            operator=operator,
+            note=note or f"自动分派（{decision.get('rule_name') or decision.get('source')}）",
+        )
+        return updated, {**decision, "ok": True}
 
     async def _append_timeline(
         self,
@@ -494,6 +534,9 @@ class AbnormalService:
             row.rel_retrial_id = retrial_id
         if delivery_ids is not None:
             row.rel_delivery_ids = delivery_ids
+        # 落解决动作（FR-02d：动作集里的具体动作，用于事后追溯）
+        if action:
+            row.resolve_action = str(action)[:16]
         await self.transit(
             abnormal_id,
             ABNORMAL_STATUS_RESOLVED,
