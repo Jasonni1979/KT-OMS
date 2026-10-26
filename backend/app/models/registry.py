@@ -10,6 +10,10 @@ from app.models.abnormal import (
     OrdReasonCodeDict,
     OrdStockout,
 )
+from app.models.abnormal_ext import (
+    OrdOversoldBatch,
+    OrdRiskList,
+)
 from app.models.aftersale import (
     AftRefund,
     AftReturnApply,
@@ -309,4 +313,17 @@ register_filterable(AftRefund, {
     "tenant_id": AftRefund.tenant_id,
     "owner_id": AftRefund.owner_id,
     "shop_id": AftRefund.shop_id,
+})
+
+# ============ 异常单扩展域（W9-2 · D03.09 FR-05b/06a/07）============
+# 应急批次：tenant + owner + shop 三维
+register_filterable(OrdOversoldBatch, {
+    "tenant_id": OrdOversoldBatch.tenant_id,
+    "owner_id": OrdOversoldBatch.owner_id,
+    "shop_id": OrdOversoldBatch.shop_id,
+})
+# 名单服务：tenant + owner 维（owner 为空=全局/租户库）
+register_filterable(OrdRiskList, {
+    "tenant_id": OrdRiskList.tenant_id,
+    "owner_id": OrdRiskList.owner_id,
 })

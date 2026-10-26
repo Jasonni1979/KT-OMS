@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.v1 import (
     abnormal,
+    abnormal_ext,
     aftersale,
     audit,
     auth,
@@ -71,6 +72,10 @@ api_router.include_router(
     aftersale.router, prefix="",
     dependencies=[Depends(get_current_account)],
 )  # D05 售后服务（W9-1）
+api_router.include_router(
+    abnormal_ext.router, prefix="",
+    dependencies=[Depends(get_current_account)],
+)  # D03.09 应急批次/暂停编排/名单服务（W9-2）
 
 # M1 起按域挂载：
 # api_router.include_router(org.router, prefix="/org")        # D10
