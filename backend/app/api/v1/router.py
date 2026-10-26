@@ -5,6 +5,7 @@ from app.api.v1 import (
     abnormal,
     abnormal_ext,
     aftersale,
+    architecture,
     audit,
     auth,
     fulfill,
@@ -21,6 +22,10 @@ from app.api.v1 import (
 from app.core.deps import get_current_account
 
 api_router = APIRouter()
+api_router.include_router(
+    architecture.router, prefix="",
+    dependencies=[Depends(get_current_account)],
+)  # 架构契约可视化（P1）
 api_router.include_router(hello.router, prefix="/hello")
 api_router.include_router(auth.router, prefix="/auth")  # D10.02 认证
 # 档案域起全部业务路由默认需登录（dependencies 在 include 层统一挂）

@@ -21,6 +21,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'import/center', name: 'import-center', component: () => import('@/views/import/ImportCenterView.vue'), meta: { title: '导入中心', icon: 'Upload' } },
       { path: 'stock/ledger', name: 'stock-ledger', component: () => import('@/views/stock/StockLedgerView.vue'), meta: { title: '库存余额与对账', icon: 'Coin' } },
       { path: 'stock/bills', name: 'stock-bills', component: () => import('@/views/stock/StockBillView.vue'), meta: { title: '出入库单据', icon: 'Tickets' } },
+      { path: 'architecture/contracts', name: 'architecture-contracts', component: () => import('@/views/architecture/ContractView.vue'), meta: { title: '架构契约', icon: 'Tickets' } },
       { path: 'abnormal/workbench', name: 'abnormal-workbench', component: () => import('@/views/abnormal/AbnormalWorkbenchView.vue'), meta: { title: '异常单工作台', icon: 'Warning' } },
       { path: 'orders', name: 'orders', component: () => import('@/views/order/OrderListView.vue'), meta: { title: '订单列表', icon: 'List' } },
       { path: 'orders/detail', name: 'order-detail', component: () => import('@/views/order/OrderDetailView.vue'), meta: { title: '订单详情', hidden: true } },
