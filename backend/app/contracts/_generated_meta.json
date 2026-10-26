@@ -1,0 +1,8890 @@
+{
+ "columns": [
+  {
+   "column": "oms_base.bas_event_dict.partitioned",
+   "const": "BAS_EVENT_DICT_PARTITIONED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_event_dict.blocking_flag",
+   "const": "BAS_EVENT_DICT_BLOCKING_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "旁路重试",
+    "1": "阻塞后续"
+   }
+  },
+  {
+   "column": "oms_base.bas_event_dict.status",
+   "const": "BAS_EVENT_DICT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "废弃"
+   }
+  },
+  {
+   "column": "oms_base.bas_event_outbox.status",
+   "const": "BAS_EVENT_OUTBOX_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待投递",
+    "1": "已投递",
+    "2": "投递失败"
+   }
+  },
+  {
+   "column": "oms_base.bas_consume_idempotent.status",
+   "const": "BAS_CONSUME_IDEMPOTENT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "PROCESSING",
+    "2": "SUCCESS"
+   }
+  },
+  {
+   "column": "oms_base.bas_dead_letter.handle_status",
+   "const": "BAS_DEAD_LETTER_HANDLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未处理",
+    "1": "已重放",
+    "2": "已作废",
+    "3": "已修复关闭"
+   }
+  },
+  {
+   "column": "oms_base.bas_schedule_task.status",
+   "const": "BAS_SCHEDULE_TASK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_schedule_log.sampled",
+   "const": "BAS_SCHEDULE_LOG_SAMPLED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "全量",
+    "1": "成功抽样"
+   }
+  },
+  {
+   "column": "oms_base.bas_task_dependency.plan_date_align",
+   "const": "BAS_TASK_DEPENDENCY_PLAN_DATE_ALIGN",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_task_dependency.auto_trigger",
+   "const": "BAS_TASK_DEPENDENCY_AUTO_TRIGGER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "手动补触发",
+    "1": "自动补触发"
+   }
+  },
+  {
+   "column": "oms_base.bas_task_dependency.status",
+   "const": "BAS_TASK_DEPENDENCY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_dict.preset_flag",
+   "const": "BAS_RULE_DICT_PRESET_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "租户扩展",
+    "1": "预置"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_dict.status",
+   "const": "BAS_RULE_DICT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule.defaulted",
+   "const": "BAS_RULE_DEFAULTED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule.status",
+   "const": "BAS_RULE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_version.status",
+   "const": "BAS_RULE_VERSION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "待发布",
+    "3": "灰度中",
+    "4": "已生效",
+    "5": "已废弃",
+    "6": "已回滚"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_version.agent_draft",
+   "const": "BAS_RULE_VERSION_AGENT_DRAFT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "人工",
+    "1": "K-AIDE生成"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_test_log.run_mode",
+   "const": "BAS_RULE_TEST_LOG_RUN_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "单跑",
+    "2": "对比"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_test_log.exec_mode",
+   "const": "BAS_RULE_TEST_LOG_EXEC_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "同步",
+    "2": "异步"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_test_log.run_status",
+   "const": "BAS_RULE_TEST_LOG_RUN_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "运行中",
+    "2": "完成",
+    "3": "失败"
+   }
+  },
+  {
+   "column": "oms_base.bas_plugin_registry.short_circuit",
+   "const": "BAS_PLUGIN_REGISTRY_SHORT_CIRCUIT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "不短路全收集",
+    "1": "短路终止"
+   }
+  },
+  {
+   "column": "oms_base.bas_plugin_registry.enabled",
+   "const": "BAS_PLUGIN_REGISTRY_ENABLED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "停用",
+    "1": "启用"
+   }
+  },
+  {
+   "column": "oms_base.bas_entity_meta.soft_delete",
+   "const": "BAS_ENTITY_META_SOFT_DELETE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_entity_meta.crud_enabled",
+   "const": "BAS_ENTITY_META_CRUD_ENABLED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "定制页面仅局部复用元数据",
+    "1": "走通用骨架"
+   }
+  },
+  {
+   "column": "oms_base.bas_entity_meta.status",
+   "const": "BAS_ENTITY_META_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_field_meta.required_flag",
+   "const": "BAS_FIELD_META_REQUIRED_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_field_meta.sensitive_level",
+   "const": "BAS_FIELD_META_SENSITIVE_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "公开",
+    "1": "内部",
+    "2": "敏感",
+    "3": "高敏"
+   }
+  },
+  {
+   "column": "oms_base.bas_field_meta.unique_flag",
+   "const": "BAS_FIELD_META_UNIQUE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_field_meta.status",
+   "const": "BAS_FIELD_META_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "废弃"
+   }
+  },
+  {
+   "column": "oms_base.bas_pipl_policy.level",
+   "const": "BAS_PIPL_POLICY_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "公开",
+    "1": "内部",
+    "2": "敏感",
+    "3": "高敏"
+   }
+  },
+  {
+   "column": "oms_base.bas_pipl_policy.status",
+   "const": "BAS_PIPL_POLICY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史/停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_pipl_ds_request.restricted_flag",
+   "const": "BAS_PIPL_DS_REQUEST_RESTRICTED_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_pipl_ds_request.handle_status",
+   "const": "BAS_PIPL_DS_REQUEST_HANDLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待受理",
+    "1": "扫描中",
+    "2": "处置中",
+    "3": "已办结",
+    "4": "已拒绝",
+    "5": "超期升级"
+   }
+  },
+  {
+   "column": "oms_base.bas_ie_template.status",
+   "const": "BAS_IE_TEMPLATE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_import_task.status",
+   "const": "BAS_IMPORT_TASK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待执行",
+    "1": "执行中",
+    "2": "成功",
+    "3": "部分成功",
+    "4": "失败",
+    "5": "已取消"
+   }
+  },
+  {
+   "column": "oms_base.bas_export_task.sensitive_flag",
+   "const": "BAS_EXPORT_TASK_SENSITIVE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_export_task.plain_apply",
+   "const": "BAS_EXPORT_TASK_PLAIN_APPLY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "脱敏直通",
+    "1": "申请明文"
+   }
+  },
+  {
+   "column": "oms_base.bas_export_task.status",
+   "const": "BAS_EXPORT_TASK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待审批",
+    "1": "待执行",
+    "2": "执行中",
+    "3": "成功",
+    "4": "失败",
+    "5": "已取消",
+    "6": "审批拒绝终止"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_template.compliance_confirmed",
+   "const": "BAS_NOTIFY_TEMPLATE_COMPLIANCE_CONFIRMED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未确认",
+    "1": "已确认"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_template.status",
+   "const": "BAS_NOTIFY_TEMPLATE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_route.denoise_flag",
+   "const": "BAS_NOTIFY_ROUTE_DENOISE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "仅计数进日报/阈值触发即时发"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_route.default_flag",
+   "const": "BAS_NOTIFY_ROUTE_DEFAULT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_route.status",
+   "const": "BAS_NOTIFY_ROUTE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_log.send_status",
+   "const": "BAS_NOTIFY_LOG_SEND_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "受理",
+    "1": "已提交服务商",
+    "2": "送达",
+    "3": "失败"
+   }
+  },
+  {
+   "column": "oms_base.bas_alert_record.alert_level",
+   "const": "BAS_ALERT_RECORD_ALERT_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "电话+企微穿透免打扰",
+    "1": "企微",
+    "2": "日报池"
+   }
+  },
+  {
+   "column": "oms_base.bas_alert_record.recovered",
+   "const": "BAS_ALERT_RECORD_RECOVERED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "活跃",
+    "1": "已恢复"
+   }
+  },
+  {
+   "column": "oms_base.bas_migration_mapping.status",
+   "const": "BAS_MIGRATION_MAPPING_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "废弃"
+   }
+  },
+  {
+   "column": "oms_order.ord_flag_change_log.change_source",
+   "const": "ORD_FLAG_CHANGE_LOG_CHANGE_SOURCE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "平台同步",
+    "2": "人工标旗",
+    "3": "系统规则"
+   }
+  },
+  {
+   "column": "oms_order.ord_flag_change_log.sync_status",
+   "const": "ORD_FLAG_CHANGE_LOG_SYNC_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无需回传",
+    "1": "待回传",
+    "2": "回传成功",
+    "3": "回传失败"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill_type.direction",
+   "const": "INV_IO_BILL_TYPE_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "入库",
+    "2": "出库"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill_type.need_wms",
+   "const": "INV_IO_BILL_TYPE_NEED_WMS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "本地记账类",
+    "1": "仓执行类"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill_type.need_approval",
+   "const": "INV_IO_BILL_TYPE_NEED_APPROVAL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill_type.settle_rel",
+   "const": "INV_IO_BILL_TYPE_SETTLE_REL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "应付",
+    "2": "应收"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill_type.status",
+   "const": "INV_IO_BILL_TYPE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material_cat.status",
+   "const": "INV_MATERIAL_CAT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_brand.status",
+   "const": "INV_BRAND_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_config.config_type",
+   "const": "INV_STOCK_CONFIG_CONFIG_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "负卖开关",
+    "2": "调整审批阈值",
+    "3": "预占有效期",
+    "4": "超收容差",
+    "5": "调拨在途可售默认"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_config.scope_type",
+   "const": "INV_STOCK_CONFIG_SCOPE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "全局",
+    "2": "货主",
+    "3": "店铺",
+    "4": "仓库",
+    "5": "仓库x货主",
+    "6": "调整类型"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_config.status",
+   "const": "INV_STOCK_CONFIG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_config.tax_caliber",
+   "const": "INV_COST_CONFIG_TAX_CALIBER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "含税",
+    "2": "不含税"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_config.branch_cost_mode",
+   "const": "INV_COST_CONFIG_BRANCH_COST_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "分仓均价",
+    "2": "全局均价"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_config.return_cost_mode",
+   "const": "INV_COST_CONFIG_RETURN_COST_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "原单成本快照",
+    "2": "当前均价"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_config.freight_in_cost",
+   "const": "INV_COST_CONFIG_FREIGHT_IN_COST",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_config.status",
+   "const": "INV_COST_CONFIG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_rule.scope_type",
+   "const": "INV_EXPIRE_RULE_SCOPE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "全局",
+    "2": "货主",
+    "3": "品牌",
+    "4": "分类",
+    "5": "物料"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_rule.threshold_type",
+   "const": "INV_EXPIRE_RULE_THRESHOLD_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "到期前天数",
+    "2": "剩余效期比例%"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_rule.auto_freeze",
+   "const": "INV_EXPIRE_RULE_AUTO_FREEZE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_rule.status",
+   "const": "INV_EXPIRE_RULE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_alert_rule.rule_type",
+   "const": "INV_ALERT_RULE_RULE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "低库存",
+    "2": "断货风险",
+    "3": "滞销",
+    "4": "仓间不均衡",
+    "5": "超储"
+   }
+  },
+  {
+   "column": "oms_stock.inv_alert_rule.scope_type",
+   "const": "INV_ALERT_RULE_SCOPE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "全局",
+    "2": "货主",
+    "3": "品牌",
+    "4": "分类",
+    "5": "物料"
+   }
+  },
+  {
+   "column": "oms_stock.inv_alert_rule.sales_caliber",
+   "const": "INV_ALERT_RULE_SALES_CALIBER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "近7天",
+    "2": "近14天",
+    "3": "近30天"
+   }
+  },
+  {
+   "column": "oms_stock.inv_alert_rule.promo_exclude",
+   "const": "INV_ALERT_RULE_PROMO_EXCLUDE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_alert_rule.scan_freq",
+   "const": "INV_ALERT_RULE_SCAN_FREQ",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "日批",
+    "2": "实时",
+    "3": "日批+实时"
+   }
+  },
+  {
+   "column": "oms_stock.inv_alert_rule.status",
+   "const": "INV_ALERT_RULE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_plan.cycle_type",
+   "const": "INV_STOCKTAKE_PLAN_CYCLE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "月盘",
+    "2": "周盘",
+    "3": "日盘",
+    "4": "动碰抽盘"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_plan.scope_type",
+   "const": "INV_STOCKTAKE_PLAN_SCOPE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "仓x货主全量",
+    "2": "分类",
+    "3": "物料清单",
+    "4": "动碰规则"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_plan.mode",
+   "const": "INV_STOCKTAKE_PLAN_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "明盘",
+    "2": "盲盘"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_plan.executor",
+   "const": "INV_STOCKTAKE_PLAN_EXECUTOR",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "WMS",
+    "2": "人工"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_plan.status",
+   "const": "INV_STOCKTAKE_PLAN_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_strategy.scope_type",
+   "const": "INV_SYNC_STRATEGY_SCOPE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "全店",
+    "2": "分类",
+    "3": "品牌",
+    "4": "指定物料"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_strategy.oversell_mode",
+   "const": "INV_SYNC_STRATEGY_OVERSELL_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "硬分配",
+    "2": "软超卖"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_strategy.water_level_type",
+   "const": "INV_SYNC_STRATEGY_WATER_LEVEL_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "绝对值",
+    "2": "销量天数"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_strategy.writeback_mode",
+   "const": "INV_SYNC_STRATEGY_WRITEBACK_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "实时",
+    "2": "准实时批量",
+    "3": "定时"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_strategy.status",
+   "const": "INV_SYNC_STRATEGY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.type",
+   "const": "INV_MATERIAL_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "成品",
+    "2": "半成品",
+    "3": "普通",
+    "4": "礼盒",
+    "5": "虚拟"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.serial_number",
+   "const": "INV_MATERIAL_SERIAL_NUMBER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "关",
+    "1": "开"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.storage_life_flag",
+   "const": "INV_MATERIAL_STORAGE_LIFE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "关",
+    "1": "开"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.is_ctrl_store",
+   "const": "INV_MATERIAL_IS_CTRL_STORE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "不记账",
+    "1": "记账"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.omnichannel",
+   "const": "INV_MATERIAL_OMNICHANNEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.is_o2o_sales",
+   "const": "INV_MATERIAL_IS_O2O_SALES",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_material.status",
+   "const": "INV_MATERIAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_material.sales_material_type",
+   "const": "INV_SALES_MATERIAL_SALES_MATERIAL_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "普通",
+    "2": "组合",
+    "3": "赠品",
+    "4": "多选一",
+    "5": "礼盒",
+    "6": "福袋"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_material.bind_status",
+   "const": "INV_SALES_MATERIAL_BIND_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未绑定",
+    "1": "已绑定"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_material.visibled",
+   "const": "INV_SALES_MATERIAL_VISIBLED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "下架",
+    "1": "上架"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_material.status",
+   "const": "INV_SALES_MATERIAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "正常",
+    "2": "已停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_bom_version.status",
+   "const": "INV_BOM_VERSION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "生效",
+    "3": "历史"
+   }
+  },
+  {
+   "column": "oms_stock.inv_barcode.barcode_type",
+   "const": "INV_BARCODE_BARCODE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "厂商码",
+    "2": "店铺码",
+    "3": "WMS码",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_stock.inv_barcode.status",
+   "const": "INV_BARCODE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_fukubukuro_plan.status",
+   "const": "INV_FUKUBUKURO_PLAN_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_pickone_candidate.select_type",
+   "const": "INV_PICKONE_CANDIDATE_SELECT_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "库存深度优先",
+    "2": "成本优先",
+    "3": "指定顺序"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_ledger.is_locked",
+   "const": "INV_STOCK_LEDGER_IS_LOCKED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_ledger.status",
+   "const": "INV_STOCK_LEDGER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "活跃",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_adjust.adjust_type",
+   "const": "INV_STOCK_ADJUST_ADJUST_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "盘盈",
+    "2": "盘亏",
+    "3": "报损",
+    "4": "退货修正",
+    "5": "系统纠错",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_adjust.approval_status",
+   "const": "INV_STOCK_ADJUST_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_adjust.status",
+   "const": "INV_STOCK_ADJUST_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "生效",
+    "3": "关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_recon_diff.recon_type",
+   "const": "INV_STOCK_RECON_DIFF_RECON_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "Redis vs DB",
+    "2": "WMS vs OMS",
+    "3": "批次账 vs 数量账"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_recon_diff.status",
+   "const": "INV_STOCK_RECON_DIFF_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待处理",
+    "2": "已自动修复",
+    "3": "已人工处理",
+    "4": "误报忽略"
+   }
+  },
+  {
+   "column": "oms_stock.inv_freeze_log.obj_type",
+   "const": "INV_FREEZE_LOG_OBJ_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "订单",
+    "2": "售后换货",
+    "3": "调拨",
+    "4": "人工",
+    "5": "借调"
+   }
+  },
+  {
+   "column": "oms_stock.inv_freeze_log.status",
+   "const": "INV_FREEZE_LOG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已生效",
+    "2": "部分核销",
+    "3": "已核销",
+    "4": "已释放"
+   }
+  },
+  {
+   "column": "oms_stock.inv_freeze_log.is_compensated",
+   "const": "INV_FREEZE_LOG_IS_COMPENSATED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "已补偿回滚"
+   }
+  },
+  {
+   "column": "oms_stock.inv_manual_freeze.approval_status",
+   "const": "INV_MANUAL_FREEZE_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_manual_freeze.status",
+   "const": "INV_MANUAL_FREEZE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "生效",
+    "3": "部分消耗",
+    "4": "已释放",
+    "5": "已过期"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill.direction",
+   "const": "INV_IO_BILL_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "入库",
+    "2": "出库"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill.status",
+   "const": "INV_IO_BILL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "已下发WMS",
+    "3": "部分回传",
+    "4": "全部回传",
+    "5": "已确认",
+    "6": "已红冲",
+    "7": "已关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill.settle_status",
+   "const": "INV_IO_BILL_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无需结算",
+    "1": "未结算",
+    "2": "部分结算",
+    "3": "已结算",
+    "4": "结算锁定"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_bill.approval_status",
+   "const": "INV_IO_BILL_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_callback_log.callback_type",
+   "const": "INV_IO_CALLBACK_LOG_CALLBACK_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "入库回传",
+    "2": "出库回传",
+    "3": "质检结果"
+   }
+  },
+  {
+   "column": "oms_stock.inv_io_callback_log.status",
+   "const": "INV_IO_CALLBACK_LOG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "成功",
+    "2": "失败待重试",
+    "3": "丢弃"
+   }
+  },
+  {
+   "column": "oms_stock.inv_transfer_order.reason",
+   "const": "INV_TRANSFER_ORDER_REASON",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "平衡",
+    "2": "归集",
+    "3": "退仓前置",
+    "4": "借调移位",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_stock.inv_transfer_order.status",
+   "const": "INV_TRANSFER_ORDER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "已确认",
+    "3": "出库中",
+    "4": "在途",
+    "5": "入库中",
+    "6": "已完结",
+    "7": "差异完结",
+    "8": "已关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_transfer_order.arrival_sellable",
+   "const": "INV_TRANSFER_ORDER_ARRIVAL_SELLABLE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_transfer_order.diff_type",
+   "const": "INV_TRANSFER_ORDER_DIFF_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "运输损耗",
+    "2": "短少",
+    "3": "溢余",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_stock.inv_transfer_order.approval_status",
+   "const": "INV_TRANSFER_ORDER_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_rule.scope_type",
+   "const": "INV_LEND_RULE_SCOPE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "指定清单",
+    "2": "分类",
+    "3": "品牌"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_rule.settle_price_type",
+   "const": "INV_LEND_RULE_SETTLE_PRICE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "内部购销价",
+    "2": "成本价",
+    "3": "免费额度"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_rule.move_type",
+   "const": "INV_LEND_RULE_MOVE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "货不动",
+    "2": "货动"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_rule.status",
+   "const": "INV_LEND_RULE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待审批",
+    "2": "生效",
+    "3": "暂停",
+    "4": "已到期",
+    "5": "已关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_rule.approval_status",
+   "const": "INV_LEND_RULE_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_ledger.status",
+   "const": "INV_LEND_LEDGER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "耗尽",
+    "3": "到期",
+    "4": "关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_lend_ledger.settle_status",
+   "const": "INV_LEND_LEDGER_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未结算",
+    "1": "已结算"
+   }
+  },
+  {
+   "column": "oms_stock.inv_ownership_transfer.status",
+   "const": "INV_OWNERSHIP_TRANSFER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "待审批",
+    "3": "待双方确认",
+    "4": "执行中",
+    "5": "已完成",
+    "6": "已驳回",
+    "7": "已关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_ownership_transfer.approval_status",
+   "const": "INV_OWNERSHIP_TRANSFER_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_task.mode",
+   "const": "INV_STOCKTAKE_TASK_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "明盘",
+    "2": "盲盘"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_task.executor",
+   "const": "INV_STOCKTAKE_TASK_EXECUTOR",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "WMS",
+    "2": "人工"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_task.trigger_type",
+   "const": "INV_STOCKTAKE_TASK_TRIGGER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "手动",
+    "2": "计划调度",
+    "3": "对账差异"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_task.status",
+   "const": "INV_STOCKTAKE_TASK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待下发",
+    "2": "执行中",
+    "3": "已回传",
+    "4": "差异核查",
+    "5": "审批中",
+    "6": "已完结",
+    "7": "已关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_task.approval_status",
+   "const": "INV_STOCKTAKE_TASK_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_item.recount_flag",
+   "const": "INV_STOCKTAKE_ITEM_RECOUNT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "已复盘"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_item.diff_reason",
+   "const": "INV_STOCKTAKE_ITEM_DIFF_REASON",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无差异",
+    "1": "货损",
+    "2": "货差",
+    "3": "单据未闭环",
+    "4": "回传丢失",
+    "5": "串货",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stocktake_item.suspect_mixup",
+   "const": "INV_STOCKTAKE_ITEM_SUSPECT_MIXUP",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_change_log.change_type",
+   "const": "INV_COST_CHANGE_LOG_CHANGE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "入库计价",
+    "2": "出库结转",
+    "3": "退货冲回",
+    "4": "暂估回冲",
+    "5": "调整",
+    "6": "期初",
+    "7": "代管入",
+    "8": "代管出"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_change_log.estimate_flag",
+   "const": "INV_COST_CHANGE_LOG_ESTIMATE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正式价",
+    "1": "暂估价"
+   }
+  },
+  {
+   "column": "oms_stock.inv_cost_change_log.cost_estimated",
+   "const": "INV_COST_CHANGE_LOG_COST_ESTIMATED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "原单快照",
+    "1": "均价替代+人工确认"
+   }
+  },
+  {
+   "column": "oms_stock.inv_estimate_batch.status",
+   "const": "INV_ESTIMATE_BATCH_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "暂估中",
+    "2": "部分转正",
+    "3": "已转正"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sellable_snapshot.sync_status",
+   "const": "INV_SELLABLE_SNAPSHOT_SYNC_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未同步",
+    "1": "已同步",
+    "2": "同步失败",
+    "3": "熔断暂停"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_log.trigger_type",
+   "const": "INV_SYNC_LOG_TRIGGER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "事件驱动",
+    "2": "水位触发",
+    "3": "定时全量",
+    "4": "手动",
+    "5": "对账强制"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sync_log.sync_status",
+   "const": "INV_SYNC_LOG_SYNC_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "成功",
+    "2": "失败"
+   }
+  },
+  {
+   "column": "oms_stock.inv_batch.status",
+   "const": "INV_BATCH_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "正常",
+    "2": "冻结",
+    "3": "清空"
+   }
+  },
+  {
+   "column": "oms_stock.inv_batch_stock.near_expire_level",
+   "const": "INV_BATCH_STOCK_NEAR_EXPIRE_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "黄",
+    "2": "橙",
+    "3": "红"
+   }
+  },
+  {
+   "column": "oms_stock.inv_batch_assign.strategy",
+   "const": "INV_BATCH_ASSIGN_STRATEGY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "FEFO",
+    "2": "FIFO",
+    "3": "指定批次"
+   }
+  },
+  {
+   "column": "oms_stock.inv_batch_assign.is_match",
+   "const": "INV_BATCH_ASSIGN_IS_MATCH",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_serial_no.status",
+   "const": "INV_SERIAL_NO_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "在库",
+    "2": "已出库",
+    "3": "售后中",
+    "4": "已核销",
+    "5": "换出",
+    "6": "终止"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_disposal.disposal_type",
+   "const": "INV_EXPIRE_DISPOSAL_DISPOSAL_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "促销出清",
+    "2": "退仓",
+    "3": "报废"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_disposal.approval_status",
+   "const": "INV_EXPIRE_DISPOSAL_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_stock.inv_expire_disposal.status",
+   "const": "INV_EXPIRE_DISPOSAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "执行中",
+    "3": "已完成",
+    "4": "已关闭"
+   }
+  },
+  {
+   "column": "oms_stock.inv_replenish_suggestion.suggest_type",
+   "const": "INV_REPLENISH_SUGGESTION_SUGGEST_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "采购",
+    "2": "调拨",
+    "3": "借调",
+    "4": "处置"
+   }
+  },
+  {
+   "column": "oms_stock.inv_replenish_suggestion.alert_level",
+   "const": "INV_REPLENISH_SUGGESTION_ALERT_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "黄",
+    "2": "橙",
+    "3": "红"
+   }
+  },
+  {
+   "column": "oms_stock.inv_replenish_suggestion.status",
+   "const": "INV_REPLENISH_SUGGESTION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待处理",
+    "2": "已采纳",
+    "3": "已忽略",
+    "4": "已转单",
+    "5": "已解除",
+    "6": "已过期"
+   }
+  },
+  {
+   "column": "oms_stock.inv_replenish_suggestion.ignore_reason",
+   "const": "INV_REPLENISH_SUGGESTION_IGNORE_REASON",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "品牌方不补",
+    "2": "清仓中",
+    "3": "数据存疑",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_forecast.degrade_flag",
+   "const": "INV_SALES_FORECAST_DEGRADE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "ML预测",
+    "1": "算法服务不可用自动降级统计式"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_archive.below_floor_flag",
+   "const": "INV_PRICE_ARCHIVE_BELOW_FLOOR_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_archive.status",
+   "const": "INV_PRICE_ARCHIVE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_version.sync_flag",
+   "const": "INV_PRICE_VERSION_SYNC_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_adjust_plan.expire_writeback",
+   "const": "INV_PRICE_ADJUST_PLAN_EXPIRE_WRITEBACK",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_adjust_item.below_floor",
+   "const": "INV_PRICE_ADJUST_ITEM_BELOW_FLOOR",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_sync_task.alert_flag",
+   "const": "INV_PRICE_SYNC_TASK_ALERT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "已触发"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reason_dict.duty_party",
+   "const": "AFT_REASON_DICT_DUTY_PARTY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "买家责任",
+    "2": "物流责任",
+    "3": "卖家/质量责任",
+    "4": "平台责任"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reason_dict.audit_white",
+   "const": "AFT_REASON_DICT_AUDIT_WHITE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reason_dict.reject_suggest",
+   "const": "AFT_REASON_DICT_REJECT_SUGGEST",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reason_dict.status",
+   "const": "AFT_REASON_DICT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_address.address_type",
+   "const": "AFT_RETURN_ADDRESS_ADDRESS_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "凯淳仓",
+    "2": "品牌方指定仓",
+    "3": "凯淳代收仓"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_address.status",
+   "const": "AFT_RETURN_ADDRESS_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_rule.action_type",
+   "const": "AFT_AUTO_AUDIT_RULE_ACTION_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "自动同意退款",
+    "2": "自动同意退货",
+    "3": "自动拒绝建议",
+    "4": "转人工"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_rule.rescue_flag",
+   "const": "AFT_AUTO_AUDIT_RULE_RESCUE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_rule.defaulted",
+   "const": "AFT_AUTO_AUDIT_RULE_DEFAULTED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_rule.status",
+   "const": "AFT_AUTO_AUDIT_RULE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.aftersale_type",
+   "const": "AFT_RETURN_APPLY_AFTERSALE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "仅退款",
+    "2": "退货退款",
+    "3": "换货",
+    "4": "补发"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.reship_only",
+   "const": "AFT_RETURN_APPLY_RESHIP_ONLY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.status",
+   "const": "AFT_RETURN_APPLY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待关联",
+    "1": "待审核",
+    "2": "待退货",
+    "3": "待收货",
+    "4": "待退款",
+    "5": "退款中",
+    "6": "换货执行中",
+    "7": "完成",
+    "8": "拒绝",
+    "9": "关闭"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.goods_status",
+   "const": "AFT_RETURN_APPLY_GOODS_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未发货",
+    "1": "已发货未收",
+    "2": "已收货"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.is_archived_order",
+   "const": "AFT_RETURN_APPLY_IS_ARCHIVED_ORDER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.warn_level",
+   "const": "AFT_RETURN_APPLY_WARN_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "黄色",
+    "2": "红色",
+    "3": "已超时"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.sync_status",
+   "const": "AFT_RETURN_APPLY_SYNC_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未回传",
+    "1": "回传中",
+    "2": "成功",
+    "3": "失败待重试",
+    "4": "转人工"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.auto_agreed_by_platform",
+   "const": "AFT_RETURN_APPLY_AUTO_AGREED_BY_PLATFORM",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply.audit_channel",
+   "const": "AFT_RETURN_APPLY_AUDIT_CHANNEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未审核",
+    "1": "人工",
+    "2": "自动规则",
+    "3": "临期兜底",
+    "4": "OA审批"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply_item.gift_flag",
+   "const": "AFT_RETURN_APPLY_ITEM_GIFT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_apply_log.operator_type",
+   "const": "AFT_RETURN_APPLY_LOG_OPERATOR_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "系统",
+    "2": "人工"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship.reship_type",
+   "const": "AFT_RESHIP_RESHIP_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "退货入库",
+    "2": "换货"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship.status",
+   "const": "AFT_RESHIP_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已创建",
+    "2": "已预报",
+    "3": "下发失败",
+    "4": "运送中",
+    "5": "收货中",
+    "6": "质检完成",
+    "7": "已闭环",
+    "8": "已取消",
+    "9": "质检异常挂起",
+    "10": "差异处理中"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship.sn_check_status",
+   "const": "AFT_RESHIP_SN_CHECK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无SN物料",
+    "1": "全部通过",
+    "2": "部分失败挂起",
+    "3": "失败疑似调包"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship.diff_status",
+   "const": "AFT_RESHIP_DIFF_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无差异",
+    "1": "等待补寄",
+    "2": "期满按实收闭环",
+    "3": "多退容差内",
+    "4": "暂挂待认领",
+    "5": "人工强制闭环"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship.close_type",
+   "const": "AFT_RESHIP_CLOSE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未闭环",
+    "1": "正常",
+    "2": "差异闭环",
+    "3": "强制闭环",
+    "4": "取消"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_item.refund_trigger_status",
+   "const": "AFT_RESHIP_ITEM_REFUND_TRIGGER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未触发",
+    "1": "已触发",
+    "2": "人工确认中"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_item.diff_flag",
+   "const": "AFT_RESHIP_ITEM_DIFF_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "有"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_sn.check_stage",
+   "const": "AFT_RESHIP_SN_CHECK_STAGE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "预报登记",
+    "2": "质检扫码"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_sn.check_result",
+   "const": "AFT_RESHIP_SN_CHECK_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待校验",
+    "1": "通过",
+    "2": "失败-非本订单出库SN",
+    "3": "失败-SN状态异常",
+    "4": "降级跳过"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_sn.swap_suspect_flag",
+   "const": "AFT_RESHIP_SN_SWAP_SUSPECT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_sn.before_sn_status",
+   "const": "AFT_RESHIP_SN_BEFORE_SN_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "在库",
+    "2": "已出库",
+    "3": "售后中",
+    "4": "已核销",
+    "5": "换出",
+    "6": "终止"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_reship_sn.handle_result",
+   "const": "AFT_RESHIP_SN_HANDLE_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无需处理",
+    "1": "确认调包-拒收该件",
+    "2": "登记错误-D04.09修正后重检",
+    "3": "确认正常放行"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_defect_disposal.disposal_type",
+   "const": "AFT_DEFECT_DISPOSAL_DISPOSAL_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "退仓还品牌方",
+    "2": "报废",
+    "3": "促销出清",
+    "4": "退供应商"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_defect_disposal.approval_status",
+   "const": "AFT_DEFECT_DISPOSAL_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "待OA审批",
+    "2": "通过",
+    "3": "驳回",
+    "4": "待品牌方门户确认"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_defect_disposal.status",
+   "const": "AFT_DEFECT_DISPOSAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待处置",
+    "2": "处置中",
+    "3": "已闭环",
+    "4": "超期预警"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_logistics.trace_status",
+   "const": "AFT_RETURN_LOGISTICS_TRACE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已揽收",
+    "2": "运输中",
+    "3": "已签收",
+    "4": "拒收",
+    "5": "退回买家",
+    "6": "无轨迹"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_return_logistics.warn_flag",
+   "const": "AFT_RETURN_LOGISTICS_WARN_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "签收后超时未质检",
+    "2": "拒收/退回异常",
+    "3": "预报后15天无轨迹"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.status",
+   "const": "AFT_REFUND_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待退款",
+    "2": "退款中",
+    "3": "已退款",
+    "4": "退款失败",
+    "5": "已退款-线下",
+    "6": "已取消"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.channel",
+   "const": "AFT_REFUND_CHANNEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "platform",
+    "2": "offline"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.platform_intervened",
+   "const": "AFT_REFUND_PLATFORM_INTERVENED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.loss_type",
+   "const": "AFT_REFUND_LOSS_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "弃货退款",
+    "2": "平台介入资损",
+    "3": "超时自动同意资损"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.audit_channel",
+   "const": "AFT_REFUND_AUDIT_CHANNEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "人工",
+    "2": "自动",
+    "3": "OA审批"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.risk_flag",
+   "const": "AFT_REFUND_RISK_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund.ledger_status",
+   "const": "AFT_REFUND_LEDGER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未入账",
+    "1": "已推D08",
+    "2": "差异"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund_alloc.is_last_line",
+   "const": "AFT_REFUND_ALLOC_IS_LAST_LINE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是[辅助]"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_refund_log.operator_type",
+   "const": "AFT_REFUND_LOG_OPERATOR_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "系统",
+    "2": "人工"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange.exchange_type",
+   "const": "AFT_EXCHANGE_EXCHANGE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "同款",
+    "2": "异款"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange.reship_only",
+   "const": "AFT_EXCHANGE_RESHIP_ONLY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange.status",
+   "const": "AFT_EXCHANGE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已创建",
+    "2": "退货链路中",
+    "3": "双链路并行中",
+    "4": "待补差确认",
+    "5": "补发链路中",
+    "6": "补发挂起",
+    "7": "退货超时挂起",
+    "8": "人工决策中",
+    "9": "完成",
+    "10": "已取消"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange.diff_type",
+   "const": "AFT_EXCHANGE_DIFF_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无差价",
+    "1": "退差",
+    "2": "补差"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange.diff_status",
+   "const": "AFT_EXCHANGE_DIFF_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无差价",
+    "1": "处理中",
+    "2": "已结清",
+    "3": "已冲销"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange.sn_reentry_policy",
+   "const": "AFT_EXCHANGE_SN_REENTRY_POLICY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "可再售",
+    "2": "换出终止"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_exchange_log.operator_type",
+   "const": "AFT_EXCHANGE_LOG_OPERATOR_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "系统",
+    "2": "人工"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_log.decision",
+   "const": "AFT_AUTO_AUDIT_LOG_DECISION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "自动同意",
+    "2": "拒绝建议",
+    "3": "转人工",
+    "4": "灰度未开转人工",
+    "5": "竞态放弃",
+    "6": "临期兜底自动同意"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_log.risk_flag",
+   "const": "AFT_AUTO_AUDIT_LOG_RISK_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_log.deadline_rescue",
+   "const": "AFT_AUTO_AUDIT_LOG_DEADLINE_RESCUE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_log.manual_final_decision",
+   "const": "AFT_AUTO_AUDIT_LOG_MANUAL_FINAL_DECISION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未回填",
+    "1": "同意",
+    "2": "拒绝",
+    "3": "转OA"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_auto_audit_log.overturn_flag",
+   "const": "AFT_AUTO_AUDIT_LOG_OVERTURN_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_audit_task.task_type",
+   "const": "AFT_AUDIT_TASK_TASK_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "常规人工审核",
+    "2": "自动审核转人工",
+    "3": "拒绝建议确认",
+    "4": "抽检任务",
+    "5": "风控复核",
+    "6": "质检争议复核"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_audit_task.priority",
+   "const": "AFT_AUDIT_TASK_PRIORITY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "普通",
+    "2": "重要",
+    "3": "置顶"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_audit_task.status",
+   "const": "AFT_AUDIT_TASK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待处理",
+    "2": "已认领",
+    "3": "已完成",
+    "4": "已取消"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_audit_task.result",
+   "const": "AFT_AUDIT_TASK_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未决",
+    "1": "同意",
+    "2": "拒绝",
+    "3": "转OA审批",
+    "4": "改判同意"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_risk_flag.dim_type",
+   "const": "AFT_RISK_FLAG_DIM_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "买家",
+    "2": "店铺",
+    "3": "收货地址"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_risk_flag.blacklist_flag",
+   "const": "AFT_RISK_FLAG_BLACKLIST_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_risk_flag.high_freq_flag",
+   "const": "AFT_RISK_FLAG_HIGH_FREQ_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_risk_flag.calibrate_status",
+   "const": "AFT_RISK_FLAG_CALIBRATE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待校准",
+    "1": "已日终校准"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_timeout_monitor.aftersale_type",
+   "const": "AFT_TIMEOUT_MONITOR_AFTERSALE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "仅退款",
+    "2": "退货退款",
+    "3": "换货"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_timeout_monitor.warn_level",
+   "const": "AFT_TIMEOUT_MONITOR_WARN_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "黄色",
+    "2": "红色",
+    "3": "已超时"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_timeout_monitor.escalate_flag",
+   "const": "AFT_TIMEOUT_MONITOR_ESCALATE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "已升级主管"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_timeout_monitor.auto_agreed_flag",
+   "const": "AFT_TIMEOUT_MONITOR_AUTO_AGREED_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_timeout_monitor.loss_review_flag",
+   "const": "AFT_TIMEOUT_MONITOR_LOSS_REVIEW_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "已入复盘清单"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_timeout_monitor.status",
+   "const": "AFT_TIMEOUT_MONITOR_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "监控中",
+    "2": "已处理按时闭环",
+    "3": "已超时",
+    "4": "平台自动同意已收敛",
+    "5": "已取消"
+   }
+  },
+  {
+   "column": "oms_aftersale.aft_buyer_profile.appeal_status",
+   "const": "AFT_BUYER_PROFILE_APPEAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "申诉中",
+    "2": "申诉通过",
+    "3": "申诉驳回"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_dict.status",
+   "const": "PUR_DICT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supplier.status",
+   "const": "PUR_SUPPLIER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用",
+    "3": "冻结"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supplier.pay_type",
+   "const": "PUR_SUPPLIER_PAY_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "现购cash",
+    "2": "赊购credit"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supplier.settle_type",
+   "const": "PUR_SUPPLIER_SETTLE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "票到付款",
+    "2": "货到付款",
+    "3": "月结"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supply_relation.tax_flag",
+   "const": "PUR_SUPPLY_RELATION_TAX_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "含税",
+    "2": "不含税"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supply_relation.is_default",
+   "const": "PUR_SUPPLY_RELATION_IS_DEFAULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supply_relation.status",
+   "const": "PUR_SUPPLY_RELATION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_supply_price_log.tax_flag",
+   "const": "PUR_SUPPLY_PRICE_LOG_TAX_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "含税",
+    "2": "不含税"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_request.request_type",
+   "const": "PUR_REQUEST_REQUEST_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "手工",
+    "2": "补货建议转单",
+    "3": "批量导入"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_request.status",
+   "const": "PUR_REQUEST_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "审批中",
+    "3": "已通过",
+    "4": "已驳回",
+    "5": "部分转单",
+    "6": "已转单",
+    "7": "已关闭",
+    "8": "已作废"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_request.approval_result",
+   "const": "PUR_REQUEST_APPROVAL_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "通过",
+    "2": "驳回",
+    "3": "撤回确认"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_request.close_reason",
+   "const": "PUR_REQUEST_CLOSE_REASON",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "需求取消",
+    "2": "供应商断供",
+    "3": "价格谈崩",
+    "4": "转由调拨解决",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_request_item.source_type",
+   "const": "PUR_REQUEST_ITEM_SOURCE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "手工",
+    "2": "补货建议转单",
+    "3": "导入"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_request_item.item_status",
+   "const": "PUR_REQUEST_ITEM_ITEM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待转单",
+    "2": "部分转单",
+    "3": "已转单",
+    "4": "已关闭"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.source_type",
+   "const": "PUR_ORDER_SOURCE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "申请转单",
+    "2": "直接创建",
+    "3": "复制创建"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.po_type",
+   "const": "PUR_ORDER_PO_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "现购cash",
+    "2": "赊购credit"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.audit_status",
+   "const": "PUR_ORDER_AUDIT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "未审核",
+    "2": "审批中",
+    "3": "已审核",
+    "4": "已驳回",
+    "5": "已作废"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.inbound_status",
+   "const": "PUR_ORDER_INBOUND_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "不适用",
+    "1": "待入库",
+    "2": "部分入库",
+    "3": "已入库",
+    "4": "未入库终止"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.purchase_status",
+   "const": "PUR_ORDER_PURCHASE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "执行中",
+    "2": "采购完成",
+    "3": "已终止",
+    "4": "部分终止",
+    "5": "采购退货"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.settle_status",
+   "const": "PUR_ORDER_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "未结算",
+    "2": "部分结算",
+    "3": "已结算",
+    "4": "拒绝结算"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.damage_status",
+   "const": "PUR_ORDER_DAMAGE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无需确认",
+    "1": "待确认",
+    "2": "已确认"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.wms_sync_status",
+   "const": "PUR_ORDER_WMS_SYNC_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "无需同步",
+    "2": "已下发",
+    "3": "推送失败",
+    "4": "已取消同步"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.terminate_flag",
+   "const": "PUR_ORDER_TERMINATE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.emergency",
+   "const": "PUR_ORDER_EMERGENCY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order.supplier_confirm_flag",
+   "const": "PUR_ORDER_SUPPLIER_CONFIRM_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未确认",
+    "1": "已确认"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order_item.item_status",
+   "const": "PUR_ORDER_ITEM_ITEM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待入库",
+    "2": "部分入库",
+    "3": "完成入库",
+    "4": "已关闭"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order_fee.fee_type",
+   "const": "PUR_ORDER_FEE_FEE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "运费",
+    "2": "装卸费",
+    "3": "保险费",
+    "4": "关税",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order_fee.alloc_type",
+   "const": "PUR_ORDER_FEE_ALLOC_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "按金额占比",
+    "2": "按数量占比"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_arrival_plan.deviation_flag",
+   "const": "PUR_ARRIVAL_PLAN_DEVIATION_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "日期偏离",
+    "2": "量差偏离",
+    "3": "双偏离"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_arrival_plan.status",
+   "const": "PUR_ARRIVAL_PLAN_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待到货",
+    "2": "部分核销",
+    "3": "已核销",
+    "4": "已关闭"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order_change.change_type",
+   "const": "PUR_ORDER_CHANGE_CHANGE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "加量",
+    "2": "减量",
+    "3": "价格调整",
+    "4": "价外费用",
+    "5": "到货计划",
+    "6": "头信息",
+    "7": "整单取消",
+    "8": "部分终止",
+    "9": "反审核"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order_change.reaudit_flag",
+   "const": "PUR_ORDER_CHANGE_REAUDIT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审生效",
+    "1": "跨阈值上移需OA重审"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_order_change.status",
+   "const": "PUR_ORDER_CHANGE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "挂起",
+    "2": "已生效",
+    "3": "已驳回",
+    "4": "已撤销"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_arrival.out_of_plan_flag",
+   "const": "PUR_ARRIVAL_OUT_OF_PLAN_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_arrival.status",
+   "const": "PUR_ARRIVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已登记",
+    "2": "已生成入库单据",
+    "3": "已下发",
+    "4": "收货中",
+    "5": "已回传",
+    "6": "已确认",
+    "7": "已取消",
+    "8": "异常"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_arrival.source_type",
+   "const": "PUR_ARRIVAL_SOURCE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "手工",
+    "2": "供应商通知代录",
+    "3": "导入",
+    "4": "无单认领"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_receipt.estimate_flag",
+   "const": "PUR_RECEIPT_ESTIMATE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正式价",
+    "1": "暂估价"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_receipt.bill_status",
+   "const": "PUR_RECEIPT_BILL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "已下发WMS",
+    "3": "部分回传",
+    "4": "全部回传",
+    "5": "已确认",
+    "6": "已红冲",
+    "7": "已关闭"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_receipt.settle_status",
+   "const": "PUR_RECEIPT_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无需结算",
+    "1": "未结算",
+    "2": "部分结算",
+    "3": "已结算",
+    "4": "结算锁定"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_receipt_item.quality_result",
+   "const": "PUR_RECEIPT_ITEM_QUALITY_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免检",
+    "1": "合格",
+    "2": "部分不良",
+    "3": "整批不良"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_receipt_item.estimate_flag",
+   "const": "PUR_RECEIPT_ITEM_ESTIMATE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正式价",
+    "1": "暂估价"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_damage.damage_reason",
+   "const": "PUR_DAMAGE_DAMAGE_REASON",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "运输破损",
+    "2": "生产不良",
+    "3": "包装破损",
+    "4": "效期异常",
+    "5": "货差短少",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_damage.claim_flag",
+   "const": "PUR_DAMAGE_CLAIM_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_damage.claim_object_type",
+   "const": "PUR_DAMAGE_CLAIM_OBJECT_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "供应商",
+    "2": "物流承运商"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_damage.claim_result",
+   "const": "PUR_DAMAGE_CLAIM_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "处理中",
+    "1": "认赔",
+    "2": "部分认赔",
+    "3": "放弃"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_damage.status",
+   "const": "PUR_DAMAGE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待决策",
+    "2": "审批中",
+    "3": "已决策",
+    "4": "已闭环"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_diff_decision.diff_type",
+   "const": "PUR_DIFF_DECISION_DIFF_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "短缺",
+    "2": "超收",
+    "3": "超收",
+    "4": "拒收差异"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_diff_decision.decision",
+   "const": "PUR_DIFF_DECISION_DECISION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待决策",
+    "1": "供应商补发",
+    "2": "短缺核销",
+    "3": "索赔",
+    "4": "追认",
+    "5": "拒收超出"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_diff_decision.status",
+   "const": "PUR_DIFF_DECISION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待决策",
+    "2": "已决策",
+    "3": "已闭环"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payable.accrual_strategy",
+   "const": "PUR_PAYABLE_ACCRUAL_STRATEGY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "现购按单挂账",
+    "2": "赊购按入库挂账"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payable.estimate_flag",
+   "const": "PUR_PAYABLE_ESTIMATE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正式",
+    "1": "暂估"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payable.settle_status",
+   "const": "PUR_PAYABLE_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "未结算",
+    "2": "部分结算",
+    "3": "已结算",
+    "4": "拒绝结算"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payable.status",
+   "const": "PUR_PAYABLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "差异挂起",
+    "3": "已关闭"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_statement.check_result",
+   "const": "PUR_STATEMENT_CHECK_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未校验",
+    "1": "通过",
+    "2": "不通过"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_statement.close_status",
+   "const": "PUR_STATEMENT_CLOSE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "未关账",
+    "2": "关账中",
+    "3": "已关账"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_statement.recon_confirm_status",
+   "const": "PUR_STATEMENT_RECON_CONFIRM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未生成",
+    "1": "待发送",
+    "2": "已发送",
+    "3": "已确认",
+    "4": "有异议"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_statement_item.object_type",
+   "const": "PUR_STATEMENT_ITEM_OBJECT_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "赊购入库挂账",
+    "2": "现购按单挂账",
+    "3": "付款核销",
+    "4": "退货退款",
+    "5": "调整扣减",
+    "6": "预付款抵扣",
+    "7": "暂估转正调整",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_statement_item.direction",
+   "const": "PUR_STATEMENT_ITEM_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "应付方向",
+    "2": "应收方向"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_invoice.match_status",
+   "const": "PUR_INVOICE_MATCH_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未匹配",
+    "1": "部分匹配",
+    "2": "已匹配",
+    "3": "差异挂起"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_invoice.estimate_reversed",
+   "const": "PUR_INVOICE_ESTIMATE_REVERSED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未触发",
+    "1": "已触发"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_invoice.status",
+   "const": "PUR_INVOICE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "正常",
+    "2": "作废",
+    "3": "红冲"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_invoice_match.match_result",
+   "const": "PUR_INVOICE_MATCH_MATCH_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待匹配",
+    "1": "通过",
+    "2": "价格差异",
+    "3": "数量差异",
+    "4": "金额尾差"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payment.pay_type",
+   "const": "PUR_PAYMENT_PAY_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "预付款",
+    "2": "货款",
+    "3": "退款收回抵扣"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payment.status",
+   "const": "PUR_PAYMENT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "申请草稿",
+    "2": "审批中",
+    "3": "审批通过待付款",
+    "4": "已付款",
+    "5": "已核销",
+    "6": "已驳回",
+    "7": "已取消"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payment.kd_push_status",
+   "const": "PUR_PAYMENT_KD_PUSH_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未推送",
+    "1": "已推送",
+    "2": "推送失败",
+    "3": "已冲销同步"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payment_verify.direction",
+   "const": "PUR_PAYMENT_VERIFY_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "正向核销",
+    "2": "反向撤销"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payment_verify.fifo_flag",
+   "const": "PUR_PAYMENT_VERIFY_FIFO_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "人工指定",
+    "1": "到期日FIFO自动"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_payment_verify.kd_reverse_flag",
+   "const": "PUR_PAYMENT_VERIFY_KD_REVERSE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无需",
+    "1": "已推金蝶需冲销供数"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_recon_diff.diff_type",
+   "const": "PUR_RECON_DIFF_DIFF_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "价格差异",
+    "2": "数量差异",
+    "3": "金额尾差",
+    "4": "对账异议",
+    "5": "暂估超期",
+    "6": "台账差额校验不平",
+    "7": "索赔争议"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_recon_diff.handle_path",
+   "const": "PUR_RECON_DIFF_HANDLE_PATH",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待定",
+    "1": "拒付差额",
+    "2": "追认调价",
+    "3": "补决策",
+    "4": "重开发票",
+    "5": "强制核销",
+    "9": "其他"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_recon_diff.force_verify_flag",
+   "const": "PUR_RECON_DIFF_FORCE_VERIFY_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_purchase.pur_recon_diff.status",
+   "const": "PUR_RECON_DIFF_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待处理",
+    "2": "处理中",
+    "3": "已闭环",
+    "4": "已升级"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_price_type.tax_mode",
+   "const": "DLR_PRICE_TYPE_TAX_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "含税价",
+    "2": "不含税价"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_price_type.status",
+   "const": "DLR_PRICE_TYPE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dealer.dealer_level",
+   "const": "DLR_DEALER_DEALER_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "战略",
+    "2": "A级",
+    "3": "B级",
+    "4": "C级"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dealer.coop_mode",
+   "const": "DLR_DEALER_COOP_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "买断转售",
+    "2": "代发",
+    "3": "混合"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dealer.status",
+   "const": "DLR_DEALER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "合作中",
+    "2": "暂停",
+    "3": "终止"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dealer_shop.shop_type",
+   "const": "DLR_DEALER_SHOP_SHOP_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "线上店",
+    "2": "线下门店"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dealer_shop.is_dropship",
+   "const": "DLR_DEALER_SHOP_IS_DROPSHIP",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dealer_shop.status",
+   "const": "DLR_DEALER_SHOP_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_credit_account.over_policy",
+   "const": "DLR_CREDIT_ACCOUNT_OVER_POLICY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "拦截",
+    "2": "OA审批放行"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_credit_account.status",
+   "const": "DLR_CREDIT_ACCOUNT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "正常",
+    "2": "冻结"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_credit_txn.txn_type",
+   "const": "DLR_CREDIT_TXN_TXN_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "下单预占",
+    "2": "释放",
+    "3": "审核扣减",
+    "4": "转应收",
+    "5": "回款恢复",
+    "6": "逾期登记"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_credit_txn.direction",
+   "const": "DLR_CREDIT_TXN_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "占用增加",
+    "2": "占用减少",
+    "3": "性质转换",
+    "4": "逾期登记"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_credit_period.start_anchor",
+   "const": "DLR_CREDIT_PERIOD_START_ANCHOR",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "发货日",
+    "2": "结算单归档日"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_credit_period.status",
+   "const": "DLR_CREDIT_PERIOD_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_product_auth.auth_level",
+   "const": "DLR_PRODUCT_AUTH_AUTH_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "品牌级",
+    "2": "分类级",
+    "3": "SKU级"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_product_auth.delivery_mode",
+   "const": "DLR_PRODUCT_AUTH_DELIVERY_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "自发",
+    "2": "代发"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_product_auth.status",
+   "const": "DLR_PRODUCT_AUTH_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "已失效",
+    "3": "已终止"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.channel",
+   "const": "DLR_SALES_ORDER_CHANNEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "门户自助",
+    "2": "业务员代下单",
+    "3": "批量导入",
+    "4": "EDI直连"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.pay_mode",
+   "const": "DLR_SALES_ORDER_PAY_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "账期赊销",
+    "2": "先款后货",
+    "3": "预存款抵扣"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.amount_caliber",
+   "const": "DLR_SALES_ORDER_AMOUNT_CALIBER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "批发价口径",
+    "2": "0元内部口径——系统级配置选定后全局一致"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.allow_split",
+   "const": "DLR_SALES_ORDER_ALLOW_SPLIT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "整单一次转",
+    "1": "允许分批转履约"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.status",
+   "const": "DLR_SALES_ORDER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "待审核",
+    "3": "超额审批中",
+    "4": "已审核",
+    "5": "部分转单",
+    "6": "全部转单",
+    "7": "部分发货",
+    "8": "已完成",
+    "9": "已关闭"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.close_reason",
+   "const": "DLR_SALES_ORDER_CLOSE_REASON",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "经销商取消",
+    "2": "凯淳拒绝",
+    "3": "超时未审核自动关闭",
+    "4": "OA驳回"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order.convert_status",
+   "const": "DLR_SALES_ORDER_CONVERT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "unconvert未转",
+    "2": "splitting分批中",
+    "3": "converted已转",
+    "4": "fail转失败",
+    "5": "needless无需转"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order_item.moq_check",
+   "const": "DLR_SALES_ORDER_ITEM_MOQ_CHECK",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "通过",
+    "2": "低于起订量拦截",
+    "3": "非整箱倍数拦截"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_sales_order_item.status",
+   "const": "DLR_SALES_ORDER_ITEM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "正常",
+    "2": "已关闭",
+    "3": "已转完"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_price_list.status",
+   "const": "DLR_PRICE_LIST_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "审批中",
+    "3": "待生效",
+    "4": "生效中",
+    "5": "已失效"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_price_change.action",
+   "const": "DLR_PRICE_CHANGE_ACTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "发布",
+    "2": "变更",
+    "3": "提前失效",
+    "4": "版本切换",
+    "5": "特批价申请",
+    "6": "合同价录入"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_price_change.approval_level",
+   "const": "DLR_PRICE_CHANGE_APPROVAL_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "销售总监",
+    "2": "财务总监加签",
+    "3": "总经理"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_price_change.approval_status",
+   "const": "DLR_PRICE_CHANGE_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待审",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_transfer_order.source_type",
+   "const": "DLR_TRANSFER_ORDER_SOURCE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "B2B销售单",
+    "2": "平台单"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_transfer_order.transfer_status",
+   "const": "DLR_TRANSFER_ORDER_TRANSFER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "unconvert未转",
+    "2": "splitting拆分中",
+    "3": "converted已转",
+    "4": "fail转失败",
+    "5": "needless无需转"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_transfer_order.channel_type",
+   "const": "DLR_TRANSFER_ORDER_CHANNEL_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "凯淳仓代发",
+    "2": "货权方仓",
+    "3": "供应商直发"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_transfer_order_item.dropship_flag",
+   "const": "DLR_TRANSFER_ORDER_ITEM_DROPSHIP_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_transfer_order_item.status",
+   "const": "DLR_TRANSFER_ORDER_ITEM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待转",
+    "2": "已转",
+    "3": "挂起",
+    "4": "失败",
+    "5": "已取消"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dropship_ledger.object_type",
+   "const": "DLR_DROPSHIP_LEDGER_OBJECT_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "代发出库",
+    "2": "代发服务费",
+    "3": "经销商侧代发应收",
+    "4": "调整"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dropship_ledger.direction",
+   "const": "DLR_DROPSHIP_LEDGER_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "凯淳应付",
+    "2": "凯淳应收"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dropship_ledger.settle_price_type",
+   "const": "DLR_DROPSHIP_LEDGER_SETTLE_PRICE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "内部购销价",
+    "2": "成本价",
+    "3": "免费"
+   }
+  },
+  {
+   "column": "oms_dealer.dlr_dropship_ledger.settle_status",
+   "const": "DLR_DROPSHIP_LEDGER_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未结算",
+    "1": "已入结算单",
+    "2": "已归档"
+   }
+  },
+  {
+   "column": "oms_finance.fin_dict.status",
+   "const": "FIN_DICT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_finance.fin_gap_account.need_handle",
+   "const": "FIN_GAP_ACCOUNT_NEED_HANDLE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "口径差无需处理",
+    "1": "需处理"
+   }
+  },
+  {
+   "column": "oms_finance.fin_gap_account.status",
+   "const": "FIN_GAP_ACCOUNT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_finance.fin_credit_period.status",
+   "const": "FIN_CREDIT_PERIOD_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settle_config.platform_in_settle",
+   "const": "FIN_SETTLE_CONFIG_PLATFORM_IN_SETTLE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settle_config.zero_period_skip",
+   "const": "FIN_SETTLE_CONFIG_ZERO_PERIOD_SKIP",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "生成空结算单保持连续性",
+    "1": "跳过"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settle_config.status",
+   "const": "FIN_SETTLE_CONFIG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史"
+   }
+  },
+  {
+   "column": "oms_finance.fin_service_fee_rule.with_refund",
+   "const": "FIN_SERVICE_FEE_RULE_WITH_REFUND",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "毛销售额",
+    "1": "净销售额"
+   }
+  },
+  {
+   "column": "oms_finance.fin_service_fee_rule.status",
+   "const": "FIN_SERVICE_FEE_RULE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用",
+    "3": "历史"
+   }
+  },
+  {
+   "column": "oms_finance.fin_invoice_channel.status",
+   "const": "FIN_INVOICE_CHANNEL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_finance.fin_code_mapping.direction",
+   "const": "FIN_CODE_MAPPING_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "不适用",
+    "1": "借",
+    "2": "贷"
+   }
+  },
+  {
+   "column": "oms_finance.fin_code_mapping.gap_flag",
+   "const": "FIN_CODE_MAPPING_GAP_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_code_mapping.status",
+   "const": "FIN_CODE_MAPPING_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_adapter.status",
+   "const": "FIN_KINGDEE_ADAPTER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "占位",
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_finance.fin_receivable.settle_status",
+   "const": "FIN_RECEIVABLE_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未结算",
+    "1": "已进结算单锁定",
+    "2": "结算差异处理中"
+   }
+  },
+  {
+   "column": "oms_finance.fin_receivable.settle_carry_next",
+   "const": "FIN_RECEIVABLE_SETTLE_CARRY_NEXT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_receivable.lend_flag",
+   "const": "FIN_RECEIVABLE_LEND_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_receivable.platform_intervened",
+   "const": "FIN_RECEIVABLE_PLATFORM_INTERVENED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_receivable.wait_link_flag",
+   "const": "FIN_RECEIVABLE_WAIT_LINK_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_platform_bill_item.direction",
+   "const": "FIN_PLATFORM_BILL_ITEM_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "收入",
+    "2": "支出"
+   }
+  },
+  {
+   "column": "oms_finance.fin_platform_bill_item.split_status",
+   "const": "FIN_PLATFORM_BILL_ITEM_SPLIT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未拆分",
+    "1": "已双口径拆分",
+    "2": "不可拆",
+    "3": "一流水拆多订单/多费用项"
+   }
+  },
+  {
+   "column": "oms_finance.fin_bill_diff.auto_judge",
+   "const": "FIN_BILL_DIFF_AUTO_JUDGE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "人工判定",
+    "1": "自动初判"
+   }
+  },
+  {
+   "column": "oms_finance.fin_platform_fee.settle_status",
+   "const": "FIN_PLATFORM_FEE_SETTLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未结算",
+    "1": "已进结算单"
+   }
+  },
+  {
+   "column": "oms_finance.fin_platform_fee.reverse_flag",
+   "const": "FIN_PLATFORM_FEE_REVERSE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "红冲行"
+   }
+  },
+  {
+   "column": "oms_finance.fin_ar_ledger.check_status",
+   "const": "FIN_AR_LEDGER_CHECK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未校验",
+    "1": "一致",
+    "2": "不一致已按明细重算"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settlement.owner_type",
+   "const": "FIN_SETTLEMENT_OWNER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "代销",
+    "2": "买断"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settlement.net_direction",
+   "const": "FIN_SETTLEMENT_NET_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "零交易",
+    "1": "净额>0凯淳应付品牌方",
+    "2": "净额<0品牌方应付凯淳"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settlement.kd_push_status",
+   "const": "FIN_SETTLEMENT_KD_PUSH_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待推",
+    "1": "已推",
+    "2": "失败重试"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settlement.period_lock",
+   "const": "FIN_SETTLEMENT_PERIOD_LOCK",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未锁",
+    "1": "已锁"
+   }
+  },
+  {
+   "column": "oms_finance.fin_settlement_item.lend_direction",
+   "const": "FIN_SETTLEMENT_ITEM_LEND_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "非借调",
+    "1": "本货主为借入方应付凯淳",
+    "2": "本货主为借出方应收"
+   }
+  },
+  {
+   "column": "oms_finance.fin_receipt.direction",
+   "const": "FIN_RECEIPT_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "收款",
+    "2": "付款"
+   }
+  },
+  {
+   "column": "oms_finance.fin_write_off.writeoff_type",
+   "const": "FIN_WRITE_OFF_WRITEOFF_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "应收应退互冲",
+    "1": "收款核销",
+    "2": "付款核销"
+   }
+  },
+  {
+   "column": "oms_finance.fin_write_off.auto_flag",
+   "const": "FIN_WRITE_OFF_AUTO_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "人工",
+    "1": "自动"
+   }
+  },
+  {
+   "column": "oms_finance.fin_write_off.reverse_flag",
+   "const": "FIN_WRITE_OFF_REVERSE_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "反核销负向记录"
+   }
+  },
+  {
+   "column": "oms_finance.fin_error_table.diff_direction",
+   "const": "FIN_ERROR_TABLE_DIFF_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "借方",
+    "2": "贷方"
+   }
+  },
+  {
+   "column": "oms_finance.fin_freight_bill_item.tolerance_result",
+   "const": "FIN_FREIGHT_BILL_ITEM_TOLERANCE_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未判定",
+    "1": "容差内自动通过",
+    "2": "超容差进差异池"
+   }
+  },
+  {
+   "column": "oms_finance.fin_invoice_apply.buyer_type",
+   "const": "FIN_INVOICE_APPLY_BUYER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "个人",
+    "2": "企业"
+   }
+  },
+  {
+   "column": "oms_finance.fin_invoice_pool.condition_type",
+   "const": "FIN_INVOICE_POOL_CONDITION_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已发货",
+    "2": "已付款",
+    "3": "已完成"
+   }
+  },
+  {
+   "column": "oms_finance.fin_invoice.color",
+   "const": "FIN_INVOICE_COLOR",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "蓝票",
+    "2": "红票"
+   }
+  },
+  {
+   "column": "oms_finance.fin_invoice.issuer_type",
+   "const": "FIN_INVOICE_ISSUER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "凯淳",
+    "2": "品牌方"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_supply.feed_type",
+   "const": "FIN_KINGDEE_SUPPLY_FEED_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "销售明细/",
+    "2": "退款明细/",
+    "3": "结算单/",
+    "4": "采购入库与应付/",
+    "5": "运费实际/",
+    "6": "发票台账/",
+    "7": "存货余额与出入库成本"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_supply_file.encrypt_flag",
+   "const": "FIN_KINGDEE_SUPPLY_FILE_ENCRYPT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_supply_file.notify_flag",
+   "const": "FIN_KINGDEE_SUPPLY_FILE_NOTIFY_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_receipt.check_result",
+   "const": "FIN_KINGDEE_RECEIPT_CHECK_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待勾稽",
+    "1": "勾稽通过",
+    "2": "勾稽不平"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_receipt.timeout_alert",
+   "const": "FIN_KINGDEE_RECEIPT_TIMEOUT_ALERT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未催",
+    "1": "已催办"
+   }
+  },
+  {
+   "column": "oms_org.org_node.status",
+   "const": "ORG_NODE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_node_relation.is_primary",
+   "const": "ORG_NODE_RELATION_IS_PRIMARY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.org_node_relation.status",
+   "const": "ORG_NODE_RELATION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_owner.status",
+   "const": "ORG_OWNER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "合作中",
+    "2": "暂停",
+    "3": "终止"
+   }
+  },
+  {
+   "column": "oms_org.org_owner_contract.status",
+   "const": "ORG_OWNER_CONTRACT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "生效中",
+    "3": "已到期",
+    "4": "已作废"
+   }
+  },
+  {
+   "column": "oms_org.org_owner_settle_config.settle_period_type",
+   "const": "ORG_OWNER_SETTLE_CONFIG_SETTLE_PERIOD_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "月结",
+    "2": "半月结",
+    "3": "周结"
+   }
+  },
+  {
+   "column": "oms_org.org_owner_settle_config.payment_start_basis",
+   "const": "ORG_OWNER_SETTLE_CONFIG_PAYMENT_START_BASIS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "结算单归档日",
+    "2": "品牌方确认日"
+   }
+  },
+  {
+   "column": "oms_org.org_owner_settle_config.status",
+   "const": "ORG_OWNER_SETTLE_CONFIG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史"
+   }
+  },
+  {
+   "column": "oms_org.org_shop_owner_transfer.approval_status",
+   "const": "ORG_SHOP_OWNER_TRANSFER_APPROVAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待发起",
+    "1": "审批中",
+    "2": "通过",
+    "3": "驳回"
+   }
+  },
+  {
+   "column": "oms_org.org_shop_owner_transfer.status",
+   "const": "ORG_SHOP_OWNER_TRANSFER_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "草稿",
+    "2": "审批中",
+    "3": "执行中",
+    "4": "完成",
+    "5": "关闭"
+   }
+  },
+  {
+   "column": "oms_org.org_tenant.status",
+   "const": "ORG_TENANT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "禁用"
+   }
+  },
+  {
+   "column": "oms_org.org_account.status",
+   "const": "ORG_ACCOUNT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待激活",
+    "2": "正常",
+    "3": "锁定",
+    "4": "禁用"
+   }
+  },
+  {
+   "column": "oms_org.org_account_credential.must_change_pwd",
+   "const": "ORG_ACCOUNT_CREDENTIAL_MUST_CHANGE_PWD",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.org_account_credential.status",
+   "const": "ORG_ACCOUNT_CREDENTIAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "有效",
+    "2": "失效"
+   }
+  },
+  {
+   "column": "oms_org.org_session.status",
+   "const": "ORG_SESSION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "活跃",
+    "2": "登出",
+    "3": "被踢",
+    "4": "被吊销"
+   }
+  },
+  {
+   "column": "oms_org.org_session.login_result",
+   "const": "ORG_SESSION_LOGIN_RESULT",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "成功",
+    "2": "失败"
+   }
+  },
+  {
+   "column": "oms_org.org_role.portal_flag",
+   "const": "ORG_ROLE_PORTAL_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "内部",
+    "1": "外部"
+   }
+  },
+  {
+   "column": "oms_org.org_role.status",
+   "const": "ORG_ROLE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_idp_config.enabled",
+   "const": "ORG_IDP_CONFIG_ENABLED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "关",
+    "1": "开"
+   }
+  },
+  {
+   "column": "oms_org.org_perm_point.internal_only",
+   "const": "ORG_PERM_POINT_INTERNAL_ONLY",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "外部可绑定",
+    "1": "仅内部"
+   }
+  },
+  {
+   "column": "oms_org.org_perm_point.portal_visible",
+   "const": "ORG_PERM_POINT_PORTAL_VISIBLE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.org_perm_point.status",
+   "const": "ORG_PERM_POINT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "废弃"
+   }
+  },
+  {
+   "column": "oms_org.org_data_permission.status",
+   "const": "ORG_DATA_PERMISSION_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "已失效"
+   }
+  },
+  {
+   "column": "oms_org.org_filterable_entity.status",
+   "const": "ORG_FILTERABLE_ENTITY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_field_perm.portal_forbidden",
+   "const": "ORG_FIELD_PERM_PORTAL_FORBIDDEN",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "按权限点",
+    "1": "品牌方永不展示"
+   }
+  },
+  {
+   "column": "oms_org.org_field_perm.status",
+   "const": "ORG_FIELD_PERM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_perm_violation.audit_pushed",
+   "const": "ORG_PERM_VIOLATION_AUDIT_PUSHED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.org_portal_account.audit_status",
+   "const": "ORG_PORTAL_ACCOUNT_AUDIT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待审核",
+    "1": "通过",
+    "2": "驳回",
+    "3": "无需审核"
+   }
+  },
+  {
+   "column": "oms_org.org_portal_message.read_status",
+   "const": "ORG_PORTAL_MESSAGE_READ_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未读",
+    "1": "已读"
+   }
+  },
+  {
+   "column": "oms_org.org_portal_read_log.sampled",
+   "const": "ORG_PORTAL_READ_LOG_SAMPLED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "全量",
+    "1": "采样命中"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_scene.default_need",
+   "const": "ORG_APPROVAL_SCENE_DEFAULT_NEED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "需审"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_scene.fixed_must",
+   "const": "ORG_APPROVAL_SCENE_FIXED_MUST",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "有阈值配置",
+    "1": "全量必审无阈值豁免"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_scene.stub_mode",
+   "const": "ORG_APPROVAL_SCENE_STUB_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正式OA",
+    "1": "桩"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_scene.status",
+   "const": "ORG_APPROVAL_SCENE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "废弃"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_threshold.need_approval",
+   "const": "ORG_APPROVAL_THRESHOLD_NEED_APPROVAL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "免审",
+    "1": "需审"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_threshold.status",
+   "const": "ORG_APPROVAL_THRESHOLD_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_instance.urgent_flag",
+   "const": "ORG_APPROVAL_INSTANCE_URGENT_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_instance.auto_flag",
+   "const": "ORG_APPROVAL_INSTANCE_AUTO_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_instance.status",
+   "const": "ORG_APPROVAL_INSTANCE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "发起中",
+    "2": "审批中",
+    "3": "通过",
+    "4": "驳回",
+    "5": "撤回",
+    "6": "发起失败",
+    "7": "撤回中",
+    "8": "通过未执行"
+   }
+  },
+  {
+   "column": "oms_org.org_approval_instance.execute_check_status",
+   "const": "ORG_APPROVAL_INSTANCE_EXECUTE_CHECK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未执行",
+    "1": "通过",
+    "2": "失败"
+   }
+  },
+  {
+   "column": "oms_org.org_oa_callback_log.direction",
+   "const": "ORG_OA_CALLBACK_LOG_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "入",
+    "2": "出"
+   }
+  },
+  {
+   "column": "oms_org.org_oa_callback_log.sign_verified",
+   "const": "ORG_OA_CALLBACK_LOG_SIGN_VERIFIED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "失败",
+    "1": "通过"
+   }
+  },
+  {
+   "column": "oms_org.org_oa_callback_log.process_status",
+   "const": "ORG_OA_CALLBACK_LOG_PROCESS_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待处理",
+    "1": "已处理",
+    "2": "重复忽略",
+    "3": "乱序忽略",
+    "4": "处理失败"
+   }
+  },
+  {
+   "column": "oms_org.aud_operation_log.sensitive_level",
+   "const": "AUD_OPERATION_LOG_SENSITIVE_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "普通",
+    "2": "一般变更决策",
+    "3": "资金/PII明文/权限变更"
+   }
+  },
+  {
+   "column": "oms_org.aud_data_access_log.risk_flag",
+   "const": "AUD_DATA_ACCESS_LOG_RISK_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "高频",
+    "2": "非工作时段批量",
+    "3": "爬取模式",
+    "4": "服务账号解密量突增"
+   }
+  },
+  {
+   "column": "oms_org.aud_data_access_log.anonymized",
+   "const": "AUD_DATA_ACCESS_LOG_ANONYMIZED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_org.aud_entity_registry.status",
+   "const": "AUD_ENTITY_REGISTRY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_org.aud_hash_anchor.verify_status",
+   "const": "AUD_HASH_ANCHOR_VERIFY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "待校验",
+    "1": "通过",
+    "2": "断链"
+   }
+  },
+  {
+   "column": "oms_org.aud_retention_policy.policy_level",
+   "const": "AUD_RETENTION_POLICY_POLICY_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "普通",
+    "2": "一般变更决策",
+    "3": "资金/PII明文/权限变更"
+   }
+  },
+  {
+   "column": "oms_org.aud_retention_policy.status",
+   "const": "AUD_RETENTION_POLICY_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史"
+   }
+  },
+  {
+   "column": "oms_report.rpt_indicator_dict.status",
+   "const": "RPT_INDICATOR_DICT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "生效",
+    "2": "历史",
+    "3": "废止"
+   }
+  },
+  {
+   "column": "oms_report.rpt_snapshot_task.status",
+   "const": "RPT_SNAPSHOT_TASK_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "待执行",
+    "2": "生成中",
+    "3": "就绪",
+    "4": "失败",
+    "5": "待人工复核",
+    "6": "已重跑替代"
+   }
+  },
+  {
+   "column": "oms_report.rpt_snapshot_task.rerun_flag",
+   "const": "RPT_SNAPSHOT_TASK_RERUN_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_report.rpt_product_sale_rank.window_type",
+   "const": "RPT_PRODUCT_SALE_RANK_WINDOW_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "当日",
+    "2": "近7天滚动",
+    "3": "近30天滚动",
+    "4": "近90天滚动"
+   }
+  },
+  {
+   "column": "oms_report.rpt_product_sale_rank.rank_type",
+   "const": "RPT_PRODUCT_SALE_RANK_RANK_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "按GMV",
+    "2": "按销量",
+    "3": "按实付",
+    "4": "按退款率"
+   }
+  },
+  {
+   "column": "oms_report.rpt_stock_snapshot.owner_type",
+   "const": "RPT_STOCK_SNAPSHOT_OWNER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "买断",
+    "2": "代销",
+    "3": "经销商DEALER_TC"
+   }
+  },
+  {
+   "column": "oms_report.rpt_stock_age.age_bucket",
+   "const": "RPT_STOCK_AGE_AGE_BUCKET",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "30": "0-30天",
+    "60": "31-60天",
+    "90": "61-90天",
+    "180": "91-180天"
+   }
+  },
+  {
+   "column": "oms_report.rpt_near_expire.expire_level",
+   "const": "RPT_NEAR_EXPIRE_EXPIRE_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "黄",
+    "2": "橙",
+    "3": "红"
+   }
+  },
+  {
+   "column": "oms_report.rpt_near_expire.disposal_status",
+   "const": "RPT_NEAR_EXPIRE_DISPOSAL_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未处置",
+    "1": "处置中",
+    "2": "已处置",
+    "3": "已过期"
+   }
+  },
+  {
+   "column": "oms_report.rpt_stockout.age_level",
+   "const": "RPT_STOCKOUT_AGE_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": ">24h",
+    "2": ">48h",
+    "3": ">72h"
+   }
+  },
+  {
+   "column": "oms_report.rpt_stockout.suggest_status",
+   "const": "RPT_STOCKOUT_SUGGEST_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "已生成",
+    "2": "已采纳"
+   }
+  },
+  {
+   "column": "oms_report.rpt_timeout_alert.status",
+   "const": "RPT_TIMEOUT_ALERT_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "预警中",
+    "2": "已解除",
+    "3": "已升级"
+   }
+  },
+  {
+   "column": "oms_report.rpt_aftersale.apply_type",
+   "const": "RPT_AFTERSALE_APPLY_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "全部",
+    "1": "仅退款",
+    "2": "退货退款",
+    "3": "换货",
+    "4": "补发"
+   }
+  },
+  {
+   "column": "oms_report.rpt_aftersale.denominator_type",
+   "const": "RPT_AFTERSALE_DENOMINATOR_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "付款订单量",
+    "2": "发货订单量"
+   }
+  },
+  {
+   "column": "oms_report.rpt_profit.category_level",
+   "const": "RPT_PROFIT_CATEGORY_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "货主总",
+    "2": "店铺级",
+    "3": "分类级",
+    "4": "单品级"
+   }
+  },
+  {
+   "column": "oms_report.rpt_profit.freight_caliber",
+   "const": "RPT_PROFIT_FREIGHT_CALIBER",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "实际",
+    "2": "预估"
+   }
+  },
+  {
+   "column": "oms_report.rpt_profit.period_locked",
+   "const": "RPT_PROFIT_PERIOD_LOCKED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未关账",
+    "1": "已关账只读固化"
+   }
+  },
+  {
+   "column": "oms_report.rpt_service_fee.net_direction",
+   "const": "RPT_SERVICE_FEE_NET_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "凯淳应收",
+    "2": "凯淳应付"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.order_type",
+   "const": "RPT_ORDER_WIDE_ORDER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "普通",
+    "2": "换货",
+    "3": "补发",
+    "4": "B2B等"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.audit_mode",
+   "const": "RPT_ORDER_WIDE_AUDIT_MODE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未审",
+    "1": "自动",
+    "2": "人工"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.has_aftersale",
+   "const": "RPT_ORDER_WIDE_HAS_AFTERSALE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "申请中",
+    "2": "已完成"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.aftersale_type",
+   "const": "RPT_ORDER_WIDE_AFTERSALE_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "仅退款",
+    "2": "退货退款",
+    "3": "换货",
+    "4": "补发"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.refund_status",
+   "const": "RPT_ORDER_WIDE_REFUND_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "退款中",
+    "2": "退款成功",
+    "3": "退款关闭"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.qc_good_flag",
+   "const": "RPT_ORDER_WIDE_QC_GOOD_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未质检",
+    "1": "良品",
+    "2": "不良品"
+   }
+  },
+  {
+   "column": "oms_report.rpt_order_wide.platform_intervened",
+   "const": "RPT_ORDER_WIDE_PLATFORM_INTERVENED",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_report.rpt_stock_wide.owner_type",
+   "const": "RPT_STOCK_WIDE_OWNER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "买断",
+    "2": "代销",
+    "3": "经销商"
+   }
+  },
+  {
+   "column": "oms_report.rpt_stock_wide.slow_moving_flag",
+   "const": "RPT_STOCK_WIDE_SLOW_MOVING_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "否",
+    "1": "是"
+   }
+  },
+  {
+   "column": "oms_report.rpt_settlement_wide.owner_type",
+   "const": "RPT_SETTLEMENT_WIDE_OWNER_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "买断",
+    "2": "代销",
+    "3": "经销商"
+   }
+  },
+  {
+   "column": "oms_report.rpt_settlement_wide.redflush_flag",
+   "const": "RPT_SETTLEMENT_WIDE_REDFLUSH_FLAG",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "正常",
+    "1": "红冲单",
+    "2": "被红冲原单"
+   }
+  },
+  {
+   "column": "oms_report.rpt_settlement_wide.net_direction",
+   "const": "RPT_SETTLEMENT_WIDE_NET_DIRECTION",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "凯淳应付货主",
+    "2": "凯淳应收货主"
+   }
+  },
+  {
+   "column": "oms_report.rpt_settlement_wide.status",
+   "const": "RPT_SETTLEMENT_WIDE_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "已归档",
+    "2": "已红冲"
+   }
+  },
+  {
+   "column": "oms_report.rpt_bi_push_log.batch_type",
+   "const": "RPT_BI_PUSH_LOG_BATCH_TYPE",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "全量",
+    "2": "增量",
+    "3": "补推",
+    "4": "重建"
+   }
+  },
+  {
+   "column": "oms_report.rpt_bi_push_log.channel",
+   "const": "RPT_BI_PUSH_LOG_CHANNEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "文件OSS",
+    "2": "中间表"
+   }
+  },
+  {
+   "column": "oms_report.rpt_bi_push_log.status",
+   "const": "RPT_BI_PUSH_LOG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "加工中",
+    "2": "已推送",
+    "3": "对账平",
+    "4": "对账不平",
+    "5": "失败",
+    "6": "已补推替代"
+   }
+  },
+  {
+   "column": "oms_report.rpt_bi_push_log.recon_status",
+   "const": "RPT_BI_PUSH_LOG_RECON_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未对账",
+    "1": "平",
+    "2": "不平",
+    "3": "无回执超时"
+   }
+  },
+  {
+   "column": "oms_report.rpt_monitor_metric.alert_mark",
+   "const": "RPT_MONITOR_METRIC_ALERT_MARK",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "无",
+    "1": "告警触发点",
+    "2": "恢复点"
+   }
+  },
+  {
+   "column": "oms_report.rpt_monitor_metric.reg_status",
+   "const": "RPT_MONITOR_METRIC_REG_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "启用",
+    "2": "停用"
+   }
+  },
+  {
+   "column": "oms_report.rpt_alert_claim.alert_level",
+   "const": "RPT_ALERT_CLAIM_ALERT_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "P0",
+    "2": "P1",
+    "3": "P2"
+   }
+  },
+  {
+   "column": "oms_report.rpt_alert_claim.status",
+   "const": "RPT_ALERT_CLAIM_STATUS",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "1": "触发",
+    "2": "已通知",
+    "3": "已认领",
+    "4": "处置中",
+    "5": "已闭环",
+    "6": "已自动恢复",
+    "7": "已归并",
+    "8": "已静默",
+    "9": "已升级"
+   }
+  },
+  {
+   "column": "oms_report.rpt_alert_claim.escalate_level",
+   "const": "RPT_ALERT_CLAIM_ESCALATE_LEVEL",
+   "type": "",
+   "kind": "int",
+   "values": {
+    "0": "未升级",
+    "1": "P1→P0",
+    "2": "P0→运营负责人"
+   }
+  },
+  {
+   "column": "oms_base.bas_rule_condition.op_code",
+   "const": "BAS_RULE_CONDITION_OP_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "eq": "eq",
+    "neq": "neq",
+    "gt": "gt",
+    "gte": "gte",
+    "lt": "lt",
+    "lte": "lte",
+    "between": "between",
+    "in": "in",
+    "not_in": "not_in",
+    "any_in": "any_in",
+    "all_in": "all_in",
+    "contains": "contains",
+    "starts_with": "starts_with",
+    "regex": "regex",
+    "is_true": "is_true",
+    "is_false": "is_false",
+    "is_null": "is_null",
+    "not_null": "not_null",
+    "in_window": "in_window",
+    "before": "before",
+    "after": "after"
+   }
+  },
+  {
+   "column": "oms_base.bas_field_meta.value_type",
+   "const": "BAS_FIELD_META_VALUE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "string": "string",
+    "int": "int",
+    "decimal": "decimal",
+    "datetime": "datetime",
+    "date": "date",
+    "bool": "bool",
+    "enum": "enum",
+    "json": "json",
+    "ref": "ref"
+   }
+  },
+  {
+   "column": "oms_base.bas_ie_template.domain_code",
+   "const": "BAS_IE_TEMPLATE_DOMAIN_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "D03": "D03",
+    "D04": "D04",
+    "D06": "D06",
+    "D08": "D08",
+    "D09": "等"
+   }
+  },
+  {
+   "column": "oms_base.bas_notify_log.msg_class",
+   "const": "BAS_NOTIFY_LOG_MSG_CLASS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "alert": "alert",
+    "notify": "notify",
+    "consumer": "consumer",
+    "external": "external"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_platform_config.platform",
+   "const": "GW_PLATFORM_CONFIG_PLATFORM",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "taobao": "taobao",
+    "jd": "jd",
+    "pdd": "pdd",
+    "xhs": "xhs",
+    "vop": "vop",
+    "douyin": "douyin",
+    "wechat": "wechat",
+    "kuaishou": "kuaishou"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_platform_config.status",
+   "const": "GW_PLATFORM_CONFIG_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用",
+    "sandbox": "沙箱"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_platform_config.source",
+   "const": "GW_PLATFORM_CONFIG_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "api": "api",
+    "local": "local",
+    "import": "import",
+    "migration": "migration"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_adapter_config.status",
+   "const": "GW_ADAPTER_CONFIG_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用",
+    "gray": "灰度"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_enum_mapping.map_type",
+   "const": "GW_ENUM_MAPPING_MAP_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "order_status": "order_status",
+    "logistics_code": "logistics_code",
+    "aftersale_status": "aftersale_status",
+    "aftersale_reason": "aftersale_reason"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_enum_mapping.status",
+   "const": "GW_ENUM_MAPPING_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_ratelimit_config.scope_type",
+   "const": "GW_RATELIMIT_CONFIG_SCOPE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform": "platform",
+    "app": "app",
+    "shop": "shop",
+    "method": "method"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_ratelimit_config.status",
+   "const": "GW_RATELIMIT_CONFIG_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.platform",
+   "const": "GW_SHOP_PLATFORM",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "taobao": "taobao",
+    "jd": "jd",
+    "pdd": "pdd",
+    "xhs": "xhs",
+    "vop": "vop",
+    "douyin": "douyin",
+    "wechat": "wechat",
+    "kuaishou": "kuaishou"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.shop_type",
+   "const": "GW_SHOP_SHOP_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "direct": "直营",
+    "flagship": "旗舰店",
+    "franchise": "加盟",
+    "store": "门店O2O",
+    "dealer": "经销"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.business_type",
+   "const": "GW_SHOP_BUSINESS_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "direct_sale": "直销",
+    "distribution": "分销",
+    "dealer": "经销"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.auth_status",
+   "const": "GW_SHOP_AUTH_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待授权",
+    "normal": "正常",
+    "expired": "过期",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.auth_mode",
+   "const": "GW_SHOP_AUTH_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "self": "自助",
+    "agent": "代授权"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.auth_url_track",
+   "const": "GW_SHOP_AUTH_URL_TRACK",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "sent": "已发送",
+    "clicked": "已点击",
+    "done": "已完成"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.status",
+   "const": "GW_SHOP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop.source",
+   "const": "GW_SHOP_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "api": "api",
+    "local": "local",
+    "import": "import",
+    "migration": "migration"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop_auth.session_enc",
+   "const": "GW_SHOP_AUTH_SESSION_ENC",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "session": "session",
+    "cookie": "凭证密文"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop_auth.status",
+   "const": "oms_gateway_GW_SHOP_AUTH_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待授权",
+    "normal": "正常",
+    "expired": "过期",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_shop_config.back_node",
+   "const": "GW_SHOP_CONFIG_BACK_NODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "shipped": "发货时",
+    "print": "打印时",
+    "verify": "验货时"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_credential_audit.action",
+   "const": "GW_CREDENTIAL_AUDIT_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "use": "取用",
+    "refresh": "续期",
+    "reauth": "重授权",
+    "revoke": "吊销"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_credential_audit.result",
+   "const": "GW_CREDENTIAL_AUDIT_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "succ": "成功",
+    "fail": "失败",
+    "denied": "拒绝"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_api_log.err_level",
+   "const": "GW_API_LOG_ERR_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "RETRYABLE": "可重试",
+    "RATE_LIMITED": "退避限流",
+    "AUTH": "需授权",
+    "MANUAL": "需人工",
+    "FATAL": "停重试"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_api_log.source",
+   "const": "GW_API_LOG_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pull": "拉单",
+    "writeback": "回传",
+    "retry": "重试",
+    "passthrough": "透传",
+    "reconcile": "对账"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_rpc_pending.status",
+   "const": "GW_RPC_PENDING_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "在途",
+    "verified": "已核实",
+    "to_fail": "已转失败"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_api_fail.obj_type",
+   "const": "GW_API_FAIL_OBJ_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "delivery": "delivery",
+    "stock_batch": "stock_batch",
+    "aftersale": "aftersale",
+    "order_pull": "order_pull",
+    "order_buffer": "order_buffer",
+    "writeback": "等"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_api_fail.err_level",
+   "const": "GW_API_FAIL_ERR_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "RETRYABLE": "RETRYABLE",
+    "RATE_LIMITED": "RATE_LIMITED",
+    "AUTH": "AUTH",
+    "MANUAL": "MANUAL",
+    "FATAL": "FATAL"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_api_fail.status",
+   "const": "GW_API_FAIL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "waiting": "等待",
+    "retrying": "重试中",
+    "succ": "成功",
+    "manual": "转人工",
+    "dead": "死信",
+    "suspended": "店铺挂起",
+    "deleted": "终态清理"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_api_fail.resolved_by",
+   "const": "GW_API_FAIL_RESOLVED_BY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "retry": "重试成功",
+    "reconcile": "反查已生效",
+    "manual": "人工",
+    "biz_closed": "业务关闭"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_errcode_dict.err_level",
+   "const": "GW_ERRCODE_DICT_ERR_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "RETRYABLE": "可重试",
+    "RATE_LIMITED": "退避限流",
+    "AUTH": "需重新授权",
+    "MANUAL": "需人工",
+    "FATAL": "停止重试"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_errcode_dict.status",
+   "const": "GW_ERRCODE_DICT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer.canonical_status",
+   "const": "GW_ORDER_BUFFER_CANONICAL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "unpaid": "待付款",
+    "unshipped": "待发货",
+    "shipped": "已发货",
+    "closed": "已关闭",
+    "finished": "已完成"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer.receiver_encrypted_channel",
+   "const": "GW_ORDER_BUFFER_RECEIVER_ENCRYPTED_CHANNEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "none": "明文",
+    "oaid": "平台密文",
+    "virtual": "虚拟号"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer.deliver_status",
+   "const": "GW_ORDER_BUFFER_DELIVER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待投递",
+    "delivered": "已投递",
+    "accepted": "已接收",
+    "waiting": "建档等待",
+    "fail": "投递失败",
+    "manual": "人工处理",
+    "closed": "已关闭"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer.source",
+   "const": "GW_ORDER_BUFFER_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "api": "api",
+    "local": "local",
+    "import": "import",
+    "migration": "migration"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer_item.refund_status",
+   "const": "GW_ORDER_BUFFER_ITEM_REFUND_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "none": "无",
+    "refunding": "退款中",
+    "refunded": "已退款"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer_promotion.promotion_type",
+   "const": "GW_ORDER_BUFFER_PROMOTION_PROMOTION_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform_coupon": "平台券",
+    "shop_coupon": "店铺券",
+    "full_reduce": "满减",
+    "subsidy": "补贴"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_order_buffer_promotion.bear_by",
+   "const": "GW_ORDER_BUFFER_PROMOTION_BEAR_BY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform": "平台",
+    "merchant": "商家",
+    "mixed": "混合"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_msg_notify.msg_type",
+   "const": "GW_MSG_NOTIFY_MSG_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "trade": "订单",
+    "trade_close": "trade_close",
+    "aftersale": "售后",
+    "product": "商品",
+    "other": "其他"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_msg_notify.route_target",
+   "const": "GW_MSG_NOTIFY_ROUTE_TARGET",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "order": "订单域",
+    "aftersale": "售后域",
+    "product": "商品域",
+    "unknown": "未知"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_msg_notify.status",
+   "const": "GW_MSG_NOTIFY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待消费",
+    "processing": "消费中",
+    "succ": "成功",
+    "fail": "失败",
+    "dead": "死信"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_pull_watermark.channel",
+   "const": "GW_PULL_WATERMARK_CHANNEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "order": "订单",
+    "aftersale": "售后",
+    "refund": "退款"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_writeback_task.sync_type",
+   "const": "GW_WRITEBACK_TASK_SYNC_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "delivery": "发货",
+    "stock": "库存",
+    "aftersale": "售后",
+    "lifecycle": "生命周期"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_writeback_task.action",
+   "const": "GW_WRITEBACK_TASK_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "send": "send",
+    "resend": "resend",
+    "agree_refund": "agree_refund",
+    "confirm_receive": "confirm_receive",
+    "cancel": "等"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_writeback_task.back_node",
+   "const": "GW_WRITEBACK_TASK_BACK_NODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "shipped": "发货",
+    "print": "打印",
+    "verify": "验货"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_writeback_task.status",
+   "const": "GW_WRITEBACK_TASK_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待处理",
+    "processing": "处理中",
+    "succ": "成功",
+    "fail_pending": "失败待重试",
+    "retrying": "重试中",
+    "manual": "转人工",
+    "skipped": "跳过"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_writeback_task.err_level",
+   "const": "GW_WRITEBACK_TASK_ERR_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "RETRYABLE": "RETRYABLE",
+    "RATE_LIMITED": "RATE_LIMITED",
+    "AUTH": "AUTH",
+    "MANUAL": "MANUAL",
+    "FATAL": "FATAL"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_stock_sync_batch.status",
+   "const": "GW_STOCK_SYNC_BATCH_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "running": "进行中",
+    "done": "完成",
+    "partial": "部分失败"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_stock_sync_item.status",
+   "const": "GW_STOCK_SYNC_ITEM_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待同步",
+    "succ": "成功",
+    "fail": "失败",
+    "skipped": "跳过"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_recon_diff.reconcile_type",
+   "const": "GW_RECON_DIFF_RECONCILE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "delivery": "发货",
+    "stock": "库存",
+    "aftersale": "售后",
+    "order_missing": "漏单"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_recon_diff.result",
+   "const": "GW_RECON_DIFF_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "consistent": "一致",
+    "fixed": "差异已修正",
+    "to_manual": "差异转人工",
+    "repull": "漏单补拉"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_app.quota_level",
+   "const": "GW_OPENAPI_APP_QUOTA_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "basic": "basic",
+    "standard": "standard",
+    "premium": "premium"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_app.status",
+   "const": "GW_OPENAPI_APP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_app.audit_status",
+   "const": "GW_OPENAPI_APP_AUDIT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待审",
+    "approved": "通过",
+    "rejected": "驳回"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_register.domain",
+   "const": "GW_OPENAPI_REGISTER_DOMAIN",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "order": "order",
+    "stock": "stock",
+    "aftersale": "aftersale",
+    "shop": "shop"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_register.rw_type",
+   "const": "GW_OPENAPI_REGISTER_RW_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "read": "read",
+    "write": "write"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_register.quota_level",
+   "const": "GW_OPENAPI_REGISTER_QUOTA_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "basic": "basic",
+    "standard": "standard",
+    "premium": "premium"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_register.status",
+   "const": "GW_OPENAPI_REGISTER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_gateway.gw_openapi_log.result",
+   "const": "GW_OPENAPI_LOG_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "succ": "成功",
+    "fail": "失败",
+    "denied": "拒绝"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.createway",
+   "const": "ORD_ORDER_CREATEWAY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform": "平台",
+    "local": "手工",
+    "import": "导入",
+    "exchange": "换货",
+    "b2b": "经销",
+    "after": "补发"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.order_type",
+   "const": "ORD_ORDER_ORDER_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "normal": "普通",
+    "exchange": "换货",
+    "reship": "补发",
+    "presale": "预售",
+    "groupon": "团购",
+    "luckybag": "福袋",
+    "virtual": "虚拟"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.order_status",
+   "const": "ORD_ORDER_ORDER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "processing": "进行中",
+    "finished": "已完成",
+    "cancelled": "已取消"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.audit_status",
+   "const": "ORD_ORDER_AUDIT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待审核",
+    "passed": "已审核",
+    "rejected": "驳回",
+    "retrial": "复审中"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.fulfill_status",
+   "const": "ORD_ORDER_FULFILL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待履约",
+    "fulfilling": "履约中",
+    "partial_shipped": "部分发货",
+    "shipped": "已发货",
+    "finished": "完成"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.pay_status",
+   "const": "ORD_ORDER_PAY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "unpaid": "未支付",
+    "partial": "部分支付",
+    "paid": "已支付",
+    "refunding": "退款中",
+    "partial_refund": "部分退款",
+    "full_refund": "全额退款"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.ship_status",
+   "const": "ORD_ORDER_SHIP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "unshipped": "未发货",
+    "partial": "部分发货",
+    "shipped": "已发货",
+    "partial_return": "部分退货",
+    "returned": "已退货"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.promotion_source",
+   "const": "ORD_ORDER_PROMOTION_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "organic": "自然流量",
+    "taoke": "淘客联盟",
+    "live": "直播带货",
+    "private": "私域",
+    "other": "其他"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.cross_border_type",
+   "const": "ORD_ORDER_CROSS_BORDER_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "NULL": "无",
+    "bonded": "保税",
+    "direct": "直邮"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.declare_status",
+   "const": "ORD_ORDER_DECLARE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "none": "无需申报",
+    "wait": "待申报",
+    "declaring": "申报中",
+    "released": "放行",
+    "failed": "申报失败",
+    "returned": "已退单",
+    "exported": "已出区",
+    "refund_declare": "退单申报"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.archive_flag",
+   "const": "ORD_ORDER_ARCHIVE_FLAG",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "online": "在线",
+    "archived": "已归档",
+    "recalled": "已回捞"
+   }
+  },
+  {
+   "column": "oms_order.ord_order.source",
+   "const": "ORD_ORDER_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "api": "api",
+    "local": "local",
+    "import": "import",
+    "migration": "migration"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_item.parse_status",
+   "const": "ORD_ORDER_ITEM_PARSE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "parsed": "已解析",
+    "pending": "待解析",
+    "failed": "解析失败"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_pmt.pmt_type",
+   "const": "ORD_ORDER_PMT_PMT_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform_coupon": "平台券",
+    "shop_full_reduce": "店铺满减",
+    "item_discount": "单品直降",
+    "freight_coupon": "运费券",
+    "other": "其他"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_pmt.bearer",
+   "const": "ORD_ORDER_PMT_BEARER",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform": "平台",
+    "shop": "商家"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_invoice.invoice_type",
+   "const": "ORD_ORDER_INVOICE_INVOICE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "e_normal": "电子普票",
+    "special": "专票",
+    "paper": "纸质普票"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_invoice.title_type",
+   "const": "ORD_ORDER_INVOICE_TITLE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "personal": "个人",
+    "company": "企业"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_invoice.invoice_status",
+   "const": "ORD_ORDER_INVOICE_INVOICE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "applied": "已申请",
+    "issuing": "开票中",
+    "issued": "已开票",
+    "failed": "开票失败"
+   }
+  },
+  {
+   "column": "oms_order.ord_status_log.status_domain",
+   "const": "ORD_STATUS_LOG_STATUS_DOMAIN",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "audit": "审核",
+    "fulfill": "履约",
+    "pay": "支付",
+    "ship": "发货",
+    "order": "总开关"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_fail.fail_code",
+   "const": "ORD_ORDER_FAIL_FAIL_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "SHOP_INVALID": "店铺无效",
+    "AUTH_EXPIRED": "授权过期",
+    "AMOUNT_MISMATCH": "金额勾稽超差",
+    "ITEM_EMPTY": "商品行空",
+    "REQUIRED_MISSING": "必填缺失"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_fail.handle_status",
+   "const": "ORD_ORDER_FAIL_HANDLE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待处理",
+    "repushed": "已修复重推",
+    "ignored": "已忽略"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_rule.pass_action",
+   "const": "ORD_AUDIT_RULE_PASS_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "exec_plan": "生成plan执行",
+    "draft_confirm": "仅决策转人工确认"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_rule.status",
+   "const": "ORD_AUDIT_RULE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_order.ord_fulfill_plan.plan_status",
+   "const": "ORD_FULFILL_PLAN_PLAN_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "draft": "草稿",
+    "pending": "待执行",
+    "discarded": "已废弃"
+   }
+  },
+  {
+   "column": "oms_order.ord_fulfill_plan.exec_status",
+   "const": "ORD_FULFILL_PLAN_EXEC_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "waiting": "待执行",
+    "executing": "执行中",
+    "success": "成功",
+    "partial": "部分成功",
+    "failed_compensated": "失败已补偿"
+   }
+  },
+  {
+   "column": "oms_order.ord_fulfill_plan.fail_code",
+   "const": "ORD_FULFILL_PLAN_FAIL_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "STOCK_RACE": "库存竞态",
+    "DELIVERY_CREATE_FAIL": "DELIVERY_CREATE_FAIL",
+    "RESERVE_FAIL": "RESERVE_FAIL"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_reason.plugin_name",
+   "const": "ORD_AUDIT_REASON_PLUGIN_NAME",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "admit_special": "admit_special",
+    "admit_status": "admit_status",
+    "admit_pay": "admit_pay",
+    "blacklist": "blacklist",
+    "branch_select": "branch_select",
+    "split": "split",
+    "stock_check": "stock_check",
+    "logi_match": "logi_match",
+    "combine_check": "combine_check",
+    "goods_match": "goods_match",
+    "price_check": "price_check",
+    "address_check": "address_check",
+    "memo_flag": "memo_flag",
+    "gift_check": "gift_check",
+    "invoice_check": "invoice_check",
+    "amount_check": "amount_check",
+    "routernum": "routernum",
+    "label_mark": "label_mark",
+    "auto_pass": "auto_pass"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_reason.level",
+   "const": "ORD_AUDIT_REASON_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "BLOCK": "拦截",
+    "WARN": "提示"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_reason.suggest_action",
+   "const": "ORD_AUDIT_REASON_SUGGEST_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "change_branch": "换仓",
+    "modify_address": "改地址",
+    "contact_buyer": "联系买家",
+    "wait_restock": "等补货",
+    "to_retrial": "转复审",
+    "reship": "补发"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_reason.route_target",
+   "const": "ORD_AUDIT_REASON_ROUTE_TARGET",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "manual": "人工",
+    "shortage": "缺货",
+    "retrial": "复审",
+    "requeue": "回池",
+    "suspend": "挂起"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_reason.handle_status",
+   "const": "ORD_AUDIT_REASON_HANDLE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "open": "未处理",
+    "handled": "已处理"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_plugin_perf.phase",
+   "const": "ORD_AUDIT_PLUGIN_PERF_PHASE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "ADMIT": "准入",
+    "WAREHOUSE": "仓",
+    "STOCK": "库存",
+    "LOGISTICS": "物流",
+    "CHECK": "校验"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_plugin_perf.result",
+   "const": "ORD_AUDIT_PLUGIN_PERF_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "PASS": "通过",
+    "HOLD": "挂起",
+    "SHORT_CIRCUIT": "短路",
+    "MUTATE": "数据变更",
+    "ERROR": "异常"
+   }
+  },
+  {
+   "column": "oms_order.ord_dispatch_rule.strategy",
+   "const": "ORD_DISPATCH_RULE_STRATEGY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "round_robin": "轮询",
+    "least_task": "最少任务"
+   }
+  },
+  {
+   "column": "oms_order.ord_dispatch_rule.status",
+   "const": "ORD_DISPATCH_RULE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_group.status",
+   "const": "ORD_AUDIT_GROUP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_task.assign_way",
+   "const": "ORD_AUDIT_TASK_ASSIGN_WAY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "rule": "规则",
+    "manual": "手动指派",
+    "transfer": "转派",
+    "recycle": "回收重分"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_task.task_status",
+   "const": "ORD_AUDIT_TASK_TASK_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait_assign": "待分派",
+    "assigned": "已分派",
+    "processing": "处理中",
+    "executing": "执行中",
+    "rejected": "已驳回",
+    "skip_approving": "跳过审批中",
+    "finished": "已完结",
+    "transferred": "转出"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_task.result",
+   "const": "ORD_AUDIT_TASK_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "passed": "通过",
+    "rejected": "驳回",
+    "skipped": "跳过",
+    "transferred": "转出"
+   }
+  },
+  {
+   "column": "oms_order.ord_audit_work_log.action",
+   "const": "ORD_AUDIT_WORK_LOG_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "assign": "分派",
+    "dispatch": "指派",
+    "transfer": "转派",
+    "recycle": "回收",
+    "open": "打开",
+    "pass": "通过",
+    "reject": "驳回",
+    "skip": "跳过",
+    "batch_pass": "批量通过",
+    "batch_item": "批量项"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_rule.split_type",
+   "const": "ORD_SPLIT_RULE_SPLIT_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "branch": "按仓",
+    "owner": "按货主",
+    "sku": "按SKU",
+    "goods_type": "实物虚拟",
+    "customer_classify": "客户分类",
+    "sku_category": "商品分类",
+    "weight": "重量",
+    "volume": "体积",
+    "store": "门店",
+    "gift_separate": "赠品分离",
+    "presale": "预售现货",
+    "order_host": "平台子单",
+    "stock_depth": "库存深度",
+    "channel": "渠道",
+    "virtual_sku": "虚拟SKU",
+    "cascade": "级联编排器"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_rule.scope_type",
+   "const": "ORD_SPLIT_RULE_SCOPE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "global": "全局",
+    "shop": "店铺",
+    "order_group": "订单分组"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_rule.confirm_source",
+   "const": "ORD_SPLIT_RULE_CONFIRM_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "auto": "自动",
+    "manual": "手工",
+    "all": "全部"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_rule.status",
+   "const": "ORD_SPLIT_RULE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_trace.source",
+   "const": "ORD_SPLIT_TRACE_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "auto": "自动",
+    "manual": "手工"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_trace.result_status",
+   "const": "ORD_SPLIT_TRACE_RESULT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "success": "成功",
+    "fail": "失败"
+   }
+  },
+  {
+   "column": "oms_order.ord_split_trace.err_code",
+   "const": "ORD_SPLIT_TRACE_ERR_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "NO_STOCK": "NO_STOCK",
+    "CONFIG_INVALID": "CONFIG_INVALID",
+    "PRECONDITION_UNMET": "PRECONDITION_UNMET",
+    "CONSERVATION_VIOLATION": "CONSERVATION_VIOLATION"
+   }
+  },
+  {
+   "column": "oms_order.ord_combine_group.status",
+   "const": "ORD_COMBINE_GROUP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "grouping": "聚组中",
+    "hold": "等待",
+    "sealed": "已封窗",
+    "merged": "已merge",
+    "split_back": "已拆回",
+    "voided": "已作废"
+   }
+  },
+  {
+   "column": "oms_order.ord_combine_group.source",
+   "const": "ORD_COMBINE_GROUP_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "auto": "自动",
+    "manual": "手工"
+   }
+  },
+  {
+   "column": "oms_order.ord_combine_blacklist.level",
+   "const": "ORD_COMBINE_BLACKLIST_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform": "平台",
+    "shop_type": "店铺类型",
+    "tag": "标签"
+   }
+  },
+  {
+   "column": "oms_order.ord_combine_blacklist.rule",
+   "const": "ORD_COMBINE_BLACKLIST_RULE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "forbid": "禁合",
+    "same_tag_only": "仅同标签合"
+   }
+  },
+  {
+   "column": "oms_order.ord_dispatch_plan.mode",
+   "const": "ORD_DISPATCH_PLAN_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "single": "整仓",
+    "multi": "多仓",
+    "lack": "缺货",
+    "appointed": "指定仓"
+   }
+  },
+  {
+   "column": "oms_order.ord_dispatch_plan.source",
+   "const": "ORD_DISPATCH_PLAN_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "auto": "自动",
+    "retry": "换仓重试",
+    "manual": "改仓",
+    "platform": "平台指定仓"
+   }
+  },
+  {
+   "column": "oms_order.ord_dispatch_plan.status",
+   "const": "ORD_DISPATCH_PLAN_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "effective": "生效",
+    "superseded": "已被替代"
+   }
+  },
+  {
+   "column": "oms_order.ord_dispatch_plan.lack_route",
+   "const": "ORD_DISPATCH_PLAN_LACK_ROUTE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "retry_branch": "换仓重试中",
+    "lend_suggest": "借调建议",
+    "to_shortage": "转缺货"
+   }
+  },
+  {
+   "column": "oms_order.ord_branch_dispatch_rule.strategy_type",
+   "const": "ORD_BRANCH_DISPATCH_RULE_STRATEGY_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "binding_priority": "店铺绑定优先",
+    "region_route": "区域路由",
+    "stock_depth": "库存深度",
+    "owner_assign": "货主指定",
+    "store_o2o": "门店分单",
+    "round_robin": "轮询"
+   }
+  },
+  {
+   "column": "oms_order.ord_branch_dispatch_rule.status",
+   "const": "ORD_BRANCH_DISPATCH_RULE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery.status",
+   "const": "ORD_DELIVERY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "draft": "草稿",
+    "pushed": "已推送",
+    "push_failed": "推送失败",
+    "processing": "作业中",
+    "partial_outbound": "部分出库",
+    "outbound": "已出库",
+    "shipped": "已发货确认",
+    "finished": "已完结",
+    "recalling": "叫回中",
+    "recalled": "已叫回",
+    "rejected": "已打回",
+    "cancelled": "已取消"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery.sync_status",
+   "const": "ORD_DELIVERY_SYNC_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "init": "未推",
+    "success": "成功",
+    "fail": "失败",
+    "no_need": "无需推仓"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery.source",
+   "const": "ORD_DELIVERY_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "auto": "自动",
+    "manual": "人工",
+    "virtual": "虚拟",
+    "store": "门店"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery_log.command",
+   "const": "ORD_DELIVERY_LOG_COMMAND",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "push": "推送",
+    "recall": "叫回",
+    "resume": "恢复",
+    "cancel": "取消",
+    "confirm": "发货确认",
+    "outbound_callback": "出库回传",
+    "reject": "打回",
+    "finish": "完结"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery_diff.diff_type",
+   "const": "ORD_DELIVERY_DIFF_DIFF_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "lack": "少发",
+    "over": "多发",
+    "damage": "破损",
+    "mismatch": "行不匹配"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery_diff.liability",
+   "const": "ORD_DELIVERY_DIFF_LIABILITY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wms": "wms",
+    "logistics": "物流",
+    "brand": "品牌方",
+    "unknown": "待判"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery_diff.handle_way",
+   "const": "ORD_DELIVERY_DIFF_HANDLE_WAY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "reship": "补发",
+    "refund": "退款",
+    "reconcile": "对账挂账",
+    "pending": "待定"
+   }
+  },
+  {
+   "column": "oms_order.ord_delivery_diff.handle_status",
+   "const": "ORD_DELIVERY_DIFF_HANDLE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "open": "待处理",
+    "handled": "已处理",
+    "closed": "已闭环"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_modify.modify_type",
+   "const": "ORD_ORDER_MODIFY_MODIFY_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "address": "地址",
+    "item_add": "加商品",
+    "item_sub": "减商品",
+    "item_swap": "换商品",
+    "price": "价格",
+    "invoice": "发票",
+    "remark": "备注"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_modify.source",
+   "const": "ORD_ORDER_MODIFY_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "manual": "人工",
+    "platform": "平台消息",
+    "system": "系统"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_modify.status",
+   "const": "ORD_ORDER_MODIFY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "editing": "编辑中",
+    "freezing": "冻结中",
+    "recalling": "叫回中",
+    "wait_approval": "待审批",
+    "wait_confirm": "待确认",
+    "suspended": "挂起",
+    "effective": "已生效",
+    "rolled_back": "已回滚",
+    "closed": "已关闭"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_modify.recall_status",
+   "const": "ORD_ORDER_MODIFY_RECALL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "recalling": "叫回中",
+    "success": "成功",
+    "fail": "失败",
+    "timeout": "超时"
+   }
+  },
+  {
+   "column": "oms_order.ord_modify_log.action",
+   "const": "ORD_MODIFY_LOG_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "create": "发起",
+    "freeze": "冻结",
+    "recall": "叫回",
+    "approval_submit": "提审",
+    "approval_pass": "审批通过",
+    "approval_reject": "审批驳回",
+    "confirm": "确认",
+    "effect": "生效",
+    "rollback": "回滚",
+    "cancel": "撤销",
+    "suspend": "挂起"
+   }
+  },
+  {
+   "column": "oms_order.ord_modify_log.source",
+   "const": "ORD_MODIFY_LOG_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "manual": "人工",
+    "platform": "平台消息",
+    "system": "系统"
+   }
+  },
+  {
+   "column": "oms_order.ord_retrial.retrial_type",
+   "const": "ORD_RETRIAL_RETRIAL_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "audit": "价格",
+    "amount": "大额",
+    "blacklist": "黑名单",
+    "normal": "人工发起"
+   }
+  },
+  {
+   "column": "oms_order.ord_retrial.status",
+   "const": "ORD_RETRIAL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait": "待复审",
+    "passed": "复审通过",
+    "rejected_rollback": "驳回-回滚",
+    "rejected_cancel": "驳回-取消",
+    "closed_by_cancel": "已取消收口"
+   }
+  },
+  {
+   "column": "oms_order.ord_abnormal.exc_category",
+   "const": "ORD_ABNORMAL_EXC_CATEGORY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "data": "数据",
+    "risk": "风控",
+    "stock": "库存",
+    "fulfill": "履约",
+    "platform": "平台"
+   }
+  },
+  {
+   "column": "oms_order.ord_abnormal.source",
+   "const": "ORD_ABNORMAL_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "plugin": "审单插件",
+    "event": "事件",
+    "scan": "定时扫描",
+    "manual": "人工",
+    "linkage": "联动"
+   }
+  },
+  {
+   "column": "oms_order.ord_abnormal.status",
+   "const": "ORD_ABNORMAL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait_dispatch": "待分派",
+    "dispatched": "已分派",
+    "processing": "处理中",
+    "suspended": "已挂起",
+    "resolved": "已解决",
+    "cancelled": "已取消"
+   }
+  },
+  {
+   "column": "oms_order.ord_abnormal.resolve_action",
+   "const": "ORD_ABNORMAL_RESOLVE_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "reaudit": "重新审单",
+    "to_retrial": "转复审",
+    "cancel": "取消",
+    "suspend": "挂起",
+    "to_aftersale": "转售后",
+    "force_pass": "强制放行",
+    "refund": "退款"
+   }
+  },
+  {
+   "column": "oms_order.ord_abnormal_type_dict.category",
+   "const": "ORD_ABNORMAL_TYPE_DICT_CATEGORY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "data": "数据",
+    "risk": "风控",
+    "stock": "库存",
+    "fulfill": "履约",
+    "platform": "平台"
+   }
+  },
+  {
+   "column": "oms_order.ord_stockout.strategy_status",
+   "const": "ORD_STOCKOUT_STRATEGY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait_calc": "待测算",
+    "change_branch": "换仓中",
+    "lending": "借调中",
+    "purchase_urgent": "采购加急",
+    "negotiating": "协商中",
+    "refunding": "退款中",
+    "resolved": "已解除"
+   }
+  },
+  {
+   "column": "oms_order.ord_oversold_batch.stage",
+   "const": "ORD_OVERSOLD_BATCH_STAGE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "alarm": "告警",
+    "alloc_calc": "调拨测算",
+    "negotiate": "协商",
+    "refund": "退款",
+    "compensate": "赔付",
+    "review": "复盘关闭"
+   }
+  },
+  {
+   "column": "oms_order.ord_pause_command_log.command",
+   "const": "ORD_PAUSE_COMMAND_LOG_COMMAND",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "recall": "叫回",
+    "resume": "恢复重推"
+   }
+  },
+  {
+   "column": "oms_order.ord_pause_command_log.result",
+   "const": "ORD_PAUSE_COMMAND_LOG_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "success": "成功",
+    "fail": "失败",
+    "timeout": "超时"
+   }
+  },
+  {
+   "column": "oms_order.ord_risk_list.list_type",
+   "const": "ORD_RISK_LIST_LIST_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "black": "黑名单",
+    "gray": "灰名单",
+    "white": "白名单"
+   }
+  },
+  {
+   "column": "oms_order.ord_risk_list.dimension",
+   "const": "ORD_RISK_LIST_DIMENSION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "mobile": "手机",
+    "address": "地址",
+    "account": "账号",
+    "name": "姓名"
+   }
+  },
+  {
+   "column": "oms_order.ord_risk_list.value_type",
+   "const": "ORD_RISK_LIST_VALUE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "plain": "明文",
+    "hash": "盲索引"
+   }
+  },
+  {
+   "column": "oms_order.ord_risk_list.scope",
+   "const": "ORD_RISK_LIST_SCOPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "global": "全局",
+    "tenant": "租户",
+    "owner": "货主"
+   }
+  },
+  {
+   "column": "oms_order.ord_presale.presale_status",
+   "const": "ORD_PRESALE_PRESALE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "deposit_paid": "定金已付",
+    "balance_paid": "尾款已付",
+    "wait_audit": "待审单",
+    "fulfilling": "履约中",
+    "finished": "已完成",
+    "closed": "已关闭"
+   }
+  },
+  {
+   "column": "oms_order.ord_presale.reserve_mode",
+   "const": "ORD_PRESALE_RESERVE_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "none": "不预占",
+    "immediate": "定金后立即预占"
+   }
+  },
+  {
+   "column": "oms_order.ord_groupon.groupon_status",
+   "const": "ORD_GROUPON_GROUPON_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait_group": "待成团",
+    "succeed": "已成团",
+    "fulfilling": "履约中",
+    "finished": "完成",
+    "failed_cancel": "未成团取消",
+    "refunding": "退款中",
+    "closed": "关闭"
+   }
+  },
+  {
+   "column": "oms_order.ord_luckybag_alloc.dispatch_mode",
+   "const": "ORD_LUCKYBAG_ALLOC_DISPATCH_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "random": "随机",
+    "rule": "规则",
+    "manual": "人工指定"
+   }
+  },
+  {
+   "column": "oms_order.ord_luckybag_alloc.dispatch_result",
+   "const": "ORD_LUCKYBAG_ALLOC_DISPATCH_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "success": "成功",
+    "fail_preempt": "预占失败改派",
+    "fail_final": "全部失败转人工"
+   }
+  },
+  {
+   "column": "oms_order.ord_card_secret.status",
+   "const": "ORD_CARD_SECRET_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "unused": "未核销",
+    "bound": "已绑定",
+    "settled": "已核销",
+    "voided": "已作废"
+   }
+  },
+  {
+   "column": "oms_order.ord_virtual_delivery.sync_channel",
+   "const": "ORD_VIRTUAL_DELIVERY_SYNC_CHANNEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "card_api": "接口带卡密",
+    "virtual_waybill": "虚拟运单号",
+    "status_only": "仅记状态"
+   }
+  },
+  {
+   "column": "oms_order.ord_virtual_delivery.sync_status",
+   "const": "ORD_VIRTUAL_DELIVERY_SYNC_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait": "待发",
+    "syncing": "发送中",
+    "success": "成功",
+    "fail": "失败",
+    "manual": "人工补发"
+   }
+  },
+  {
+   "column": "oms_order.ord_store_profile.biz_status",
+   "const": "ORD_STORE_PROFILE_BIZ_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "open": "营业中",
+    "closed": "停业",
+    "pause_accept": "暂停接单"
+   }
+  },
+  {
+   "column": "oms_order.ord_store_order.fulfill_mode",
+   "const": "ORD_STORE_ORDER_FULFILL_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "store_ship": "门店发货",
+    "store_pickup": "门店自提",
+    "city_delivery": "同城配送"
+   }
+  },
+  {
+   "column": "oms_order.ord_store_order.accept_status",
+   "const": "ORD_STORE_ORDER_ACCEPT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait": "待接单",
+    "accepted": "已接单",
+    "refused": "已拒单",
+    "timeout_redispatch": "超时转派"
+   }
+  },
+  {
+   "column": "oms_order.ord_pickup.status",
+   "const": "ORD_PICKUP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait_verify": "待核销",
+    "verified": "已核销",
+    "cancelled": "已取消",
+    "overdue_handling": "超期处理中"
+   }
+  },
+  {
+   "column": "oms_order.ord_pickup.overdue_action",
+   "const": "ORD_PICKUP_OVERDUE_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "return_stock": "退回库存",
+    "to_delivery": "转配送"
+   }
+  },
+  {
+   "column": "oms_order.ord_declare.declare_mode",
+   "const": "ORD_DECLARE_DECLARE_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "bonded": "保税",
+    "direct": "直邮"
+   }
+  },
+  {
+   "column": "oms_order.ord_declare.declare_status",
+   "const": "ORD_DECLARE_DECLARE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wait": "待申报",
+    "declaring": "申报中",
+    "released": "放行",
+    "failed": "申报失败",
+    "returned": "已退单",
+    "exported": "已出区",
+    "refund_declare": "退单申报"
+   }
+  },
+  {
+   "column": "oms_order.ord_declare.fail_reason_code",
+   "const": "ORD_DECLARE_FAIL_REASON_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "AMOUNT_MISMATCH": "对碰不一致",
+    "ID_INVALID": "身份证",
+    "QUOTA_OVER": "额度",
+    "RECORD": "备案问题",
+    "OTHER": "OTHER"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_archive.archive_status",
+   "const": "ORD_ORDER_ARCHIVE_ARCHIVE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "done": "完成",
+    "recalled": "已回捞待清理"
+   }
+  },
+  {
+   "column": "oms_order.ord_order_archive.archive_source",
+   "const": "ORD_ORDER_ARCHIVE_ARCHIVE_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "task": "归档任务",
+    "migration": "迁移导入"
+   }
+  },
+  {
+   "column": "oms_order.ord_archive_log.log_type",
+   "const": "ORD_ARCHIVE_LOG_LOG_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "archive": "归档",
+    "recall": "回捞",
+    "import": "迁移导入",
+    "cold_offload": "冷备卸载",
+    "batch_rollback": "批次回滚"
+   }
+  },
+  {
+   "column": "oms_order.ord_archive_log.trigger_source",
+   "const": "ORD_ARCHIVE_LOG_TRIGGER_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "schedule": "调度任务",
+    "aftersale": "售后建单",
+    "manual": "客服人工",
+    "finance": "财务",
+    "migration": "迁移工具"
+   }
+  },
+  {
+   "column": "oms_order.ord_archive_log.result",
+   "const": "ORD_ARCHIVE_LOG_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "success": "成功",
+    "fail": "失败"
+   }
+  },
+  {
+   "column": "oms_order.ord_archive_config.scope_level",
+   "const": "ORD_ARCHIVE_CONFIG_SCOPE_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "global": "全局",
+    "owner": "货主",
+    "brand": "品牌"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.lack_fulfill_mode",
+   "const": "ORD_SHOP_FULFILL_CONFIG_LACK_FULFILL_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "ship_first": "先发后缺",
+    "wait_all": "整单等货",
+    "manual": "人工"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.lend_auto_mode",
+   "const": "ORD_SHOP_FULFILL_CONFIG_LEND_AUTO_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "auto": "自动借调",
+    "manual": "人工确认"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.monitor_mode",
+   "const": "ORD_SHOP_FULFILL_CONFIG_MONITOR_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "item": "行级",
+    "order": "整单"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.presale_reserve_mode",
+   "const": "ORD_SHOP_FULFILL_CONFIG_PRESALE_RESERVE_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "none": "不预占",
+    "immediate": "定金后立即预占"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.luckybag_aftersale_mode",
+   "const": "ORD_SHOP_FULFILL_CONFIG_LUCKYBAG_AFTERSALE_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "whole": "整套退",
+    "part": "部分退"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.pickup_overdue_action",
+   "const": "ORD_SHOP_FULFILL_CONFIG_PICKUP_OVERDUE_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "return_stock": "退回库存",
+    "to_delivery": "转配送"
+   }
+  },
+  {
+   "column": "oms_order.ord_shop_fulfill_config.o2o_fallback",
+   "const": "ORD_SHOP_FULFILL_CONFIG_O2O_FALLBACK",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "to_warehouse": "转电商仓",
+    "manual": "挂起人工"
+   }
+  },
+  {
+   "column": "oms_order.ord_reason_code_dict.level",
+   "const": "ORD_REASON_CODE_DICT_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "BLOCK": "拦截",
+    "WARN": "提示"
+   }
+  },
+  {
+   "column": "oms_order.ord_reason_code_dict.default_route",
+   "const": "ORD_REASON_CODE_DICT_DEFAULT_ROUTE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "manual": "人工",
+    "shortage": "缺货",
+    "retrial": "复审",
+    "requeue": "回池",
+    "suspend": "挂起"
+   }
+  },
+  {
+   "column": "oms_order.ord_reason_code_dict.default_suggest",
+   "const": "ORD_REASON_CODE_DICT_DEFAULT_SUGGEST",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "change_branch": "换仓",
+    "modify_address": "改地址",
+    "contact_buyer": "联系买家",
+    "wait_restock": "等补货",
+    "to_retrial": "转复审",
+    "reship": "补发"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_activity.activity_type",
+   "const": "ORD_PROMOTION_ACTIVITY_ACTIVITY_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "full_gift": "满赠",
+    "buy_gift": "买赠",
+    "ladder_gift": "阶梯满赠",
+    "qty_discount": "满件折",
+    "amount_reduce": "满减"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_activity.gift_lack_policy",
+   "const": "ORD_PROMOTION_ACTIVITY_GIFT_LACK_POLICY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "skip_gift": "放弃赠品",
+    "hold_order": "整单挂起",
+    "replace": "换等价赠品",
+    "manual": "人工"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_activity.status",
+   "const": "ORD_PROMOTION_ACTIVITY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "draft": "草稿",
+    "pending": "待生效",
+    "active": "生效中",
+    "paused": "已暂停",
+    "ended": "已结束",
+    "voided": "已作废"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_rule.threshold_type",
+   "const": "ORD_PROMOTION_RULE_THRESHOLD_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "amount": "实付金额",
+    "qty": "件数"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_rule.discount_type",
+   "const": "ORD_PROMOTION_RULE_DISCOUNT_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "reduce": "立减",
+    "discount": "折扣"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_scope.direction",
+   "const": "ORD_PROMOTION_SCOPE_DIRECTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "include": "参与",
+    "exclude": "排除"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_scope.scope_type",
+   "const": "ORD_PROMOTION_SCOPE_SCOPE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "sku": "sku",
+    "category": "分类树节点",
+    "brand": "品牌",
+    "all": "全部"
+   }
+  },
+  {
+   "column": "oms_order.ord_promotion_scope.role",
+   "const": "ORD_PROMOTION_SCOPE_ROLE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "base": "满赠基数商品",
+    "main": "买赠主品"
+   }
+  },
+  {
+   "column": "oms_order.ord_gift_log.log_type",
+   "const": "ORD_GIFT_LOG_LOG_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "applied": "加赠",
+    "revoke": "撤销",
+    "skipped": "缺货放弃或落选备查"
+   }
+  },
+  {
+   "column": "oms_order.ord_gift_log.revoke_reason",
+   "const": "ORD_GIFT_LOG_REVOKE_REASON",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "order_cancel": "订单取消",
+    "modify_downgrade": "改单降档",
+    "race_give_up": "竞态放弃",
+    "manual": "人工撤销",
+    "reaudit": "重审重算"
+   }
+  },
+  {
+   "column": "oms_order.ord_gift_log.ADD",
+   "const": "ORD_GIFT_LOG_ADD",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "express": "常规快递",
+    "store": "门店履约",
+    "instant": "即时零售"
+   }
+  },
+  {
+   "column": "oms_order.ord_instant_delivery.orchestrate_status",
+   "const": "ORD_INSTANT_DELIVERY_ORCHESTRATE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "accepted": "已接单",
+    "refused": "已拒单",
+    "picking": "拣货中",
+    "lack_handling": "缺货处理中",
+    "wait_pickup": "待取货",
+    "delivering": "配送中",
+    "delivered": "已送达",
+    "redispatching": "改派中",
+    "self_delivering": "自配送中",
+    "exception_handling": "异常处理中",
+    "aftersale": "售后中",
+    "finished": "完成",
+    "cancelled": "已取消"
+   }
+  },
+  {
+   "column": "oms_order.ord_instant_track.liability",
+   "const": "ORD_INSTANT_TRACK_LIABILITY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "store": "门店",
+    "carrier": "运力方",
+    "system": "系统",
+    "merchant": "商家承担"
+   }
+  },
+  {
+   "column": "oms_order.ord_instant_track.bearer",
+   "const": "ORD_INSTANT_TRACK_BEARER",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "carrier": "运力方",
+    "platform": "平台",
+    "merchant": "商家"
+   }
+  },
+  {
+   "column": "oms_order.ord_routing_decision_log.decision_mode",
+   "const": "ORD_ROUTING_DECISION_LOG_DECISION_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "rule": "规则式",
+    "algorithm": "算法寻源"
+   }
+  },
+  {
+   "column": "oms_order.ord_routing_decision_log.MODIFY",
+   "const": "ORD_ROUTING_DECISION_LOG_MODIFY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "black": "黑名单",
+    "gray": "灰名单",
+    "white": "白名单"
+   }
+  },
+  {
+   "column": "oms_stock.inv_stock_recon_diff.change_field",
+   "const": "INV_STOCK_RECON_DIFF_CHANGE_FIELD",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "store": "store",
+    "freeze": "freeze",
+    "arrive": "arrive",
+    "defective": "defective"
+   }
+  },
+  {
+   "column": "oms_stock.inv_activity_lock_pool.status",
+   "const": "INV_ACTIVITY_LOCK_POOL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "warmup": "预热中",
+    "active": "生效中",
+    "ended": "已结束",
+    "released": "已释放"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_forecast.adopt_strategy",
+   "const": "INV_SALES_FORECAST_ADOPT_STRATEGY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pure_history": "纯历史",
+    "pure_forecast": "纯预测",
+    "blended": "加权融合"
+   }
+  },
+  {
+   "column": "oms_stock.inv_sales_forecast.call_status",
+   "const": "INV_SALES_FORECAST_CALL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "success": "成功",
+    "fail": "失败",
+    "degraded": "降级",
+    "timeout": "超时"
+   }
+  },
+  {
+   "column": "oms_stock.inv_price_sync_task.platform",
+   "const": "INV_PRICE_SYNC_TASK_PLATFORM",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "taobao": "taobao",
+    "jd": "jd",
+    "pdd": "pdd",
+    "xhs": "xhs",
+    "vop": "vop",
+    "douyin": "douyin",
+    "wechat": "wechat",
+    "kuaishou": "kuaishou"
+   }
+  },
+  {
+   "column": "oms_finance.fin_kingdee_adapter.auth_type",
+   "const": "FIN_KINGDEE_ADAPTER_AUTH_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "none": "none",
+    "basic": "basic",
+    "oauth2": "oauth2",
+    "kd_token": "kd_token"
+   }
+  },
+  {
+   "column": "oms_finance.fin_invoice_pool.source",
+   "const": "FIN_INVOICE_POOL_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "order": "order",
+    "platform": "platform",
+    "manual": "manual"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_branch.branch_type",
+   "const": "FUL_BRANCH_BRANCH_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "entity": "实体仓",
+    "cloud": "云仓",
+    "store": "门店仓",
+    "bonded": "保税仓",
+    "virtual": "虚拟仓",
+    "defective": "次品仓"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_branch.status",
+   "const": "FUL_BRANCH_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用",
+    "migrating": "迁移中",
+    "archived": "归档"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_branch.source",
+   "const": "FUL_BRANCH_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "api": "api",
+    "local": "local",
+    "import": "import",
+    "migration": "migration"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_wms.wms_code",
+   "const": "FUL_WMS_WMS_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "ttx": "通天晓",
+    "flux": "富勒",
+    "wln": "万里牛",
+    "qimen": "奇门通用",
+    "self": "自研仓内"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_wms.status",
+   "const": "FUL_WMS_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_wms_binding.protocol",
+   "const": "FUL_WMS_BINDING_PROTOCOL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "qimen": "qimen",
+    "restful": "restful",
+    "ttx_rest": "ttx_rest"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_wms_binding.env",
+   "const": "FUL_WMS_BINDING_ENV",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "sandbox": "沙箱",
+    "prod": "生产"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_wms_binding.status",
+   "const": "FUL_WMS_BINDING_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待生效",
+    "active": "生效",
+    "receive_only": "只收不发",
+    "archived": "失效归档"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_wms_health.circuit_status",
+   "const": "FUL_WMS_HEALTH_CIRCUIT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "closed": "正常",
+    "open": "熔断中",
+    "half_open": "半开探测"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_route_log.result",
+   "const": "FUL_ROUTE_LOG_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "succ": "成功",
+    "degraded": "降级",
+    "fail": "失败"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_cmd_fail.cmd_type",
+   "const": "FUL_CMD_FAIL_CMD_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "outbound": "出库",
+    "inbound": "入库",
+    "recall": "叫回",
+    "cancel": "取消"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_cmd_fail.err_class",
+   "const": "FUL_CMD_FAIL_ERR_CLASS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "RETRYABLE": "可重试",
+    "FATAL": "停重试",
+    "BIZ_REJECT": "业务拒绝"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_cmd_fail.circuit_snapshot",
+   "const": "FUL_CMD_FAIL_CIRCUIT_SNAPSHOT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "closed": "closed",
+    "open": "open",
+    "half_open": "half_open"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_cmd_fail.status",
+   "const": "FUL_CMD_FAIL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "waiting": "等待",
+    "retrying": "重试中",
+    "succ": "成功",
+    "manual": "转人工",
+    "dead": "死信"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_cmd_fail.resolved_by",
+   "const": "FUL_CMD_FAIL_RESOLVED_BY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "retry": "重试",
+    "manual": "人工",
+    "biz_closed": "业务关闭"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_outbound_cmd.cmd_type",
+   "const": "FUL_OUTBOUND_CMD_CMD_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "push": "推送",
+    "recall": "叫回",
+    "resume": "恢复"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_outbound_cmd.source",
+   "const": "FUL_OUTBOUND_CMD_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "api": "api",
+    "local": "local",
+    "import": "import",
+    "migration": "migration"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_outbound_callback.callback_type",
+   "const": "FUL_OUTBOUND_CALLBACK_CALLBACK_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "accept": "接收确认",
+    "outbound": "出库",
+    "reject": "打回",
+    "cancel_result": "取消结果",
+    "node": "节点"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_outbound_callback.reject_reason",
+   "const": "FUL_OUTBOUND_CALLBACK_REJECT_REASON",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "oos": "缺货",
+    "address_unreachable": "地址不可达",
+    "wh_error": "仓内异常"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_outbound_callback.process_status",
+   "const": "FUL_OUTBOUND_CALLBACK_PROCESS_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "registered": "已登记",
+    "event_sent": "已发事件",
+    "orchestrated": "编排闭环",
+    "exception": "异常缓冲"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_outbound_buffer.status",
+   "const": "FUL_OUTBOUND_BUFFER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "buffered": "缓冲中",
+    "resent": "已补发",
+    "voided": "已作废"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_channel_log.action",
+   "const": "FUL_CHANNEL_LOG_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "push": "push",
+    "recall": "recall",
+    "cancel": "cancel",
+    "query": "query",
+    "callback_accept": "callback_accept",
+    "callback_outbound": "等"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_channel_log.err_class",
+   "const": "FUL_CHANNEL_LOG_ERR_CLASS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "RETRYABLE": "RETRYABLE",
+    "FATAL": "FATAL",
+    "BIZ_REJECT": "BIZ_REJECT"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_cmd.bill_type",
+   "const": "FUL_INBOUND_CMD_BILL_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "purchase": "采购",
+    "transfer": "调拨",
+    "other": "其他"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_cmd.source_type",
+   "const": "FUL_INBOUND_CMD_SOURCE_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "purchase": "采购PO",
+    "return": "退货RA",
+    "transfer": "调拨TR"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_cmd.status",
+   "const": "FUL_INBOUND_CMD_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "accepted": "accepted",
+    "buffering": "buffering",
+    "sending": "sending",
+    "sent": "sent",
+    "retrying": "retrying",
+    "send_failed": "send_failed",
+    "processing": "processing",
+    "partial_callback": "partial_callback",
+    "callback_done": "callback_done",
+    "orchestrated": "orchestrated",
+    "recalling": "recalling",
+    "recall_succ": "recall_succ",
+    "recall_failed": "recall_failed",
+    "rejected": "rejected",
+    "voided": "voided"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_callback.callback_type",
+   "const": "FUL_INBOUND_CALLBACK_CALLBACK_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "accept": "接收确认",
+    "receive": "收货",
+    "qc": "质检",
+    "diff_report": "差异上报",
+    "cancel_result": "取消结果"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_callback.process_status",
+   "const": "FUL_INBOUND_CALLBACK_PROCESS_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "registered": "已登记",
+    "received": "已收",
+    "confirmed": "已确认",
+    "diff_hold": "差异挂起",
+    "exception": "异常缓冲"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_diff.diff_type",
+   "const": "FUL_INBOUND_DIFF_DIFF_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "over": "超收",
+    "short": "短缺",
+    "damage": "破损",
+    "wrong_goods": "串货",
+    "qc_dispute": "质检争议",
+    "mismatch": "预报不符"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_diff.handle_status",
+   "const": "FUL_INBOUND_DIFF_HANDLE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "open": "待处理",
+    "handling": "处理中",
+    "closed": "已闭环"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_inbound_diff.source_notify_status",
+   "const": "FUL_INBOUND_DIFF_SOURCE_NOTIFY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待送达",
+    "sent": "事件已送达",
+    "acked": "已确认"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_corp.corp_code",
+   "const": "FUL_DLY_CORP_CORP_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "sf": "顺丰",
+    "zto": "中通",
+    "yto": "圆通",
+    "sto": "申通",
+    "yunda": "韵达",
+    "jd": "京东物流",
+    "ems": "邮政等"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_corp.corp_type",
+   "const": "FUL_DLY_CORP_CORP_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "express": "快递",
+    "freight": "快运",
+    "lastmile": "落地配",
+    "samecity": "同城",
+    "postal": "邮政",
+    "platform": "平台物流",
+    "special": "特殊"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_corp.waybill_account_type",
+   "const": "FUL_DLY_CORP_WAYBILL_ACCOUNT_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "cainiao": "菜鸟系",
+    "platform": "平台系",
+    "direct": "快递直客",
+    "none": "无需面单"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_corp.pickup_mode",
+   "const": "FUL_DLY_CORP_PICKUP_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "door": "上门",
+    "self": "自送",
+    "station": "驿站"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_corp.status",
+   "const": "FUL_DLY_CORP_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_product.product_type",
+   "const": "FUL_DLY_PRODUCT_PRODUCT_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "standard": "标快",
+    "express": "特快",
+    "economy": "经济",
+    "cold": "冷链",
+    "bulky": "大件",
+    "samecity": "同城",
+    "intl": "国际"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_dly_product.status",
+   "const": "FUL_DLY_PRODUCT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_area_router.status",
+   "const": "FUL_AREA_ROUTER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_unreach_area.status",
+   "const": "FUL_UNREACH_AREA_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "生效",
+    "disabled": "失效"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_suspend.status",
+   "const": "FUL_SUSPEND_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "生效",
+    "disabled": "撤销停运"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_addr_keyword.level",
+   "const": "FUL_ADDR_KEYWORD_LEVEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "WARN": "提示",
+    "BLOCK": "拦截"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_addr_keyword.status",
+   "const": "FUL_ADDR_KEYWORD_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_shop_dly.status",
+   "const": "FUL_SHOP_DLY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_branch_dly.status",
+   "const": "FUL_BRANCH_DLY_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_freight_template.charge_mode",
+   "const": "FUL_FREIGHT_TEMPLATE_CHARGE_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "weight": "首重续重",
+    "piece": "按件",
+    "volume_max": "体积重取大"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_freight_template.status",
+   "const": "FUL_FREIGHT_TEMPLATE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用",
+    "archived": "归档"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_trace_sub.provider",
+   "const": "FUL_TRACE_SUB_PROVIDER",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "kuaidi100": "快递100",
+    "cainiao": "菜鸟"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_trace_sub.sub_status",
+   "const": "FUL_TRACE_SUB_SUB_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "subscribed": "已订阅",
+    "closed": "已关闭",
+    "failed": "订阅失败"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_trace_node.node_status",
+   "const": "FUL_TRACE_NODE_NODE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "collected": "揽收",
+    "transit": "运输",
+    "delivering": "派送",
+    "signed": "签收",
+    "returned": "退签",
+    "exception": "异常"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_trace_node.source",
+   "const": "FUL_TRACE_NODE_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "provider": "订阅推送",
+    "manual": "人工登记"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill_account.account_type",
+   "const": "FUL_WAYBILL_ACCOUNT_ACCOUNT_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "cainiao": "菜鸟",
+    "platform": "平台系",
+    "direct": "快递直客",
+    "none": "无需面单"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill_account.circuit_status",
+   "const": "FUL_WAYBILL_ACCOUNT_CIRCUIT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "closed": "正常",
+    "open": "熔断中",
+    "half_open": "半开探测"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill_account.test_result",
+   "const": "FUL_WAYBILL_ACCOUNT_TEST_RESULT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "succ": "成功",
+    "fail": "失败"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill_account.status",
+   "const": "FUL_WAYBILL_ACCOUNT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill_segment.status",
+   "const": "FUL_WAYBILL_SEGMENT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "in_pool": "在池",
+    "partial": "部分分配",
+    "exhausted": "已耗尽",
+    "returned": "已归还"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill.source",
+   "const": "FUL_WAYBILL_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "oms": "默认",
+    "wms": "例外仓回传登记",
+    "manual": "人工登记"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_waybill.status",
+   "const": "FUL_WAYBILL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "getting": "取号中",
+    "obtained": "已取号",
+    "printed": "已打印",
+    "used": "已使用",
+    "cancelled": "已作废",
+    "returning": "退回中",
+    "expired": "已过期"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_template.tmpl_type",
+   "const": "FUL_PRINT_TEMPLATE_TMPL_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "standard": "标准",
+    "custom": "自定义",
+    "cloud": "云打印",
+    "local": "本地渲染"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_template.status",
+   "const": "FUL_PRINT_TEMPLATE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_tmpl_binding.status",
+   "const": "FUL_PRINT_TMPL_BINDING_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_task.channel",
+   "const": "FUL_PRINT_TASK_CHANNEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wh_client": "仓内客户端",
+    "central": "集中打印",
+    "store": "门店"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_task.task_status",
+   "const": "FUL_PRINT_TASK_TASK_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "pending": "待下发",
+    "sent": "已下发",
+    "printed": "已打印",
+    "failed": "失败",
+    "reprinted": "已补打"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_log.action",
+   "const": "FUL_PRINT_LOG_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "send": "下发",
+    "receipt": "回执",
+    "reprint": "补打",
+    "resend": "重发"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_print_log.channel",
+   "const": "FUL_PRINT_LOG_CHANNEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "wh_client": "仓内客户端",
+    "central": "集中",
+    "store": "门店"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_carrier.carrier_code",
+   "const": "FUL_CARRIER_CARRIER_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "MEITUAN_PAOTUI": "美团跑腿",
+    "FENGNIAO": "蜂鸟即配",
+    "DADA": "达达快送",
+    "SHANSONG": "闪送",
+    "SF_CITY": "顺丰同城",
+    "SELF": "品牌自配送"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_carrier.carrier_type",
+   "const": "FUL_CARRIER_CARRIER_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "platform_self": "平台自营",
+    "crowdsource": "第三方众包",
+    "express_city": "快递同城",
+    "brand_self": "品牌自配送"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_carrier.circuit_status",
+   "const": "FUL_CARRIER_CIRCUIT_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "closed": "闭合",
+    "open": "开启",
+    "half_open": "半开探测"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_carrier.status",
+   "const": "FUL_CARRIER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_rider_call.status",
+   "const": "FUL_RIDER_CALL_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "called": "已呼叫",
+    "accepted": "已受理",
+    "rider_assigned": "骑手已接单",
+    "rider_arrived": "骑手到店",
+    "picked_up": "已取货",
+    "delivering": "配送中",
+    "delivered": "已送达",
+    "call_failed": "呼叫失败",
+    "cancelled": "已取消",
+    "rider_cancelled": "骑手取消",
+    "delivery_exception": "配送异常"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_rider_call.fee_liability",
+   "const": "FUL_RIDER_CALL_FEE_LIABILITY",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "store": "门店",
+    "carrier": "运力方",
+    "system": "系统"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_rider_call.assign_mode",
+   "const": "FUL_RIDER_CALL_ASSIGN_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "assign": "店长指派",
+    "grab": "抢单"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_rider_track.source",
+   "const": "FUL_RIDER_TRACK_SOURCE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "callback": "回调",
+    "query": "反查",
+    "supplement": "补录"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_handover.verify_mode",
+   "const": "FUL_HANDOVER_VERIFY_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "scan": "扫码核验",
+    "supplement": "补录"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_city_freight.settle_status",
+   "const": "FUL_CITY_FREIGHT_SETTLE_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "recorded": "记账",
+    "audited": "审核",
+    "closed": "关账"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_shop_carrier.self_mode",
+   "const": "FUL_SHOP_CARRIER_SELF_MODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "fallback_only": "仅兜底",
+    "always": "始终参与比价"
+   }
+  },
+  {
+   "column": "oms_fulfill.ful_shop_carrier.status",
+   "const": "FUL_SHOP_CARRIER_STATUS",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "enabled": "启用",
+    "disabled": "停用"
+   }
+  },
+  {
+   "column": "oms_org.org_owner_contract.mode_snapshot",
+   "const": "ORG_OWNER_CONTRACT_MODE_SNAPSHOT",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "KC_BUYOUT": "KC_BUYOUT",
+    "BRAND_CONSIGN": "BRAND_CONSIGN",
+    "DEALER_TC": "DEALER_TC"
+   }
+  },
+  {
+   "column": "oms_org.org_portal_message.ref_type",
+   "const": "ORG_PORTAL_MESSAGE_REF_TYPE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "settle": "settle",
+    "order": "order",
+    "suggestion": "suggestion",
+    "account": "等"
+   }
+  },
+  {
+   "column": "oms_org.org_portal_read_log.page_code",
+   "const": "ORG_PORTAL_READ_LOG_PAGE_CODE",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "home": "home",
+    "order": "order",
+    "stock": "stock",
+    "settle": "settle",
+    "aftersale": "aftersale",
+    "warn": "warn",
+    "msg": "msg",
+    "account": "account"
+   }
+  },
+  {
+   "column": "oms_org.aud_operation_log.action",
+   "const": "AUD_OPERATION_LOG_ACTION",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "create": "create",
+    "update": "update",
+    "delete": "delete",
+    "login": "login",
+    "logout": "logout",
+    "export": "export",
+    "approve": "approve",
+    "grant": "grant",
+    "revoke": "revoke",
+    "simulate": "simulate",
+    "view_pii": "view_pii",
+    "business_event": "business_event",
+    "config_change": "config_change"
+   }
+  },
+  {
+   "column": "oms_org.aud_operation_log.channel",
+   "const": "AUD_OPERATION_LOG_CHANNEL",
+   "type": "",
+   "kind": "str",
+   "values": {
+    "web": "web",
+    "h5": "h5",
+    "api": "api",
+    "mq": "mq",
+    "scheduler": "scheduler",
+    "oa_callback": "oa_callback"
+   }
+  }
+ ],
+ "count": 771
+}

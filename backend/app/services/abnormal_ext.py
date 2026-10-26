@@ -20,6 +20,7 @@ from typing import Any
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.contracts.enums import ORD_OVERSOLD_BATCH_STAGE, ORD_RISK_LIST_LIST_TYPE
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.core.timeutil import utcnow
 from app.models.abnormal import OrdAbnormal, OrdStockout
@@ -39,14 +40,7 @@ STAGE_REFUND = "refund"
 STAGE_COMPENSATE = "compensate"
 STAGE_REVIEW = "review"
 
-BATCH_STAGE_LABEL = {
-    STAGE_ALARM: "告警",
-    STAGE_ALLOC_CALC: "调拨测算",
-    STAGE_NEGOTIATE: "协商",
-    STAGE_REFUND: "退款",
-    STAGE_COMPENSATE: "赔付",
-    STAGE_REVIEW: "复盘关闭",
-}
+BATCH_STAGE_LABEL = ORD_OVERSOLD_BATCH_STAGE
 
 #: 阶段推进顺序（FR-05c 分级 SLA）
 BATCH_STAGE_ORDER = (
@@ -76,11 +70,7 @@ LIST_BLACK = "black"
 LIST_GRAY = "gray"
 LIST_WHITE = "white"
 
-LIST_TYPE_LABEL = {
-    LIST_BLACK: "黑名单",
-    LIST_GRAY: "灰名单",
-    LIST_WHITE: "白名单",
-}
+LIST_TYPE_LABEL = ORD_RISK_LIST_LIST_TYPE
 
 DIM_MOBILE = "mobile"
 DIM_ADDRESS = "address"

@@ -431,7 +431,9 @@ async def test_list_and_detail_modify():
             detail = await svc.get_modify(int(res["modify_id"]))
         assert len(items) == 1
         assert items[0]["modify_type"] == "address"
-        assert items[0]["modify_type_name"] == "修改地址"
+        # ⚠ 文案以 **DDL 为权威**（oms_order.ord_order_modify.modify_type = '地址'）
+        #   原先代码手抄的 "修改地址" 是漂移 —— P0 契约化后统一取 DDL 值
+        assert items[0]["modify_type_name"] == "地址"
         assert detail["snapshot"] is not None
         assert detail["snapshot"]["snap_receiver"]["province"] == "广东省"
         assert isinstance(detail["saga_log"], list)

@@ -64,6 +64,8 @@ ignore = ["B008", "UP046"]
 # M0 一次性 spike 验证脚本（非生产代码），豁免行长
 "tests/bench_*.py" = ["E501"]
 "tests/poc_*.py" = ["E501"]
+# 自动生成的契约文件：不参与 lint（ruff --fix 会破坏与生成器的同步）
+"app/contracts/enums.py" = ["ALL"]
 
 [tool.mypy]
 python_version = "3.12"

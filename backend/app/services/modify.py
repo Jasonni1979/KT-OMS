@@ -26,6 +26,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.contracts.enums import ORD_ORDER_MODIFY_MODIFY_TYPE
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.timeutil import utcnow
 from app.models.fulfill import OrdDelivery
@@ -50,13 +51,7 @@ MODIFY_OPEN_STATUSES = (
 )
 
 #: 改单类型 → 中文
-MODIFY_TYPE_LABEL = {
-    "address": "修改地址",
-    "item": "修改商品",
-    "price": "修改价格",
-    "invoice": "修改发票",
-    "memo": "修改备注",
-}
+MODIFY_TYPE_LABEL = ORD_ORDER_MODIFY_MODIFY_TYPE
 
 
 def _hex(v: bytes | str | None) -> str:

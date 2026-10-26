@@ -100,6 +100,14 @@ echo "=== Job 3/4: Mock Platform (pytest) ==="
   && ok "mock pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mock.log | tail -1)）" \
   || { bad "mock pytest"; tail -15 /tmp/ci_mock.log; }
 
+echo "=== Job 3d/4: 契约一致性门禁（枚举/状态机 ↔ DDL 权威）==="
+# 契约中心（app/contracts/enums.py）从 **DDL SQL 文件** 自动生成，
+# 门禁校验：① 生成物与 DDL 同步 ② 代码里的手抄枚举无漂移
+#        ③ 状态机流转表的状态值都在 DDL 枚举内
+(cd "$ROOT/backend" && "$PY" ../tools/check_contract_ddl.py >/tmp/ci_contract.log 2>&1) \
+  && ok "契约一致性（$(grep -oE '漂移\(PROBLEM\) [0-9]+ 项' /tmp/ci_contract.log | tail -1)）" \
+  || { bad "契约一致性门禁"; grep -E "✗|DRIFT" /tmp/ci_contract.log | head -10; }
+
 echo "=== Job 3c/4: 跨域数据一致性体检（真实数据引用完整性）==="
 # 静态检查（类型/覆盖率）看不出跨域引用悬空；只有真数据体检能发现。
 # 覆盖：缺货明细→异常单/批次、异常单→类型/订单、审单原因标记泄漏/丢失、

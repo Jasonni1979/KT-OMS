@@ -30,6 +30,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.contracts.enums import AFT_REFUND_STATUS, AFT_RETURN_APPLY_AFTERSALE_TYPE, AFT_RETURN_APPLY_STATUS
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.core.timeutil import utcnow
 from app.models.aftersale import (
@@ -48,12 +49,7 @@ TYPE_RETURN_REFUND = 2  # 退货退款
 TYPE_EXCHANGE = 3  # 换货
 TYPE_RESHIPMENT = 4  # 补发
 
-AFTERSALE_TYPE_LABEL: dict[int, str] = {
-    TYPE_REFUND_ONLY: "仅退款",
-    TYPE_RETURN_REFUND: "退货退款",
-    TYPE_EXCHANGE: "换货",
-    TYPE_RESHIPMENT: "补发",
-}
+AFTERSALE_TYPE_LABEL = AFT_RETURN_APPLY_AFTERSALE_TYPE
 
 #: 申请单状态
 ST_PENDING_LINK = 0  # 待关联（订单缺失异常态）
@@ -67,18 +63,7 @@ ST_DONE = 7  # 完成
 ST_REJECTED = 8  # 拒绝（可 reopen）
 ST_CLOSED = 9  # 关闭
 
-APPLY_STATUS_LABEL: dict[int, str] = {
-    ST_PENDING_LINK: "待关联",
-    ST_WAIT_AUDIT: "待审核",
-    ST_WAIT_RETURN: "待退货",
-    ST_WAIT_RECEIVE: "待收货",
-    ST_WAIT_REFUND: "待退款",
-    ST_REFUNDING: "退款中",
-    ST_EXCHANGING: "换货执行中",
-    ST_DONE: "完成",
-    ST_REJECTED: "拒绝",
-    ST_CLOSED: "关闭",
-}
+APPLY_STATUS_LABEL = AFT_RETURN_APPLY_STATUS
 
 #: 终态（FR-05a：全部闭环才清除订单售后中标记）
 APPLY_CLOSED_STATUSES = (ST_DONE, ST_REJECTED, ST_CLOSED)
@@ -96,14 +81,7 @@ REFUND_FAILED = 4
 REFUNDED_OFFLINE = 5
 REFUND_CANCELLED = 6
 
-REFUND_STATUS_LABEL: dict[int, str] = {
-    REFUND_WAIT: "待退款",
-    REFUNDING: "退款中",
-    REFUNDED: "已退款",
-    REFUND_FAILED: "退款失败",
-    REFUNDED_OFFLINE: "已退款-线下",
-    REFUND_CANCELLED: "已取消",
-}
+REFUND_STATUS_LABEL = AFT_REFUND_STATUS
 
 #: 退款渠道
 CHANNEL_PLATFORM = 1

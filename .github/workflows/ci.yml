@@ -219,6 +219,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: 契约一致性（枚举/状态机 ↔ DDL 权威）
+        working-directory: backend
+        run: uv run python ../tools/check_contract_ddl.py
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
