@@ -170,6 +170,80 @@ class BlacklistPlugin(BasePlugin):
         return PluginResult.pass_()
 
 
+
+class GoodsMatchPlugin(BasePlugin):
+    """goods_match（CHECK）：商品绑定校验（W8-2b 补齐）
+
+    **为什么补**：D03.09 的 `PRODUCT_UNBOUND`（商品未绑定）异常类型在字典与
+    原因码表里都已配置（`ord_reason_code_dict.GOODS_UNBOUND → PRODUCT_UNBOUND`），
+    但审单插件链里**没有任何插件产出该原因码** → 未绑定商品永远不会落异常单，
+    FR-03a 的映射形同虚设。本插件补上这条产出路径。
+
+    判定口径：**订单行未绑定基础物料**（`bm_id = 0`）→ 商品未绑定。
+    虚拟/赠品行不参与判定（无实物库存需求）。
+
+    路由：BLOCK → 转人工（挂起等人工建档），建议动作 = 绑定商品。
+    """
+
+    PLUGIN_NAME = "goods_match"
+    # ⚠ 链段只有 ADMIT/WAREHOUSE/STOCK/LOGISTICS/CHECK —— 没有 DATA 段
+    #   （DATA 是 branch_select 插件自声明的段名，实际不在 PHASES 里）
+    #   故归入 CHECK 段：不短路、可与其他校验原因一并收集。
+    PHASE = "CHECK"
+    ORDER = 5
+
+    def default_params(self) -> dict[str, Any]:
+        return {
+            # 是否把赠品/虚拟品也判为未绑定（默认否）
+            "check_gift": False,
+            "check_virtual": False,
+        }
+
+    async def process(self, ctx: RuleContext) -> PluginResult:
+        items: list[dict[str, Any]] = ctx.meta.get("items", []) or []
+        if not items:
+            return PluginResult.pass_()
+        params = self.params(ctx)
+        check_gift = bool(params.get("check_gift"))
+        check_virtual = bool(params.get("check_virtual"))
+
+        unbound: list[dict[str, Any]] = []
+        for it in items:
+            if not check_gift and int(it.get("is_gift", 0) or 0):
+                continue
+            if not check_virtual and int(it.get("is_virtual", 0) or 0):
+                continue
+            if int(it.get("bm_id", 0) or 0) > 0:
+                continue
+            unbound.append(
+                {
+                    "item_id": int(it.get("id", 0) or 0),
+                    "platform_sku_code": str(it.get("platform_sku_code", "") or ""),
+                    "bm_number": str(it.get("bm_number", "") or ""),
+                    "bm_name": str(it.get("bm_name", "") or ""),
+                    "nums": int(it.get("nums", 0) or 0),
+                    "parse_status": str(it.get("parse_status", "") or ""),
+                }
+            )
+        if not unbound:
+            return PluginResult.pass_()
+        return PluginResult.hold(
+            [
+                Reason(
+                    plugin=self.PLUGIN_NAME,
+                    code="GOODS_UNBOUND",
+                    level=LEVEL_BLOCK,
+                    description=(
+                        f"商品未绑定基础物料：{len(unbound)} 行未绑定"
+                    ),
+                    detail={"unbound": unbound},
+                    suggest_action="绑定商品",
+                    route_target="manual",
+                )
+            ]
+        )
+
+
 class BranchSelectPlugin(BasePlugin):
     """branch_select（WAREHOUSE）：选仓 → 调 D03.06 配货分仓
 
@@ -653,6 +727,7 @@ class AutoPassPlugin(BasePlugin):
 W5_PLUGINS: list[type[BasePlugin]] = [
     AdmitStatusPlugin,
     BlacklistPlugin,
+    GoodsMatchPlugin,
     BranchSelectPlugin,
     SplitPlugin,
     StockCheckPlugin,

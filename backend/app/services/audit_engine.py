@@ -127,6 +127,20 @@ class AuditContextData:
     meta: dict[str, Any]
 
 
+def _num(v: Any) -> float:
+    """数值兜底（可空列 → 0.0）
+
+    ⚠ `weight` / `tax_amount` 在 DDL 里是**可空列**（is_nullable=YES），
+    直接 `float(it.weight)` 遇 NULL 会抛 TypeError → 整个审单链路 500。
+    """
+    if v is None:
+        return 0.0
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 class AuditEngine:
     """审单引擎"""
 
@@ -167,12 +181,14 @@ class AuditEngine:
                 "bm_number": it.bm_number,
                 "bm_name": it.bm_name,
                 "nums": it.nums,
-                "paid_amount": float(it.paid_amount),
-                "list_price": float(it.list_price),
+                # ⚠ weight / tax_amount 是**可空列** → float(None) 会抛
+                #   TypeError 让整个审单 500。统一用 _num() 兜底为 0。
+                "paid_amount": _num(it.paid_amount),
+                "list_price": _num(it.list_price),
                 "parse_status": it.parse_status,
                 "is_virtual": it.is_virtual,
                 "is_gift": it.is_gift,
-                "weight": float(it.weight),
+                "weight": _num(it.weight),
                 "platform_sku_code": it.platform_sku_code,
             }
             for it in items
@@ -229,7 +245,7 @@ class AuditEngine:
             "order.items.sku": [it.platform_sku_code for it in items if it.platform_sku_code],
             "order.items.count": len({it.platform_sku_code for it in items}),
             "order.items.nums": sum(it.nums for it in items),
-            "order.weight": sum(float(it.weight) for it in items),
+            "order.weight": sum(_num(it.weight) for it in items),
         }
         # 插件元信息（ctx.meta：插件运行期依赖的外部句柄与候选集）
         meta: dict[str, Any] = {
@@ -593,3 +609,23 @@ def register_audit_chain() -> None:
         exception_policy="dual",
     )
     REGISTRY.register_chain(spec)
+
+
+# ============ 导入即注册（W8-2b 修的真实缺陷）============
+# ⚠ **此前只有 seed_audit_demo / audit_e2e 两个脚本手动调用注册**，
+#   API 服务与其它脚本都没注册 → 审单一跑就抛 `KeyError: 链未注册: order.audit`，
+#   即**审单链路在生产上完全不可用**（E2E 用例恰好自己注册了，把问题盖住了）。
+#   注册是幂等的（同名插件覆盖 / 同 chain_id 覆盖），放模块导入期最安全。
+def _ensure_audit_chain_registered() -> None:
+    """确保审单链与插件已注册（幂等，可重复调用）"""
+    from app.core.plugin_chain import REGISTRY
+
+    if REGISTRY.chain_spec(CHAIN_ID) is not None:
+        return
+    register_audit_chain()
+    from app.services.audit_plugins import register_audit_plugins
+
+    register_audit_plugins()
+
+
+_ensure_audit_chain_registered()

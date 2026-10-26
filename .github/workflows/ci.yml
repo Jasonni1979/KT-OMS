@@ -301,6 +301,12 @@ jobs:
           KTOMS_MYSQL_PORT: "3306"
           KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
         run: uv run python -m app.scripts.writeback_e2e --with-mock
+      - name: M2 gate③ 三类异常单人工处置闭环
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.m2_gate3_e2e
 
   frontend:
     name: Frontend (type-check + build)

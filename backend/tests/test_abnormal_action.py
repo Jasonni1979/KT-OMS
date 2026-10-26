@@ -572,3 +572,67 @@ async def test_action_rejected_when_not_dispatched():
     finally:
         await _clean([order_id], [])
 
+
+# ============ goods_match 插件（W8-2b 补齐的产出路径）============
+
+
+async def test_goods_match_plugin_produces_unbound_reason():
+    """FR-03a：未绑定商品的订单行 → goods_match 插件产出 GOODS_UNBOUND
+
+    补这个插件的原因：D03.09 的 PRODUCT_UNBOUND 类型与 GOODS_UNBOUND 原因码
+    在字典里都已配置，但插件链里**没有插件产出该原因码** → 未绑定商品永远
+    不会落异常单。
+    """
+    from app.core.plugin_chain import RuleContext
+    from app.services.audit_plugins import GoodsMatchPlugin
+
+    ctx = RuleContext()
+    ctx.meta["items"] = [
+        {"id": 1, "bm_id": 0, "platform_sku_code": "SKU_X", "nums": 2,
+         "parse_status": "pending", "is_gift": 0, "is_virtual": 0},
+        {"id": 2, "bm_id": 99, "platform_sku_code": "SKU_Y", "nums": 1,
+         "parse_status": "parsed", "is_gift": 0, "is_virtual": 0},
+    ]
+    res = await GoodsMatchPlugin().process(ctx)
+    assert res.status == "HOLD"
+    assert len(res.reasons) == 1
+    assert res.reasons[0].code == "GOODS_UNBOUND"
+    assert len(res.reasons[0].detail["unbound"]) == 1
+    assert res.reasons[0].detail["unbound"][0]["platform_sku_code"] == "SKU_X"
+
+
+async def test_goods_match_plugin_passes_when_all_bound():
+    """FR-03a：全部已绑定 → 放行"""
+    from app.core.plugin_chain import RuleContext
+    from app.services.audit_plugins import GoodsMatchPlugin
+
+    ctx = RuleContext()
+    ctx.meta["items"] = [
+        {"id": 1, "bm_id": 99, "platform_sku_code": "SKU_Y", "nums": 1,
+         "parse_status": "parsed", "is_gift": 0, "is_virtual": 0},
+    ]
+    res = await GoodsMatchPlugin().process(ctx)
+    assert res.status == "PASS"
+
+
+async def test_goods_match_plugin_skips_gift_and_virtual():
+    """FR-03a：赠品/虚拟品不参与未绑定判定"""
+    from app.core.plugin_chain import RuleContext
+    from app.services.audit_plugins import GoodsMatchPlugin
+
+    ctx = RuleContext()
+    ctx.meta["items"] = [
+        {"id": 1, "bm_id": 0, "nums": 1, "is_gift": 1, "is_virtual": 0},
+        {"id": 2, "bm_id": 0, "nums": 1, "is_gift": 0, "is_virtual": 1},
+    ]
+    res = await GoodsMatchPlugin().process(ctx)
+    assert res.status == "PASS"
+
+
+async def test_goods_match_plugin_registered_in_chain():
+    """回归：goods_match 已注册进审单插件链（否则不会执行）"""
+    from app.services.audit_plugins import build_plugins
+
+    names = [p.name() for p in build_plugins()]
+    assert "goods_match" in names
+

@@ -985,6 +985,19 @@ CASES: dict[str, tuple[str, str, str]] = {
      "待分派的异常单不可直接执行动作（不能绕过状态机改订单）",
      "详见用例断言"),
 
+    "test_goods_match_plugin_produces_unbound_reason": ("D03.09 FR-03a",
+     "未绑定商品的订单行 → goods_match 插件产出 GOODS_UNBOUND",
+     "详见用例断言"),
+    "test_goods_match_plugin_passes_when_all_bound": ("D03.09 FR-03a",
+     "全部已绑定 → 放行",
+     "详见用例断言"),
+    "test_goods_match_plugin_skips_gift_and_virtual": ("D03.09 FR-03a",
+     "赠品/虚拟品不参与未绑定判定",
+     "详见用例断言"),
+    "test_goods_match_plugin_registered_in_chain": ("D03.09",
+     "回归：goods_match 已注册进审单插件链（否则不会执行）",
+     "详见用例断言"),
+
     # ---------- MOCK ----------
     "test_sign_verify_rejects_unsigned": ("D02.02 TOP 签名", "请求不带 sign",
                                           "返回 isv.invalid-signature"),
