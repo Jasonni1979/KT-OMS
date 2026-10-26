@@ -289,8 +289,10 @@ class BarcodeOut(BaseModel):
     owner_id: int
     barcode: str
     bm_id: int
-    material_bn: str
-    material_name: str
+    # ⚠ inv_barcode 表**没有** material_bn / material_name 两列（只有 bm_id）
+    #   原先声明为必填 → model_validate 取不到属性 → 条码列表接口 500
+    material_bn: str | None = None
+    material_name: str | None = None
     barcode_type: int
     shop_id: int
     status: int

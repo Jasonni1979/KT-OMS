@@ -10,6 +10,7 @@ from app.api.v1 import (
     import_center,
     master,
     material,
+    monitor,
     order,
     stock,
     wms,
@@ -56,6 +57,10 @@ api_router.include_router(
     abnormal.router, prefix="",
     dependencies=[Depends(get_current_account)],
 )  # D03.09 异常单与缺货处理（W8）
+api_router.include_router(
+    monitor.router, prefix="",
+    dependencies=[Depends(get_current_account)],
+)  # D11.03 履约监控看板（W8-3）
 
 # M1 起按域挂载：
 # api_router.include_router(org.router, prefix="/org")        # D10

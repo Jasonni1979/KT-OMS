@@ -33,6 +33,7 @@ MODULES = [
     ("ABNAPI", "异常单 API（D03.09）", "SRS-D03.09 FR-02c/02d/02f/03d", "backend/tests/test_abnormal_api.py"),
     ("STOCKOUT", "缺货策略链（D03.09 FR-04b/04c）", "SRS-D03.09 FR-04b 换仓重试 + FR-04c 解除重审", "backend/tests/test_stockout_strategy.py"),
     ("ABNACT", "异常单分派与动作（D03.09 FR-02c/02d）", "SRS-D03.09 FR-02c 分派 + FR-02d 处理动作", "backend/tests/test_abnormal_action.py"),
+    ("SCHEMA", "Schema 空值安全（防接口 500）", "防回归：响应 schema 必填字段 ↔ DDL 可空列一致性", "backend/tests/test_schema_null_safety.py"),
     ("GW", "平台接入框架（Gateway）", "SRS-D02.01 平台接入框架 + D02.03 FR-02c 分页", "backend/tests/test_gateway.py"),
     ("ACC", "租户账户与角色", "SRS-D10.02 租户账户与角色", "backend/tests/test_account.py"),
     ("SHOP", "店铺授权与档案", "SRS-D02.06 店铺授权管理（MVP 仿真范围）", "backend/tests/test_shop_auth.py"),
@@ -996,6 +997,18 @@ CASES: dict[str, tuple[str, str, str]] = {
      "详见用例断言"),
     "test_goods_match_plugin_registered_in_chain": ("D03.09",
      "回归：goods_match 已注册进审单插件链（否则不会执行）",
+     "详见用例断言"),
+
+
+    # ---------- SCHEMA（W8-3 空值安全守门）----------
+    "test_response_schemas_accept_real_db_rows": ("D03.01 FR-10 订单接口稳定性",
+     "所有响应 schema 都能校验库里的真实行（含 NULL 字段的行）",
+     "详见用例断言"),
+    "test_order_out_nullable_fields_declared_optional": ("D03.01 FR-10 订单接口稳定性",
+     "回归锁定：OrderOut / OrderItemOut 的可空字段必须声明为可选",
+     "详见用例断言"),
+    "test_order_api_returns_200_with_nullable_rows": ("D03.01 FR-10 订单接口稳定性",
+     "回归锁定：带 NULL 字段的订单也能正常返回（接口不 500）",
      "详见用例断言"),
 
     # ---------- MOCK ----------

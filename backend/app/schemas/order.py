@@ -69,17 +69,19 @@ class OrderItemOut(BaseModel):
     order_id: int
     owner_id: int
     platform_sku_code: str
-    platform_oid: str
+    # ⚠ 以下 4 个字段在 DDL 里是**可空列**（is_nullable=YES，无默认值）
+    #   声明为非空 → 遇到 NULL 的订单行时 pydantic 校验失败 → 订单详情接口 500
+    platform_oid: str | None = None
     bm_id: int
     bm_number: str
-    bm_name: str
+    bm_name: str | None = None
     nums: int
     list_price: float
     list_amount: float
     shop_discount: float
     platform_subsidy: float
     paid_amount: float
-    bom_version: int
+    bom_version: int | None = None
     is_virtual: int
     is_gift: int
     parse_status: str
@@ -136,14 +138,16 @@ class OrderOut(BaseModel):
     freight: float
     is_cod: int
     promotion_source: str
-    buyer_nick: str
+    # ⚠ DDL 里这三个字段是**可空列**（is_nullable=YES，无默认值）
+    #   声明为非空 str → 遇到 NULL 的订单时 pydantic 校验失败 → 整个列表 500
+    buyer_nick: str | None = None
     order_time: datetime | None = None
     pay_time: datetime | None = None
     combine_hash: str | None = None
     flag_color: int
     urge_flag: int
-    warehouse_memo: str
-    buyer_memo: str
+    warehouse_memo: str | None = None
+    buyer_memo: str | None = None
     platform_extra: dict | None = None
     version: int
     create_time: datetime
