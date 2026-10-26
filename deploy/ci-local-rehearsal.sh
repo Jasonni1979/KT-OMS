@@ -124,6 +124,14 @@ echo "=== Job 7/7: 履约链路端到端（W6：分仓→拆单→发货单状�
   || { bad "履约链路端到端"; tail -25 /tmp/ci_fulfill.log; }
 assert_min /tmp/ci_fulfill.log 43 "履约链路端到端"
 
+echo "=== Job 6c/6: 审单引擎端到端（插件链 → 原因 → plan）==="
+# ⚠ 此前 audit_e2e **不在 CI 门禁里** → 一直是坏的（插件数硬编码 + plan 断言
+#   不分情况），加了 goods_match 插件后才暴露。已修并纳入门禁。
+(cd "$ROOT/backend" && "$PY" -m app.scripts.audit_e2e >/tmp/ci_audite2e.log 2>&1) \
+  && ok "审单引擎端到端（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_audite2e.log | tail -1)）" \
+  || { bad "审单引擎端到端"; tail -25 /tmp/ci_audite2e.log; }
+assert_min /tmp/ci_audite2e.log 5 "审单引擎端到端"
+
 echo "=== Job 7b/7: 造单场景矩阵端到端（7 场景 × 识别验证）==="
 # 复盘补齐：mock-platform 场景库有 10 个场景，此前仅 normal 被端到端验证
 # 覆盖 normal/multi_item/big_amount/out_of_stock/address_abnormal/unbound_item/buyer_message
@@ -141,6 +149,15 @@ echo "=== Job 7c/7: M2 gate③ 三类异常单人工处置闭环 ==="
   && ok "M2 gate③ 异常单处置闭环（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_m2gate3.log | tail -1)）" \
   || { bad "M2 gate③ 异常单处置闭环"; tail -25 /tmp/ci_m2gate3.log; }
 assert_min /tmp/ci_m2gate3.log 37 "M2 gate③ 异常单处置闭环"
+
+echo "=== Job 7d/7: 跨域链路端到端（整体检查补缺口）==="
+# 整体检查按「业务链路」盘点时发现的 2 条无 E2E 覆盖的链路：
+# ⑬ 超卖→应急批次→阶段推进→赔付→复盘 / ⑮ 监控看板四指标
+# 另含 ⑭ 异常单→转售后→审核→退款→订单 pay_status 联动 / ⑯ 暂停→恢复
+(cd "$ROOT/backend" && "$PY" -m app.scripts.cross_domain_e2e >/tmp/ci_crossdomain.log 2>&1) \
+  && ok "跨域链路（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_crossdomain.log | tail -1)）" \
+  || { bad "跨域链路端到端"; tail -25 /tmp/ci_crossdomain.log; }
+assert_min /tmp/ci_crossdomain.log 21 "跨域链路端到端"
 
 echo "=== Job 8/8: W7 通道端到端（推仓→WMS 回放→回传→settle→发货确认→平台回传）==="
 # 自起 mock-wms（9001）与 mock-platform（9000）——CI 库需要真实 WMS 才能跑通推仓链路

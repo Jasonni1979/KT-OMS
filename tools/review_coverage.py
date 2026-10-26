@@ -87,6 +87,18 @@ PREFIX_TO_SRS: dict[str, list[str]] = {
     "WMS": ["D09.01", "D09.02", "D02.04", "D02.05"],
     "SEED": ["D10.03"],
     "MOCK": ["D02.02", "D02.03"],
+    # ---- W8 新增模块（复盘发现：新增前缀未登记 → 该模块用例**完全不参与**覆盖统计）
+    "GW": ["D02.01"],              # 平台接入框架（Gateway）
+    "ACC": ["D10.02"],             # 租户账户与角色
+    "SHOP": ["D02.06"],            # 店铺授权与档案
+    "ABN": ["D03.09"],             # 异常单域
+    "ABNACT": ["D03.09"],          # 异常单分派与动作
+    "ABNAPI": ["D03.09"],          # 异常单 API
+    "STOCKOUT": ["D03.09"],        # 缺货策略链
+    "ABNEXT": ["D03.09"],          # 应急批次/暂停编排/名单服务
+    "MODIFY": ["D03.08"],          # 订单修改与改地址
+    "AFT": ["D05.01", "D05.03"],   # 售后服务
+    "SCHEMA": ["D03.01"],          # Schema 空值安全（接口 500 守门）
 }
 
 FR_RE = re.compile(r"\bFR-(\d{1,2}[a-z]?)\b")
@@ -144,6 +156,21 @@ def _fnames_of(prefix: str) -> set[str]:
                 names.add(m.group(1))
     _FN_CACHE[prefix] = names
     return names
+
+
+def check_prefix_coverage() -> list[str]:
+    """自检：test_case_map 里出现的每个模块前缀都必须在 PREFIX_TO_SRS 中登记
+
+    ⚠ **复盘发现的真实缺陷**：W8 新增了 GW/ACC/SHOP 等前缀，但没更新
+    PREFIX_TO_SRS → 这些模块的用例**完全不参与覆盖统计**（既不贡献显式覆盖
+    也不贡献模块级触达）→ D02.01 显示 4%、D10.02 显示 18% 的**假低覆盖**。
+    本自检防止以后再犯。
+    """
+    missing = []
+    for pfx, _name, _srs, _path in M.MODULES:
+        if pfx not in PREFIX_TO_SRS:
+            missing.append(pfx)
+    return missing
 
 
 def main() -> int:

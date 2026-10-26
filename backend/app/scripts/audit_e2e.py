@@ -50,9 +50,17 @@ async def main() -> int:
 
         # ① 插件注册
         plugins = REGISTRY.list_plugins("order.audit")
+        plugin_names = {p.name() for p in plugins}
+        # ⚠ **不硬编码插件数**（新增插件就会失效）→ 断言核心插件齐备
+        core = {
+            "admit_status", "blacklist", "branch_select", "split",
+            "stock_check", "logi_match", "address_check", "price_check",
+            "auto_pass", "goods_match",
+        }
         results.append(
-            step("1", "插件注册（服务发现式，chain_id 隔离）", len(plugins) == 9,
-                 f"注册 {len(plugins)} 个插件")
+            step("1", "插件注册（服务发现式，chain_id 隔离）",
+                 core.issubset(plugin_names),
+                 f"注册 {len(plugins)} 个插件（含 goods_match）")
         )
 
         # ② 规则加载 + 匹配
@@ -93,10 +101,23 @@ async def main() -> int:
         )
 
         # ⑤ plan 落库（决策执行分离）
+        # ⚠ **不能无条件断言有 plan**：插件链 HOLD（如 NO_BRANCH 无候选仓）时
+        #   本就不产出 plan（决策=manual 转人工）→ 断言必须分情况
+        if outcome.plan_id:
+            plan_ok = True
+            plan_detail = (
+                f"plan_id={outcome.plan_id} plan_bn={outcome.plan_bn} "
+                f"decision={outcome.decision}"
+            )
+        else:
+            # 无 plan 时：必须是「转人工」类决策，且已落结构化原因
+            plan_ok = outcome.decision in ("manual", "pool") and len(reasons) > 0
+            plan_detail = (
+                f"decision={outcome.decision}（无候选仓 → 转人工，"
+                f"已落 {len(reasons)} 条原因）"
+            )
         results.append(
-            step("5", "plan 落库（决策与执行分离）", outcome.plan_id is not None,
-                 f"plan_id={outcome.plan_id} plan_bn={outcome.plan_bn} "
-                 f"decision={outcome.decision}")
+            step("5", "plan 落库（决策与执行分离）", plan_ok, plan_detail)
         )
         if outcome.plan_id:
             ex = PlanExecutor(s, redis)
