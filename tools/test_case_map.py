@@ -31,6 +31,7 @@ MODULES = [
     ("WMS", "履约通道（WMS 指令与回传）", "SRS-D09.01 路由 + D09.02 出库指令 + D02.04 回传 + D02.05 重试", "backend/tests/test_wms_channel.py"),
     ("ABN", "异常单域（D03.09）", "SRS-D03.09 异常单与缺货处理", "backend/tests/test_abnormal.py"),
     ("ABNAPI", "异常单 API（D03.09）", "SRS-D03.09 FR-02c/02d/02f/03d", "backend/tests/test_abnormal_api.py"),
+    ("STOCKOUT", "缺货策略链（D03.09 FR-04b/04c）", "SRS-D03.09 FR-04b 换仓重试 + FR-04c 解除重审", "backend/tests/test_stockout_strategy.py"),
     ("GW", "平台接入框架（Gateway）", "SRS-D02.01 平台接入框架 + D02.03 FR-02c 分页", "backend/tests/test_gateway.py"),
     ("ACC", "租户账户与角色", "SRS-D10.02 租户账户与角色", "backend/tests/test_account.py"),
     ("SHOP", "店铺授权与档案", "SRS-D02.06 店铺授权管理（MVP 仿真范围）", "backend/tests/test_shop_auth.py"),
@@ -897,6 +898,30 @@ CASES: dict[str, tuple[str, str, str]] = {
      "详见用例断言"),
     "test_cancel_endpoint": ("D03.09",
      "取消异常单 → 已取消",
+     "详见用例断言"),
+
+
+    # ---------- STOCKOUT（W8-2 缺货策略链）----------
+    "test_calc_switch_branch_no_candidates": ("D03.09",
+     "无候选仓 → status=none（建议借调/采购，P1）",
+     "详见用例断言"),
+    "test_calc_switch_branch_partial_when_no_stock": ("D03.09",
+     "候选仓存在但无库存 → status=none（不是 partial）",
+     "详见用例断言"),
+    "test_calc_switch_branch_reports_borrow_stock_disabled": ("D03.09",
+     "借调建议恒为未启用（P1），不返回伪造的可借额度",
+     "详见用例断言"),
+    "test_calc_requires_stockout_details": ("D03.09",
+     "无缺货明细的异常单 → 测算返回 none（不抛错）",
+     "详见用例断言"),
+    "test_switch_branch_without_details_raises": ("D03.09",
+     "无缺货明细 → 换仓重试拒绝执行",
+     "详见用例断言"),
+    "test_switch_branch_records_result_on_failure": ("D03.09",
+     "换仓失败 → 策略结果回写为 failed，异常单**不闭环**",
+     "详见用例断言"),
+    "test_release_retry_without_plan_raises": ("D03.09",
+     "无履约方案 → 解除重审拒绝执行",
      "详见用例断言"),
 
     # ---------- MOCK ----------

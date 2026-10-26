@@ -642,6 +642,34 @@ class AbnormalService:
         await self.s.refresh(row)
         return row
 
+    async def set_strategy_result_of(
+        self,
+        abnormal_id: int,
+        *,
+        status: str,
+        result: dict | None = None,
+    ) -> list[OrdStockout]:
+        """按异常单批量回写策略链结果（FR-04b）
+
+        策略链是**异常单级**的动作（换仓重试 / 解除重审），但结果落在**缺货明细**
+        上（每条明细的策略状态）→ 统一回写该单的全部明细。
+        """
+        rows = list(
+            await self.s.scalars(
+                select(OrdStockout).where(
+                    OrdStockout.abnormal_id == abnormal_id,
+                    OrdStockout.is_deleted == 0,
+                )
+            )
+        )
+        for r in rows:
+            r.strategy_status = status
+            if result is not None:
+                r.strategy_result = result
+            r.version += 1
+        await self.s.commit()
+        return rows
+
     # ============ 查询（FR-02f）============
 
     async def get(self, abnormal_id: int) -> OrdAbnormal:

@@ -342,3 +342,46 @@ async def cancel(
     svc = await _svc(session)
     row = await svc.cancel(abnormal_id, operator="api", note=body.note)
     return ok({"id": row.id, "status": row.status})
+
+
+# ============ 缺货策略链（W8-2 · FR-04b/04c）============
+
+
+@router.get("/abnormal/{abnormal_id}/strategy", summary="缺货策略链测算（换仓重试）")
+async def calc_strategy(
+    abnormal_id: int, session: AsyncSession = Depends(get_session)
+):
+    """测算其他候选仓可用量（**只测算不执行**）
+
+    FR-04b-1：可整单满足 → 提示一键换仓重审；部分满足 → 提示拆单换仓。
+    """
+    from app.services.stockout_strategy import StockoutStrategyService
+
+    svc = StockoutStrategyService(session, await get_redis())
+    return ok(await svc.calc_switch_branch(abnormal_id))
+
+
+@router.post("/abnormal/{abnormal_id}/switch-branch", summary="换仓重试（执行）")
+async def switch_branch(
+    abnormal_id: int, session: AsyncSession = Depends(get_session)
+):
+    """换仓重试：缺口行重算（排除已试仓）→ 新 plan → 重新预占 → 成功则异常单闭环
+
+    FR-04b-1 + FR-04c。
+    """
+    from app.services.stockout_strategy import StockoutStrategyService
+
+    svc = StockoutStrategyService(session, await get_redis())
+    return ok(await svc.switch_branch(abnormal_id, operator="api"))
+
+
+@router.post("/abnormal/{abnormal_id}/release-retry", summary="解除重审（库存补足后重试）")
+async def release_retry(
+    abnormal_id: int, session: AsyncSession = Depends(get_session)
+):
+    """解除重审：同仓重新预占 → 成功则异常单闭环（FR-04c）"""
+    from app.services.stockout_strategy import StockoutStrategyService
+
+    svc = StockoutStrategyService(session, await get_redis())
+    return ok(await svc.release_and_retry(abnormal_id, operator="api"))
+
