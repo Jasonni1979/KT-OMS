@@ -6,7 +6,7 @@
 - 登录成功/失败均落 org_session 审计（FR-05d，D10.06 投递 M4+ 补）
 """
 import hashlib
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 from redis.asyncio import Redis
 from sqlalchemy import select, update
@@ -16,6 +16,7 @@ from app.core import security as sec
 from app.core.config import settings
 from app.core.db import system_scope
 from app.core.exceptions import PermissionDeniedError
+from app.core.timeutil import utcnow
 from app.models.account import (
     OrgAccount,
     OrgAccountCredential,
@@ -27,15 +28,12 @@ from app.models.account import (
 
 
 def _utcnow() -> datetime:
-    """当前 UTC 时间（naive）
+    """当前 UTC 时间（naive）—— 认证链路专用别名
 
-    ⚠ **认证链路的所有时间比较必须用 UTC**（复盘发现的真实隐患）：
-    `lock_until` / `expire_time` 是 MySQL DATETIME（**无时区**），若写入用本地
-    时区、比较用另一个时区（或 DB 容器与应用主机时区不同），会出现
-    「锁定中的账户被判为已过期 → 自动放行」这类**越权风险**。
-    统一用 UTC 后，与 DB 服务器时区无关。
+    实现已收敛到 `app.core.timeutil.utcnow`（**全域统一 UTC 基准**），
+    此处保留别名，避免同一基准在多处各写一遍。
     """
-    return datetime.now(UTC).replace(tzinfo=None)
+    return utcnow()
 
 
 MAX_FAIL = 5

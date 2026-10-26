@@ -4,6 +4,12 @@
 登记同时写入 org_filterable_entity 表（声明元数据存档与审计，由 seed 脚本同步）。
 """
 from app.core.permission import register_filterable
+from app.models.abnormal import (
+    OrdAbnormal,
+    OrdAbnormalTypeDict,
+    OrdReasonCodeDict,
+    OrdStockout,
+)
 from app.models.audit import (
     OrdAuditBatchLog,
     OrdAuditGroup,
@@ -244,4 +250,25 @@ register_filterable(OrdDeliveryPackage, {
 })
 register_filterable(OrdDeliveryLog, {
     "tenant_id": OrdDeliveryLog.tenant_id,
+})
+
+# ============ 异常单域（D03.09）============
+# 异常单：tenant + owner + shop 三维（FR-02f 数据权限四维行级过滤）
+register_filterable(OrdAbnormal, {
+    "tenant_id": OrdAbnormal.tenant_id,
+    "owner_id": OrdAbnormal.owner_id,
+    "shop_id": OrdAbnormal.shop_id,
+})
+# 缺货明细：tenant + owner 维
+register_filterable(OrdStockout, {
+    "tenant_id": OrdStockout.tenant_id,
+    "owner_id": OrdStockout.owner_id,
+})
+# 异常类型字典：tenant 维（配置类，仅租户隔离）
+register_filterable(OrdAbnormalTypeDict, {
+    "tenant_id": OrdAbnormalTypeDict.tenant_id,
+})
+# 审单原因码字典：tenant 维
+register_filterable(OrdReasonCodeDict, {
+    "tenant_id": OrdReasonCodeDict.tenant_id,
 })
