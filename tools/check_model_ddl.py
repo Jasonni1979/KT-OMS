@@ -31,13 +31,28 @@ DB = {
 }
 
 
-def ddl_columns(cur, schema: str, table: str) -> set[str]:
+def ddl_columns(cur, schema: str, table: str) -> tuple[set[str], set[str]]:
+    """返回 (普通列, 生成列)
+
+    ⚠ **生成列（VIRTUAL / STORED GENERATED）不能 INSERT**，ORM 也不映射它们
+    （映射后写入会报 "The value specified for generated column ... is not allowed"）。
+    故缺列判定时必须排除生成列，否则合法建模会被误报。
+    """
     cur.execute(
-        "SELECT column_name FROM information_schema.columns "
+        "SELECT column_name, extra FROM information_schema.columns "
         "WHERE table_schema = %s AND table_name = %s",
         (schema, table),
     )
-    return {r[0] for r in cur.fetchall()}
+    normal: set[str] = set()
+    generated: set[str] = set()
+    for name, extra in cur.fetchall():
+        if extra and "GENERATED" in str(extra).upper() and "DEFAULT_GENERATED" not in str(
+            extra
+        ).upper():
+            generated.add(name)
+        else:
+            normal.add(name)
+    return normal, generated
 
 
 def main() -> int:
@@ -55,17 +70,18 @@ def main() -> int:
             continue
         name = table.name
         try:
-            cols = ddl_columns(cur, schema, name)
+            cols, gen_cols = ddl_columns(cur, schema, name)
         except Exception as e:  # pragma: no cover
             problems.append(f"[查询失败] {schema}.{name}: {e}")
             continue
-        if not cols:
+        if not cols and not gen_cols:
             problems.append(f"[表不存在] {schema}.{name}")
             continue
         checked += 1
         model_cols = {c.name for c in table.columns}
         extra = model_cols - cols
-        missing = cols - model_cols
+        # 生成列不参与缺列判定（ORM 不映射它们是正确的）
+        missing = (cols - model_cols) - gen_cols
         if extra:
             problems.append(
                 f"[模型多列] {schema}.{name}: {sorted(extra)}（DDL 无此列 → 写入必报错）"

@@ -20,6 +20,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import Any
 
 from sqlalchemy import select, update
@@ -53,16 +54,17 @@ ALL_ACTIONS = (
     ACT_REFUND,
 )
 
+#: 不触发异常单闭环的动作（中间态 / 移交类）
+NON_CLOSING_ACTIONS = (ACT_SUSPEND, ACT_TO_AFTERSALE, ACT_REFUND)
+
 #: 可执行动作的前置状态（已分派 / 处理中）
 #: ⚠ 待分派（wait_dispatch）不允许直接执行动作——否则会绕过状态机
 #:   直接改订单/释放预占，而异常单还挂在待分派池里无人负责。
 ACTION_ALLOWED_STATUS = ("assigned", "processing")
 
 #: 本期未实现（后续批次）的动作 → 说明
-PENDING_ACTIONS = {
-    ACT_TO_AFTERSALE: "转售后（D05 售后服务）属 W9 范围，本期未实现",
-    ACT_REFUND: "平台退款属 W9 范围，本期未实现",
-}
+#: 仍未实现的动作 → 说明（W9-1 已落地转售后/退款，此处留空以备后续扩展）
+PENDING_ACTIONS: dict[str, str] = {}
 
 
 class AbnormalActionService:
@@ -159,6 +161,8 @@ class AbnormalActionService:
             ACT_SUSPEND: self._do_suspend,
             ACT_CANCEL: self._do_cancel,
             ACT_FORCE_PASS: self._do_force_pass,
+            ACT_TO_AFTERSALE: self._do_to_aftersale,
+            ACT_REFUND: self._do_refund,
         }[action]
         result = await handler(row, operator=operator, note=note, extra=extra or {})
         result.setdefault("ok", True)
@@ -166,10 +170,20 @@ class AbnormalActionService:
         result["abnormal_id"] = abnormal_id
 
         # 终态动作 → 异常单闭环（FR-02d 动作完成 + FR-02e 联动清标记）
-        # ⚠ suspend 是**中间态**（等货/等买家回复）→ 不闭环，异常单保持挂起
-        if action != ACT_SUSPEND and result.get("ok"):
+        # ⚠ **中间态 / 移交类动作不闭环**：
+        #   · suspend     —— 等货/等买家回复，异常单保持挂起
+        #   · to_aftersale —— 只是**移交**给售后域，异常单应等售后单真正闭环才关
+        #   · refund       —— 同上，等退款单完成才关
+        #   （W9-1 复盘踩坑：早期实现把转售后当终态 → 异常单立即 resolved，
+        #     后续处置动作全部报「状态不可执行」）
+        if action not in NON_CLOSING_ACTIONS and result.get("ok"):
             await self._close(row.id, action=action, operator=operator, note=note)
             result["closed"] = True
+        else:
+            result["closed"] = False
+            result["close_reason"] = (
+                "中间态（挂起）" if action == ACT_SUSPEND else "移交类动作（等下游闭环）"
+            )
         return result
 
     async def _close(
@@ -355,6 +369,103 @@ class AbnormalActionService:
             "stage": "force_pass",
             "released_reasons": released,
             "audit_trail": "已落库审计 + 异常单时间线（OA 推送待 W8-3）",
+            "note": note,
+        }
+
+    async def _do_to_aftersale(
+        self, row: OrdAbnormal, *, operator: str, note: str, extra: dict
+    ) -> dict[str, Any]:
+        """转售后（W9-1 落地 · D05 售后服务）
+
+        异常单 → 售后申请单（仅退款链路，理由取异常单的原因）。
+        """
+        from app.services.aftersale import TYPE_REFUND_ONLY, AftersaleService
+
+        svc = AftersaleService(self.s, self.r)
+        detail = row.reason_detail if isinstance(row.reason_detail, dict) else {}
+        reason_code = str(detail.get("reason_code") or "")
+        apply_row, created = await svc.create_apply(
+            aftersale_type=TYPE_REFUND_ONLY,
+            platform="",
+            shop_id=int(row.shop_id or 0),
+            platform_aftersale_bn="",
+            order_id=int(row.order_id or 0),
+            items=[],
+            reason_code=reason_code,
+            reason_raw=str(detail.get("reason_name") or reason_code)[:512],
+            buyer_claim=note,
+            # 异常单无「同意金额」字段 → 金额取 0，由售后审核环节确定
+            apply_amount_customer=0,
+            source="manual",
+            operator=operator or "system",
+        )
+        return {
+            "ok": True,
+            "stage": "to_aftersale",
+            "apply_id": apply_row.id,
+            "apply_bn": apply_row.apply_bn,
+            "apply_status": apply_row.status,
+            "created": created,
+            "note": note,
+        }
+
+    async def _do_refund(
+        self, row: OrdAbnormal, *, operator: str, note: str, extra: dict
+    ) -> dict[str, Any]:
+        """退款（W9-1 落地 · D05.03 退款单）
+
+        异常单 → 退款单（待退款态）。平台实际打款走 D02.04 回传（本期未实现），
+        故落「待退款」并把平台回传标为待处理，**不伪造已退款**。
+        """
+        from app.models.aftersale import AftRefund
+        from app.services.aftersale import CHANNEL_OFFLINE, REFUND_WAIT
+
+        order = None
+        if row.order_id:
+            from app.models.order import OrdOrder
+
+            order = await self.s.scalar(
+                select(OrdOrder).where(
+                    OrdOrder.id == row.order_id, OrdOrder.is_deleted == 0
+                )
+            )
+        if order is None:
+            raise ValidationError(
+                "订单不存在，无法生成退款单", code="ORDER_NOT_FOUND"
+            )
+        refund = AftRefund(
+            tenant_id=row.tenant_id,
+            owner_id=row.owner_id,
+            shop_id=int(row.shop_id or 0),
+            refund_bn="",
+            apply_id=0,
+            order_id=order.id,
+            order_bn=order.order_bn,
+            source="manual_offline",
+            status=REFUND_WAIT,
+            # 手工触发的退款走线下登记（不经平台回传）—— 避免伪造平台打款成功
+            channel=CHANNEL_OFFLINE,
+            refund_customer=0,
+            refund_platform_bear=0,
+            platform="",
+            auditor=operator or "system",
+            version=0,
+        )
+        from app.core.timeutil import utcnow
+
+        refund.refund_bn = f"RF{utcnow():%Y%m%d}{uuid.uuid4().hex[:6].upper()}"
+        self.s.add(refund)
+        await self.s.flush()
+        await self.s.commit()
+        await self.s.refresh(refund)
+        return {
+            "ok": True,
+            "stage": "refund",
+            "refund_id": refund.id,
+            "refund_bn": refund.refund_bn,
+            "refund_status": refund.status,
+            "channel": refund.channel,
+            "platform_execution": "pending（D02.04 平台回传未实现）",
             "note": note,
         }
 

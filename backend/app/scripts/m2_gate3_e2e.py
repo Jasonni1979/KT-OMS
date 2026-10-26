@@ -486,21 +486,27 @@ async def _scenario_address(ck: Checker, redis) -> int:
                 f"allowed={allowed}",
             )
 
-            # 扩展位动作：转售后属 W9 → 明确未实现，不落假单
+            # 转售后（W9-1 已落地）→ 生成售后申请单，且**不立即闭环异常单**
             res_af = await act_svc.execute(abn_id, "to_aftersale", operator="e2e")
             ck.check(
-                "地址异常：转售后为扩展位（明确未实现，不伪造单据）",
-                res_af.get("ok") is False and res_af.get("enabled") is False,
-                f"reason={res_af.get('reason')}",
+                "地址异常：转售后生成售后申请单（W9-1 已落地）",
+                res_af.get("ok") is True and int(res_af.get("apply_id") or 0) > 0,
+                f"apply_bn={res_af.get('apply_bn')}",
+            )
+            ck.check(
+                "地址异常：转售后为移交类动作（异常单不立即闭环）",
+                res_af.get("closed") is False,
+                f"closed={res_af.get('closed')} reason={res_af.get('close_reason')}",
             )
             async with SessionFactory() as s2:
                 cnt = await s2.scalar(
                     text(
-                        "SELECT COUNT(*) FROM oms_aftersale.aft_refund WHERE order_id = :o"
+                        "SELECT COUNT(*) FROM oms_aftersale.aft_return_apply "
+                        "WHERE order_id = :o"
                     ),
                     {"o": oid},
                 )
-            ck.check("地址异常：未落任何假售后单", int(cnt or 0) == 0, f"aft_refund={cnt}")
+            ck.check("地址异常：售后申请单已落库", int(cnt or 0) == 1, f"apply={cnt}")
 
             # 越权动作被拒（ADDR_INCOMPLETE 无 to_retrial）
             from app.core.exceptions import ValidationError

@@ -10,6 +10,11 @@ from app.models.abnormal import (
     OrdReasonCodeDict,
     OrdStockout,
 )
+from app.models.aftersale import (
+    AftRefund,
+    AftReturnApply,
+    AftReturnApplyItem,
+)
 from app.models.audit import (
     OrdAuditBatchLog,
     OrdAuditGroup,
@@ -285,4 +290,23 @@ register_filterable(OrdOrderModify, {
 register_filterable(OrdOrderSnapshot, {
     "tenant_id": OrdOrderSnapshot.tenant_id,
     "owner_id": OrdOrderSnapshot.owner_id,
+})
+
+# ============ 售后域（D05）============
+# 售后申请单：tenant + owner + shop 三维
+register_filterable(AftReturnApply, {
+    "tenant_id": AftReturnApply.tenant_id,
+    "owner_id": AftReturnApply.owner_id,
+    "shop_id": AftReturnApply.shop_id,
+})
+# 申请行：tenant + owner 维
+register_filterable(AftReturnApplyItem, {
+    "tenant_id": AftReturnApplyItem.tenant_id,
+    "owner_id": AftReturnApplyItem.owner_id,
+})
+# 退款单：tenant + owner + shop 三维
+register_filterable(AftRefund, {
+    "tenant_id": AftRefund.tenant_id,
+    "owner_id": AftRefund.owner_id,
+    "shop_id": AftRefund.shop_id,
 })

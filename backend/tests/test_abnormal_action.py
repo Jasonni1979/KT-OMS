@@ -171,6 +171,31 @@ async def _clean(order_ids: list[int], rule_names: list[str]) -> None:
             await conn.execute(
                 text(f"DELETE FROM oms_order.ord_dispatch_rule WHERE rule_name IN ({lst})")
             )
+        # 售后域（W9-1 转售后/退款动作会落单）→ 必须连带清理，否则污染开发库
+        if order_ids:
+            lst = ",".join(str(i) for i in order_ids)
+            await conn.execute(
+                text(
+                    "DELETE FROM oms_aftersale.aft_return_apply_log WHERE apply_id IN "
+                    "(SELECT id FROM oms_aftersale.aft_return_apply "
+                    f"WHERE order_id IN ({lst}))"
+                )
+            )
+            await conn.execute(
+                text(
+                    "DELETE FROM oms_aftersale.aft_return_apply_item WHERE apply_id IN "
+                    "(SELECT id FROM oms_aftersale.aft_return_apply "
+                    f"WHERE order_id IN ({lst}))"
+                )
+            )
+            await conn.execute(
+                text(f"DELETE FROM oms_aftersale.aft_refund WHERE order_id IN ({lst})")
+            )
+            await conn.execute(
+                text(
+                    f"DELETE FROM oms_aftersale.aft_return_apply WHERE order_id IN ({lst})"
+                )
+            )
 
 
 # ============ FR-02c 分派规则引擎 ============
@@ -502,49 +527,52 @@ async def test_reaudit_action_reruns_audit():
 # ============ 扩展位动作（不伪造数据）============
 
 
-async def test_to_aftersale_reports_not_implemented():
-    """FR-02d：转售后属 W9 → 明确返回未实现，**不落任何假售后单**"""
+async def test_to_aftersale_creates_aftersale_apply():
+    """FR-02d（W9-1 已落地）：转售后 → 生成售后申请单"""
     order_id = await _mk_order()
     abn_id = await _mk_abnormal(order_id, "ADDR_INCOMPLETE")
     try:
         async with SessionFactory() as s:
             svc = AbnormalActionService(s, None)
             res = await svc.execute(abn_id, ACT_TO_AFTERSALE, operator="test")
-        assert res["ok"] is False
-        assert res["enabled"] is False
-        assert "W9" in res["reason"]
+        assert res["ok"] is True
+        assert res["stage"] == "to_aftersale"
+        assert int(res["apply_id"] or 0) > 0
+        assert str(res["apply_bn"] or "").startswith("MA")
         async with SessionFactory() as s:
             cnt = await s.scalar(
-                text("SELECT COUNT(*) FROM oms_aftersale.aft_refund WHERE order_id = :o"),
-                {"o": order_id},
+                text(
+                    "SELECT COUNT(*) FROM oms_aftersale.aft_return_apply WHERE id = :i"
+                ),
+                {"i": res["apply_id"]},
             )
-        assert int(cnt or 0) == 0
+        assert int(cnt or 0) == 1
     finally:
         await _clean([order_id], [])
 
 
-async def test_refund_reports_not_implemented():
-    """FR-02d：退款属 W9 → 明确返回未实现，**不落任何假退款单**"""
+async def test_refund_creates_refund_order():
+    """FR-02d（W9-1 已落地）：退款 → 生成退款单（待退款态，不伪造已退款）"""
     order_id = await _mk_order()
     abn_id = await _mk_abnormal(order_id, "STOCK_SHORT")
     try:
         async with SessionFactory() as s:
             svc = AbnormalActionService(s, None)
             res = await svc.execute(abn_id, ACT_REFUND, operator="test")
-        assert res["ok"] is False
-        assert res["enabled"] is False
-        assert "W9" in res["reason"]
+        assert res["ok"] is True
+        assert res["stage"] == "refund"
+        assert int(res["refund_id"] or 0) > 0
+        # 状态=待退款（1），**不是**已退款 → 不伪造平台打款成功
+        assert int(res["refund_status"]) == 1
+        assert "pending" in str(res["platform_execution"])
         async with SessionFactory() as s:
             cnt = await s.scalar(
-                text("SELECT COUNT(*) FROM oms_aftersale.aft_refund WHERE order_id = :o"),
-                {"o": order_id},
+                text("SELECT COUNT(*) FROM oms_aftersale.aft_refund WHERE id = :i"),
+                {"i": res["refund_id"]},
             )
-        assert int(cnt or 0) == 0
+        assert int(cnt or 0) == 1
     finally:
         await _clean([order_id], [])
-
-
-# ============ 字典不被测试污染 ============
 
 
 async def test_action_set_whitelist_not_polluted():

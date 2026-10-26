@@ -140,7 +140,7 @@ echo "=== Job 7c/7: M2 gate③ 三类异常单人工处置闭环 ==="
 (cd "$ROOT/backend" && "$PY" -m app.scripts.m2_gate3_e2e >/tmp/ci_m2gate3.log 2>&1) \
   && ok "M2 gate③ 异常单处置闭环（$(grep -oE '合计：[0-9]+/[0-9]+ 项通过' /tmp/ci_m2gate3.log | tail -1)）" \
   || { bad "M2 gate③ 异常单处置闭环"; tail -25 /tmp/ci_m2gate3.log; }
-assert_min /tmp/ci_m2gate3.log 36 "M2 gate③ 异常单处置闭环"
+assert_min /tmp/ci_m2gate3.log 37 "M2 gate③ 异常单处置闭环"
 
 echo "=== Job 8/8: W7 通道端到端（推仓→WMS 回放→回传→settle→发货确认→平台回传）==="
 # 自起 mock-wms（9001）与 mock-platform（9000）——CI 库需要真实 WMS 才能跑通推仓链路
