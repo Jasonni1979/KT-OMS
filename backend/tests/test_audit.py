@@ -42,8 +42,8 @@ from app.models.audit import (
     OrdFulfillPlan,
 )
 from app.models.order import OrdOrder
-from app.services.audit_engine import register_audit_chain
-from app.services.audit_plugins import (
+from app.modules.m3_trade.service.audit_engine import register_audit_chain
+from app.modules.m3_trade.service.audit_plugins import (
     CHAIN_ID,
     AddressCheckPlugin,
     AdmitStatusPlugin,
@@ -56,8 +56,8 @@ from app.services.audit_plugins import (
     StockCheckPlugin,
     register_audit_plugins,
 )
-from app.services.audit_rule import AuditRule, AuditRuleService, TimeWindow
-from app.services.dispatch import DispatchService
+from app.modules.m3_trade.service.audit_rule import AuditRule, AuditRuleService, TimeWindow
+from app.modules.m4_fulfill.service.dispatch import DispatchService
 
 # ============ D01.03 条件 DSL ============
 
@@ -576,8 +576,8 @@ def test_audit_reason_warn_level_not_blocking():
 @pytest.mark.asyncio
 async def test_plan_executor_reserve_and_transit(auth_client):
     """FR-05c 执行器序列：预占 → 发货单 → 状态 transit"""
-    from app.services.master import get_redis
-    from app.services.plan_executor import PlanExecutor
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m4_fulfill.service.plan_executor import PlanExecutor
 
     order_id, _owner_id = await _make_order(auth_client)
     # 造一个已审订单 + plan
@@ -620,8 +620,8 @@ async def test_plan_executor_reserve_and_transit(auth_client):
 @pytest.mark.asyncio
 async def test_plan_version_chain_and_replay(auth_client):
     """FR-05d/FR-05e plan 版本链 + 回放（旧版置废弃，全链保留）"""
-    from app.services.master import get_redis
-    from app.services.plan_executor import PlanExecutor
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m4_fulfill.service.plan_executor import PlanExecutor
 
     order_id, _owner_id = await _make_order(auth_client)
     with _scope():
@@ -650,7 +650,7 @@ async def test_plan_version_chain_and_replay(auth_client):
 @pytest.mark.asyncio
 async def test_dispatch_least_task_balance(auth_client):
     """FR-02b 最少任务策略：持有量最小者优先，并列取工号小者"""
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     with _scope():
         async with _session() as s:
@@ -682,7 +682,7 @@ async def test_dispatch_least_task_balance(auth_client):
 @pytest.mark.asyncio
 async def test_dispatch_pool_fallback_when_all_full(auth_client):
     """FR-02b 全员满载 → 落组公共池 + 告警（不丢单）"""
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     with _scope():
         async with _session() as s:
@@ -704,7 +704,7 @@ async def test_dispatch_pool_fallback_when_all_full(auth_client):
 @pytest.mark.asyncio
 async def test_dispatch_rule_match_by_reason_code(auth_client):
     """FR-02a 分派规则按原因码维度匹配（weight DESC 首命中）"""
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     with _scope():
         async with _session() as s:

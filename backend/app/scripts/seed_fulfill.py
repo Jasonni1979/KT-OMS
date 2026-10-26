@@ -15,8 +15,8 @@ from sqlalchemy import select
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
 from app.models.fulfill import OrdBranchDispatchRule, OrdSplitRule
-from app.services.master import get_redis
-from app.services.split_service import SplitRuleService
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m4_fulfill.service.split_service import SplitRuleService
 
 #: 分仓规则（ord_branch_dispatch_rule）
 DISPATCH_RULES: list[dict[str, Any]] = [

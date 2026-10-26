@@ -23,8 +23,8 @@ from app.core.exceptions import NotFoundError, ValidationError
 from app.core.response import ok
 from app.models.abnormal import OrdReasonCodeDict
 from app.models.order import OrdOrder
-from app.services.abnormal import AbnormalService
-from app.services.master import get_redis
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
 router = APIRouter()
 
@@ -355,7 +355,7 @@ async def calc_strategy(
 
     FR-04b-1：可整单满足 → 提示一键换仓重审；部分满足 → 提示拆单换仓。
     """
-    from app.services.stockout_strategy import StockoutStrategyService
+    from app.modules.m5_abnormal.service.stockout_strategy import StockoutStrategyService
 
     svc = StockoutStrategyService(session, await get_redis())
     return ok(await svc.calc_switch_branch(abnormal_id))
@@ -369,7 +369,7 @@ async def switch_branch(
 
     FR-04b-1 + FR-04c。
     """
-    from app.services.stockout_strategy import StockoutStrategyService
+    from app.modules.m5_abnormal.service.stockout_strategy import StockoutStrategyService
 
     svc = StockoutStrategyService(session, await get_redis())
     return ok(await svc.switch_branch(abnormal_id, operator="api"))
@@ -380,7 +380,7 @@ async def release_retry(
     abnormal_id: int, session: AsyncSession = Depends(get_session)
 ):
     """解除重审：同仓重新预占 → 成功则异常单闭环（FR-04c）"""
-    from app.services.stockout_strategy import StockoutStrategyService
+    from app.modules.m5_abnormal.service.stockout_strategy import StockoutStrategyService
 
     svc = StockoutStrategyService(session, await get_redis())
     return ok(await svc.release_and_retry(abnormal_id, operator="api"))
@@ -398,7 +398,7 @@ async def list_actions(
     未实现的动作（转售后/退款，属 W9）也返回，但带 `enabled: false` + 原因，
     前端据此置灰并明示，不隐藏。
     """
-    from app.services.abnormal_action import PENDING_ACTIONS, AbnormalActionService
+    from app.modules.m5_abnormal.service.abnormal_action import PENDING_ACTIONS, AbnormalActionService
 
     svc = AbnormalActionService(session, await get_redis())
     allowed = await svc.allowed_actions(abnormal_id)
@@ -422,7 +422,7 @@ async def auto_dispatch(
     维度：异常类型/店铺/货主/品牌；规则未命中 → 类型默认处理组 → 都无则
     返回「待人工分派」。
     """
-    from app.services.abnormal import AbnormalService
+    from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
     svc = AbnormalService(session, await get_redis())
     row, decision = await svc.auto_dispatch(abnormal_id, operator="api")
@@ -447,7 +447,7 @@ async def execute_action(
     body: {action, note?, extra?}
     action 必须在该类型的 action_set 白名单内，否则 422。
     """
-    from app.services.abnormal_action import AbnormalActionService
+    from app.modules.m5_abnormal.service.abnormal_action import AbnormalActionService
 
     action = str(payload.get("action") or "").strip()
     extra = payload.get("extra") or {}

@@ -19,7 +19,7 @@ from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
 from app.core.exceptions import ConflictError, NotFoundError
 from app.models.modify import OrdOrderModify, OrdOrderSnapshot
 from app.models.order import OrdReceiver
-from app.services.modify import (
+from app.modules.m6_aftersale.service.modify import (
     MODIFY_STATUS_CANCELLED,
     MODIFY_STATUS_EFFECTIVE,
     MODIFY_STATUS_RECALLING,

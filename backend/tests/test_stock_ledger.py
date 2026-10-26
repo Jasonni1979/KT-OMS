@@ -83,7 +83,7 @@ async def _redis_key(branch_id: int, bm_id: int, owner_id: int) -> str:
 
 
 async def _clear_redis(keys: list[str]) -> None:
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     for k in keys:
@@ -213,7 +213,7 @@ async def test_redis_synced_after_change(auth_client):
         "changes": [{"field": "store", "delta": 77}],
         "bill_type": "purchase_in", "bill_bn": "B006", "bill_item_id": 1, "action": "inbound",
     })
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     raw = await r.hgetall(key)
@@ -274,7 +274,7 @@ async def test_recon_detects_and_fixes_difference(auth_client):
         "bill_type": "purchase_in", "bill_bn": "B007", "bill_item_id": 1, "action": "inbound",
     })
     # 人为破坏 Redis
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     await r.hset(key, "store", 999)
@@ -332,7 +332,7 @@ async def test_cache_rebuild(auth_client):
         "changes": [{"field": "store", "delta": 33}],
         "bill_type": "purchase_in", "bill_bn": "B009", "bill_item_id": 1, "action": "inbound",
     })
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     await r.delete(key)

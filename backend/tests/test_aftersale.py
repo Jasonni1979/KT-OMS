@@ -25,7 +25,7 @@ from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
 from app.core.exceptions import ConflictError, ValidationError
 from app.models.aftersale import AftRefund
 from app.models.order import OrdOrder
-from app.services.aftersale import (
+from app.modules.m6_aftersale.service.aftersale import (
     APPLY_STATUS_LABEL,
     REFUND_FAILED,
     REFUND_WAIT,

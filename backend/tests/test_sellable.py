@@ -15,7 +15,7 @@ import pytest
 from sqlalchemy import text
 
 from app.core.db import SessionFactory, engine
-from app.services.master import get_redis
+from app.modules.m1_master.service.master import get_redis
 
 pytestmark = pytest.mark.asyncio
 
@@ -115,7 +115,7 @@ async def _make_shop(owner_id: int, name: str, branch_ids: list[int]) -> dict:
         node_id = int(r.scalar())
     async with SessionFactory() as s:
         from app.models.shop import GwShop
-        from app.services.master import ShopService
+        from app.modules.m1_master.service.master import ShopService
 
         shop = GwShop(
             tenant_id=1,
@@ -170,8 +170,8 @@ async def _make_owner(code: str) -> dict:
 
 async def _make_branch(owner_id: int, name: str) -> dict:
     async with SessionFactory() as s:
+        from app.modules.m1_master.service.master import BranchService, get_redis
         from app.schemas.master import BranchCreate
-        from app.services.master import BranchService, get_redis
 
         redis = await get_redis()
         branch = await BranchService(s, redis).create(
@@ -200,8 +200,8 @@ async def _make_material(bn: str, name: str, owner_id: int) -> dict:
 
 async def _make_sales_material(shop_id: int, bn: str, name: str) -> dict:
     async with SessionFactory() as s:
+        from app.modules.m2_stock.service.material import SalesMaterialService
         from app.schemas.material import SalesMaterialCreate
-        from app.services.material import SalesMaterialService
 
         sm = await SalesMaterialService(s).create(
             SalesMaterialCreate(shop_id=shop_id, sales_material_bn=bn, sales_material_name=name)
@@ -213,8 +213,8 @@ async def _make_sales_material(shop_id: int, bn: str, name: str) -> dict:
 async def _bind_bom(sm_id: int, items: list[tuple[int, int]]) -> None:
     """绑定 BOM（items: [(bm_id, bind_num)]；占比合计必须 100%）"""
     async with SessionFactory() as s:
+        from app.modules.m2_stock.service.material import BomService
         from app.schemas.material import BomBind, BomItemIn
-        from app.services.material import BomService
 
         n = len(items)
         rates = [100 // n] * n
@@ -234,9 +234,9 @@ async def _bind_bom(sm_id: int, items: list[tuple[int, int]]) -> None:
 async def _stock(branch_id: int, bm_id: int, owner_id: int, qty: int) -> None:
     """入库记账（造库存）"""
     async with SessionFactory() as s:
+        from app.modules.m1_master.service.master import get_redis
+        from app.modules.m2_stock.service.stock_ledger import StockLedgerService
         from app.schemas.stock import StockChangeItem, StockChangeRequest
-        from app.services.master import get_redis
-        from app.services.stock_ledger import StockLedgerService
 
         redis = await get_redis()
         await StockLedgerService(s, redis).apply_change(
@@ -263,7 +263,7 @@ async def _set_strategy(shop_id: int, **kwargs) -> None:
 
 async def test_sellable_shared_safe_strategy():
     """共享-安全库存策略：可售 = available − 安全库存"""
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_01")
     branch = await _make_branch(owner["id"], "01")
@@ -284,7 +284,7 @@ async def test_sellable_shared_safe_strategy():
 
 async def test_sellable_shared_ratio_strategy():
     """共享比例策略：可售 = floor((available − 安全库存) × 比例%)"""
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_02")
     branch = await _make_branch(owner["id"], "02")
@@ -303,7 +303,7 @@ async def test_sellable_shared_ratio_strategy():
 
 async def test_sellable_independent_quota():
     """独立配额策略：可售 = 配额（不共享池）"""
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_03")
     branch = await _make_branch(owner["id"], "03")
@@ -323,7 +323,7 @@ async def test_sellable_independent_quota():
 
 async def test_sellable_combo_min_sets():
     """组合装：可售 = min(成员可售 / 需求量)（AC-02：min(50,30,100)=30）"""
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_04")
     branch = await _make_branch(owner["id"], "04")
@@ -347,7 +347,7 @@ async def test_sellable_combo_min_sets():
 
 async def test_sellable_multi_branch_aggregate():
     """多仓聚合：可售 = 各发货仓可用之和（AC-09）"""
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_05")
     b1 = await _make_branch(owner["id"], "05A")
@@ -370,7 +370,7 @@ async def test_sellable_multi_branch_aggregate():
 
 async def test_sellable_clamp_min_max():
     """上下限修正：可售被夹在 [min, max] 之间"""
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_06")
     branch = await _make_branch(owner["id"], "06")
@@ -390,7 +390,7 @@ async def test_sellable_clamp_min_max():
 async def test_activity_lock_reduces_sellable():
     """活动锁定池：非本渠道活动占用从常规可售中扣减（FR-01e / AC-11）"""
     from app.models.stock import InvActivityLockPool
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     owner = await _make_owner("SB_07")
     branch = await _make_branch(owner["id"], "07")
@@ -429,8 +429,8 @@ async def test_activity_lock_reduces_sellable():
 async def test_writeback_to_platform(mock_platform, monkeypatch):
     """回写平台库存：调适配器 → 模拟器库存更新 + 回写日志落库"""
     from app.core.config import settings
-    from app.services.gateway import get_gateway
-    from app.services.sync import StockSyncService
+    from app.modules.m7_integration.service.gateway import get_gateway
+    from app.modules.m7_integration.service.sync import StockSyncService
 
     monkeypatch.setattr(settings, "platform_gateway_url", mock_platform)
     redis = await get_redis()
@@ -470,8 +470,8 @@ async def test_writeback_to_platform(mock_platform, monkeypatch):
 async def test_writeback_throttle_skips_small_change(mock_platform, monkeypatch):
     """节流防抖：变化未超阈值 → 本轮不回写（AC-07）"""
     from app.core.config import settings
-    from app.services.gateway import get_gateway
-    from app.services.sync import StockSyncService
+    from app.modules.m7_integration.service.gateway import get_gateway
+    from app.modules.m7_integration.service.sync import StockSyncService
 
     monkeypatch.setattr(settings, "platform_gateway_url", mock_platform)
     redis = await get_redis()
@@ -504,8 +504,8 @@ async def test_writeback_throttle_skips_small_change(mock_platform, monkeypatch)
 async def test_sellable_fuse_on_zero_and_recover(mock_platform, monkeypatch):
     """售罄熔断：可售 0 → 回写 0 并暂停；补货后自动恢复（FR-04b / AC-05）"""
     from app.core.config import settings
-    from app.services.gateway import get_gateway
-    from app.services.sync import StockSyncService
+    from app.modules.m7_integration.service.gateway import get_gateway
+    from app.modules.m7_integration.service.sync import StockSyncService
 
     monkeypatch.setattr(settings, "platform_gateway_url", mock_platform)
     redis = await get_redis()
@@ -544,8 +544,8 @@ async def test_sellable_fuse_on_zero_and_recover(mock_platform, monkeypatch):
 async def test_recon_forces_writeback(mock_platform, monkeypatch):
     """同步对账：平台库存 vs OMS 可售 差异 → 强制回写（FR-05a）"""
     from app.core.config import settings
-    from app.services.gateway import get_gateway
-    from app.services.sync import StockSyncService
+    from app.modules.m7_integration.service.gateway import get_gateway
+    from app.modules.m7_integration.service.sync import StockSyncService
 
     monkeypatch.setattr(settings, "platform_gateway_url", mock_platform)
     redis = await get_redis()
@@ -572,7 +572,7 @@ async def test_recon_forces_writeback(mock_platform, monkeypatch):
 async def test_strategy_change_invalidates_cache(mock_platform, monkeypatch):
     """策略变更即时生效：清缓存后计算结果随之改变（FR-01d）"""
     from app.core.config import settings
-    from app.services.sellable import SellableService
+    from app.modules.m2_stock.service.sellable import SellableService
 
     monkeypatch.setattr(settings, "platform_gateway_url", mock_platform)
     redis = await get_redis()
@@ -612,7 +612,7 @@ async def test_strategy_change_invalidates_cache(mock_platform, monkeypatch):
 
 
 def StockLedgerServiceHelper(session, redis):
-    from app.services.stock_ledger import StockLedgerService
+    from app.modules.m2_stock.service.stock_ledger import StockLedgerService
 
     return StockLedgerService(session, redis)
 

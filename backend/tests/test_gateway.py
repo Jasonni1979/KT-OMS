@@ -16,7 +16,7 @@ from __future__ import annotations
 from sqlalchemy import text
 
 from app.adapters.base import AdapterResult, RateLimitRule
-from app.services.gateway import (
+from app.modules.m7_integration.service.gateway import (
     ERR_LEVEL_MAP,
     MAX_BODY_LEN,
     Gateway,

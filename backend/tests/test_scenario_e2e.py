@@ -56,7 +56,7 @@ def mock_platform():
 
 async def test_business_scenario_end_to_end(mock_platform):
     """完整业务场景跑通（11 项断言全过）"""
-    from app.services.scenario import run_scenario
+    from app.tools.simulation.scenario import run_scenario
 
     report = await run_scenario(mock_platform)
     print("\n" + report.render())
@@ -67,7 +67,7 @@ async def test_business_scenario_end_to_end(mock_platform):
 
 async def test_scenario_is_idempotent(mock_platform):
     """场景可重复执行（清理 → 重跑，结果一致）"""
-    from app.services.scenario import run_scenario
+    from app.tools.simulation.scenario import run_scenario
 
     r1 = await run_scenario(mock_platform)
     r2 = await run_scenario(mock_platform)

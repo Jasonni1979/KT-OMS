@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
+from app.modules.m2_stock.service import material as svc
 from app.schemas import material as sc
-from app.services import material as svc
 
 router = APIRouter(tags=["material-物料"])
 

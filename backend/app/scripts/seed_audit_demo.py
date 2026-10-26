@@ -15,11 +15,11 @@ from sqlalchemy import select, text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
 from app.models.order import OrdOrder
-from app.services.audit_engine import AuditEngine, register_audit_chain
-from app.services.audit_plugins import register_audit_plugins
-from app.services.audit_rule import AuditRuleService
-from app.services.dispatch import DispatchService
-from app.services.master import get_redis
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m3_trade.service.audit_engine import AuditEngine, register_audit_chain
+from app.modules.m3_trade.service.audit_plugins import register_audit_plugins
+from app.modules.m3_trade.service.audit_rule import AuditRuleService
+from app.modules.m4_fulfill.service.dispatch import DispatchService
 
 #: 演示用地址（覆盖正常/异常两类）
 ADDR_NORMAL = ("广东省", "深圳市", "南山区", "科技园南路88号A座1203")

@@ -9,15 +9,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_session
 from app.core.response import ok
 from app.models.stock import InvSyncStrategy
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m2_stock.service.freeze import FreezeService
+from app.modules.m2_stock.service.io_bill import IoBillService
+from app.modules.m2_stock.service.sellable import SellableService
+from app.modules.m2_stock.service.stock_ledger import StockLedgerService
+from app.modules.m2_stock.service.stock_recon import ReconService
+from app.modules.m7_integration.service.gateway import get_gateway
+from app.modules.m7_integration.service.sync import StockSyncService
 from app.schemas import stock as sc
-from app.services.freeze import FreezeService
-from app.services.gateway import get_gateway
-from app.services.io_bill import IoBillService
-from app.services.master import get_redis
-from app.services.sellable import SellableService
-from app.services.stock_ledger import StockLedgerService
-from app.services.stock_recon import ReconService
-from app.services.sync import StockSyncService
 
 router = APIRouter(tags=["stock-库存记账"])
 

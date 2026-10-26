@@ -187,8 +187,8 @@ async def test_branch_filtered_by_branch_scope():
 async def test_four_step_model_scope_expansion():
     """§5.1 四步模型：节点授权 → 子树展开 → 维度联动推导 → 并集合并"""
     from app.core.db import SessionFactory, engine
-    from app.services.master import get_redis
-    from app.services.permission import PermissionService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m1_master.service.permission import PermissionService
 
     ids = await _seed_two_tenants()
     # 组织树：品牌节点 PERM_BRAND → 子节点：店铺节点(ref=shop) + 货主公司节点(ref=owner)
@@ -238,8 +238,8 @@ async def test_four_step_model_scope_expansion():
 async def test_scope_cache_hit():
     """§5.2/FR-08a：scope 缓存命中（第二次解析走 Redis，不查库）"""
     from app.core.db import SessionFactory
-    from app.services.master import get_redis
-    from app.services.permission import PermissionService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m1_master.service.permission import PermissionService
 
     redis = await get_redis()
     await redis.set("perm:scope:998", '{"tenant_id":1,"all":false,"owner_ids":[42],'

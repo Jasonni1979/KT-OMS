@@ -22,9 +22,9 @@ import httpx
 from sqlalchemy import text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
-from app.services.master import get_redis
-from app.services.wms_events import WmsEventDispatcher
-from app.services.writeback import WritebackService
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m7_integration.service.wms_events import WmsEventDispatcher
+from app.modules.m7_integration.service.writeback import WritebackService
 
 #: 平台模拟器地址（可由 MOCK_PLATFORM_ENDPOINT 覆盖——CI 自起模拟器时注入）
 MOCK_PLATFORM = os.environ.get("MOCK_PLATFORM_ENDPOINT", "http://127.0.0.1:9000")
@@ -175,14 +175,14 @@ async def main() -> int:
         check("回传台账可查", bool(task_id), f"task_id={task_id}")
 
         # 直接验证分级映射
-        from app.services.writeback import (
+        from app.modules.m7_integration.service.writeback import (
             LEVEL_AUTH,
             LEVEL_FATAL,
             LEVEL_MANUAL,
             LEVEL_RATE_LIMITED,
             LEVEL_RETRYABLE,
         )
-        from app.services.writeback import (
+        from app.modules.m7_integration.service.writeback import (
             WritebackService as _WB,
         )
 

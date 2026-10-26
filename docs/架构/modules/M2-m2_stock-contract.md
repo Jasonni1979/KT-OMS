@@ -13,6 +13,7 @@
 | schema | 表数 | 表 |
 |---|---|---|
 | oms_stock | 55 | `inv_activity_lock_pool` `inv_alert_rule` `inv_barcode` `inv_batch` `inv_batch_assign` `inv_batch_stock` `inv_bom_item` `inv_bom_version` `inv_brand` `inv_consignment_value` `inv_cost_change_log` `inv_cost_config` `inv_cost_snapshot` `inv_estimate_batch` `inv_expire_disposal` `inv_expire_rule` `inv_freeze_log` `inv_fukubukuro_item` `inv_fukubukuro_plan` `inv_independent_quota` `inv_io_bill` `inv_io_bill_item` `inv_io_bill_type` `inv_io_callback_log` `inv_lend_ledger` `inv_lend_rule` `inv_manual_freeze` `inv_material` `inv_material_cat` `inv_ownership_transfer` `inv_ownership_transfer_item` `inv_pickone_candidate` `inv_price_adjust_item` `inv_price_adjust_plan` `inv_price_archive` `inv_price_sync_task` `inv_price_version` `inv_replenish_suggestion` `inv_sales_forecast` `inv_sales_material` `inv_sellable_snapshot` `inv_serial_no` `inv_stock_adjust` `inv_stock_change_log` `inv_stock_config` `inv_stock_ledger` `inv_stock_recon_diff` `inv_stock_snapshot` `inv_stocktake_item` `inv_stocktake_plan` `inv_stocktake_task` `inv_sync_log` `inv_sync_strategy` `inv_transfer_item` `inv_transfer_order` |
+| oms_base | 2 | `bas_import_task` `bas_import_error` |
 
 完整清单见同目录 `tables.yaml`。
 

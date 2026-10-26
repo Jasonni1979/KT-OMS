@@ -27,7 +27,7 @@ from app.models.abnormal import (
     ABNORMAL_STATUS_WAIT_DISPATCH,
 )
 from app.models.order import OrdOrder
-from app.services.abnormal import EXC_PRODUCT_UNBOUND, EXC_STOCK_SHORT, AbnormalService
+from app.modules.m5_abnormal.service.abnormal import EXC_PRODUCT_UNBOUND, EXC_STOCK_SHORT, AbnormalService
 
 pytestmark = pytest.mark.asyncio
 

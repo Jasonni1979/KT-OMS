@@ -16,7 +16,7 @@ import pytest
 from sqlalchemy import text
 
 from app.core.db import engine
-from app.services.delivery_service import (
+from app.modules.m4_fulfill.service.delivery_service import (
     CMD_CANCEL,
     CMD_CONFIRM,
     CMD_PUSH,
@@ -35,13 +35,13 @@ from app.services.delivery_service import (
     allowed_commands,
     find_transition,
 )
-from app.services.dispatch_service import (
+from app.modules.m4_fulfill.service.dispatch_service import (
     FAIL_NO_CANDIDATE_BRANCH,
     BranchCandidate,
     DispatchService,
     period_match,
 )
-from app.services.split_service import (
+from app.modules.m4_fulfill.service.split_service import (
     FAIL_NO_STOCK,
     BranchSplitStrategy,
     OwnerSplitStrategy,
@@ -100,7 +100,7 @@ async def _make_delivery(
     保证 CI 空库环境下相关用例真实执行而非跳过。
     """
     from app.core.db import SessionFactory
-    from app.services.delivery_service import (
+    from app.modules.m4_fulfill.service.delivery_service import (
         CMD_PUSH,
         ST_OUTBOUND,
         ST_PROCESSING,

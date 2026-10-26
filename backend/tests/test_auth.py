@@ -1,7 +1,7 @@
 """认证测试（D10.02 MVP）：账密登录/失败锁定/会话互踢/登出吊销/刷新旋转/401保护"""
 import pytest
 
-from app.services.master import get_redis
+from app.modules.m1_master.service.master import get_redis
 
 pytestmark = pytest.mark.asyncio
 
@@ -88,7 +88,7 @@ async def test_lock_after_5_failures(client):
     from app.core.db import SessionFactory
     from app.core.security import hash_password
     from app.models.account import OrgAccount, OrgAccountCredential
-    from app.services.auth import AuthService
+    from app.modules.m1_master.service.auth import AuthService
 
     redis = await get_redis()
     # 先清理残留（幂等，避免唯一键冲突）

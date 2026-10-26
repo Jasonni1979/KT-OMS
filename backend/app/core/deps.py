@@ -11,9 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session, set_auth_context
 from app.core.exceptions import PermissionDeniedError
-from app.services.auth import AuthService
-from app.services.master import get_redis
-from app.services.permission import build_auth_context
+from app.modules.m1_master.service.auth import AuthService
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m1_master.service.permission import build_auth_context
 
 _bearer = HTTPBearer(auto_error=False)
 

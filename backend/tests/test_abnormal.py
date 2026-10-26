@@ -33,7 +33,7 @@ from app.models.abnormal import (
     OrdStockout,
 )
 from app.models.order import OrdOrder
-from app.services.abnormal import (
+from app.modules.m5_abnormal.service.abnormal import (
     EXC_ADDR_INCOMPLETE,
     EXC_OTHER,
     EXC_OVERSOLD,

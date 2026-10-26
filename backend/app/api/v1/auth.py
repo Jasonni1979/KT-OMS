@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_session
 from app.core.deps import get_current_account
 from app.core.response import ok
-from app.services.auth import AuthService, fingerprint
-from app.services.master import get_redis
+from app.modules.m1_master.service.auth import AuthService, fingerprint
+from app.modules.m1_master.service.master import get_redis
 
 router = APIRouter(tags=["auth-认证"])
 

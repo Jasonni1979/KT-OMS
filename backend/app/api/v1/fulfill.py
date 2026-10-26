@@ -15,10 +15,10 @@ from app.core.db import get_session
 from app.core.exceptions import ValidationError
 from app.core.response import ok
 from app.models.fulfill import OrdBranchDispatchRule
-from app.services.delivery_service import DeliveryService, allowed_commands
-from app.services.dispatch_service import DispatchService
-from app.services.master import get_redis
-from app.services.split_service import SplitRuleService, SplitService
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m4_fulfill.service.delivery_service import DeliveryService, allowed_commands
+from app.modules.m4_fulfill.service.dispatch_service import DispatchService
+from app.modules.m4_fulfill.service.split_service import SplitRuleService, SplitService
 
 router = APIRouter()
 
@@ -261,7 +261,7 @@ async def list_deliveries(
 @router.get("/delivery/states", summary="状态机字典（状态 + 允许指令）")
 async def delivery_states():
     """状态枚举与各状态允许指令（前端渲染按钮用）"""
-    from app.services import delivery_service as ds
+    from app.modules.m4_fulfill.service import delivery_service as ds
 
     states = [
         v

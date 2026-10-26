@@ -5,14 +5,14 @@ module: M5
 slug: m5_abnormal
 name: 异常单域
 write:
-  - oms_oms_order.ord_abnormal
-  - oms_oms_order.ord_abnormal_type_dict
-  - oms_oms_order.ord_reason_code_dict
-  - oms_oms_order.ord_stockout
-  - oms_oms_order.ord_oversold_batch
-  - oms_oms_order.ord_risk_list
-  - oms_oms_order.ord_pause_command_log
-  - oms_oms_order.ord_retrial
+  - oms_order.ord_abnormal
+  - oms_order.ord_abnormal_type_dict
+  - oms_order.ord_reason_code_dict
+  - oms_order.ord_stockout
+  - oms_order.ord_oversold_batch
+  - oms_order.ord_risk_list
+  - oms_order.ord_pause_command_log
+  - oms_order.ord_retrial
 read_only:
   # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
   []

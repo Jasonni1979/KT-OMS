@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
+from app.modules.m1_master.service import branch_owner as bo_svc
+from app.modules.m1_master.service import master as svc
 from app.schemas import master as sc
-from app.services import branch_owner as bo_svc
-from app.services import master as svc
 
 router = APIRouter(tags=["master-档案"])
 

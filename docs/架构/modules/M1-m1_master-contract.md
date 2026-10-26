@@ -12,7 +12,7 @@
 
 | schema | 表数 | 表 |
 |---|---|---|
-| oms_base | 28 | `bas_alert_record` `bas_consume_idempotent` `bas_dead_letter` `bas_entity_meta` `bas_event_dict` `bas_export_task` `bas_field_meta` `bas_ie_template` `bas_import_error` `bas_import_task` `bas_message_trace` `bas_migration_mapping` `bas_notify_log` `bas_notify_route` `bas_notify_template` `bas_pipl_consent` `bas_pipl_ds_request` `bas_pipl_policy` `bas_plugin_registry` `bas_rule` `bas_rule_condition` `bas_rule_dict` `bas_rule_test_log` `bas_rule_version` `bas_schedule_log` `bas_schedule_task` `bas_seq` `bas_task_dependency` |
+| oms_base | 26 | `bas_alert_record` `bas_consume_idempotent` `bas_dead_letter` `bas_entity_meta` `bas_event_dict` `bas_export_task` `bas_field_meta` `bas_ie_template` `bas_message_trace` `bas_migration_mapping` `bas_notify_log` `bas_notify_route` `bas_notify_template` `bas_pipl_consent` `bas_pipl_ds_request` `bas_pipl_policy` `bas_plugin_registry` `bas_rule` `bas_rule_condition` `bas_rule_dict` `bas_rule_test_log` `bas_rule_version` `bas_schedule_log` `bas_schedule_task` `bas_seq` `bas_task_dependency` |
 | oms_org | 28 | `org_account` `org_account_credential` `org_account_role` `org_approval_instance` `org_approval_scene` `org_approval_threshold` `org_data_permission` `org_field_perm` `org_filterable_entity` `org_idp_config` `org_node` `org_node_relation` `org_oa_callback_log` `org_owner` `org_owner_contract` `org_owner_settle_config` `org_perm_point` `org_perm_violation` `org_portal_account` `org_portal_export_log` `org_portal_message` `org_portal_notify_pref` `org_portal_read_log` `org_role` `org_role_perm` `org_session` `org_shop_owner_transfer` `org_tenant` |
 
 完整清单见同目录 `tables.yaml`。

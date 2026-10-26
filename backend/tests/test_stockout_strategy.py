@@ -21,9 +21,9 @@ from app.models.abnormal import (
     OrdStockout,
 )
 from app.models.order import OrdOrder
-from app.services.abnormal import EXC_STOCK_SHORT, AbnormalService
-from app.services.master import get_redis
-from app.services.stockout_strategy import (
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m5_abnormal.service.abnormal import EXC_STOCK_SHORT, AbnormalService
+from app.modules.m5_abnormal.service.stockout_strategy import (
     STRATEGY_NONE,
     STRATEGY_PARTIAL,
     StockoutStrategyService,

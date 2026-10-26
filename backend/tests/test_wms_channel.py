@@ -23,8 +23,7 @@ from app.adapters.wms import (
     get_adapter,
     sign_payload,
 )
-from app.scripts.wms_channel_e2e import _make_delivery
-from app.services.wms_channel import (
+from app.modules.m7_integration.service.wms_channel import (
     BACKOFF_MINUTES,
     CMD_ACCEPTED,
     CMD_COMPLETED,
@@ -39,7 +38,7 @@ from app.services.wms_channel import (
     OutboundCommandService,
     _delivery_bn_of,
 )
-from app.services.writeback import (
+from app.modules.m7_integration.service.writeback import (
     ACTION_DELIVERY_SEND,
     LEVEL_AUTH,
     LEVEL_FATAL,
@@ -48,6 +47,7 @@ from app.services.writeback import (
     LEVEL_RETRYABLE,
     WritebackService,
 )
+from app.scripts.wms_channel_e2e import _make_delivery
 
 # ============ D09.01 路由四元组 ============
 
@@ -183,7 +183,7 @@ def test_writeback_action_name():
 async def test_standardize_lines_maps_material_code():
     """FR-03a 解析标准化：WMS 物料编码 → OMS bm_id"""
     from app.core.db import SessionFactory
-    from app.services.wms_channel import OutboundCommandService
+    from app.modules.m7_integration.service.wms_channel import OutboundCommandService
 
     async with SessionFactory() as s:
         svc = OutboundCommandService(s, None)  # type: ignore[arg-type]

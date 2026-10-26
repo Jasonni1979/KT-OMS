@@ -5,30 +5,30 @@ module: M8
 slug: m8_insight
 name: 报表与监控
 write:
-  - oms_oms_report.rpt_aftersale
-  - oms_oms_report.rpt_alert_claim
-  - oms_oms_report.rpt_audit_perf
-  - oms_oms_report.rpt_bi_push_log
-  - oms_oms_report.rpt_fulfill_sla
-  - oms_oms_report.rpt_indicator_dict
-  - oms_oms_report.rpt_monitor_metric
-  - oms_oms_report.rpt_near_expire
-  - oms_oms_report.rpt_order_wide
-  - oms_oms_report.rpt_platform_compare
-  - oms_oms_report.rpt_product_sale_rank
-  - oms_oms_report.rpt_profit
-  - oms_oms_report.rpt_sales_daily
-  - oms_oms_report.rpt_sales_monthly
-  - oms_oms_report.rpt_service_fee
-  - oms_oms_report.rpt_settlement_wide
-  - oms_oms_report.rpt_slow_moving
-  - oms_oms_report.rpt_snapshot_task
-  - oms_oms_report.rpt_stock_age
-  - oms_oms_report.rpt_stock_snapshot
-  - oms_oms_report.rpt_stock_turnover
-  - oms_oms_report.rpt_stock_wide
-  - oms_oms_report.rpt_stockout
-  - oms_oms_report.rpt_timeout_alert
+  - oms_report.rpt_aftersale
+  - oms_report.rpt_alert_claim
+  - oms_report.rpt_audit_perf
+  - oms_report.rpt_bi_push_log
+  - oms_report.rpt_fulfill_sla
+  - oms_report.rpt_indicator_dict
+  - oms_report.rpt_monitor_metric
+  - oms_report.rpt_near_expire
+  - oms_report.rpt_order_wide
+  - oms_report.rpt_platform_compare
+  - oms_report.rpt_product_sale_rank
+  - oms_report.rpt_profit
+  - oms_report.rpt_sales_daily
+  - oms_report.rpt_sales_monthly
+  - oms_report.rpt_service_fee
+  - oms_report.rpt_settlement_wide
+  - oms_report.rpt_slow_moving
+  - oms_report.rpt_snapshot_task
+  - oms_report.rpt_stock_age
+  - oms_report.rpt_stock_snapshot
+  - oms_report.rpt_stock_turnover
+  - oms_report.rpt_stock_wide
+  - oms_report.rpt_stockout
+  - oms_report.rpt_timeout_alert
 read_only:
   # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
   []

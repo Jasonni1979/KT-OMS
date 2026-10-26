@@ -100,6 +100,13 @@ echo "=== Job 3/4: Mock Platform (pytest) ==="
   && ok "mock pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mock.log | tail -1)）" \
   || { bad "mock pytest"; tail -15 /tmp/ci_mock.log; }
 
+echo "=== Job 3e/4: 架构门禁（4 条模块边界规则 · P1 warn 模式）==="
+# R1 底层不依赖高层 / R2 跨模块只走 contract.py / R3 一表一写者 / R4 上下文体积
+# ⚠ 当前为 **warn 模式**（P1 观察 2 周再转 fail）→ 有违规不算失败
+(cd "$ROOT/backend" && "$PY" ../tools/check_arch_rules.py >/tmp/ci_archrules.log 2>&1) \
+  && ok "架构门禁（$(grep -oE '合计违规 [0-9]+ 处' /tmp/ci_archrules.log | tail -1)）" \
+  || { bad "架构门禁"; tail -20 /tmp/ci_archrules.log; }
+
 echo "=== Job 3d/4: 契约一致性门禁（枚举/状态机 ↔ DDL 权威）==="
 # 契约中心（app/contracts/enums.py）从 **DDL SQL 文件** 自动生成，
 # 门禁校验：① 生成物与 DDL 同步 ② 代码里的手抄枚举无漂移

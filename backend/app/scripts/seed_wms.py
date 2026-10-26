@@ -16,7 +16,7 @@ from typing import Any
 from sqlalchemy import text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
-from app.services.master import get_redis
+from app.modules.m1_master.service.master import get_redis
 
 #: WMS 模拟器地址
 MOCK_WMS_ENDPOINT = os.getenv("MOCK_WMS_ENDPOINT", "http://127.0.0.1:9001")

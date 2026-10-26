@@ -68,7 +68,7 @@ async def create_apply(body: ApplyCreateIn, session: AsyncSession = Depends(get_
     - 订单缺失 → 落「待关联」异常态（FR-01e）
     - 手工单须填 operator（FR-03a）
     """
-    from app.services.aftersale import AftersaleService
+    from app.modules.m6_aftersale.service.aftersale import AftersaleService
 
     svc = AftersaleService(session, None)
     row, created = await svc.create_apply(
@@ -102,7 +102,7 @@ async def list_applies(
     session: AsyncSession = Depends(get_session),
 ):
     """售后申请列表（FR-07a 工作台队列用）"""
-    from app.services.aftersale import AftersaleService
+    from app.modules.m6_aftersale.service.aftersale import AftersaleService
 
     svc = AftersaleService(session, None)
     items = await svc.list_applies(
@@ -119,7 +119,7 @@ async def list_applies(
 @router.get("/aftersale/apply/{apply_id}", summary="售后申请详情")
 async def get_apply(apply_id: int, session: AsyncSession = Depends(get_session)):
     """售后申请详情：行 + 状态变迁日志 + 关联退款单"""
-    from app.services.aftersale import AftersaleService
+    from app.modules.m6_aftersale.service.aftersale import AftersaleService
 
     svc = AftersaleService(session, None)
     return ok(await svc.get_apply(apply_id))
@@ -130,7 +130,7 @@ async def audit_apply(
     apply_id: int, body: AuditIn, session: AsyncSession = Depends(get_session)
 ):
     """审核：同意 → 状态推进 + 涉钱类型生成退款单；拒绝 → 记录原因码"""
-    from app.services.aftersale import AftersaleService
+    from app.modules.m6_aftersale.service.aftersale import AftersaleService
 
     svc = AftersaleService(session, None)
     return ok(
@@ -154,7 +154,7 @@ async def transit_apply(
     session: AsyncSession = Depends(get_session),
 ):
     """状态推进唯一入口（FR-02c）：校验 §5.1 流转表 + 类型裁剪"""
-    from app.services.aftersale import AftersaleService
+    from app.modules.m6_aftersale.service.aftersale import AftersaleService
 
     svc = AftersaleService(session, None)
     row = await svc.transit(apply_id, to_status, operator=operator)
@@ -166,7 +166,7 @@ async def transit_refund(
     refund_id: int, body: RefundTransitIn, session: AsyncSession = Depends(get_session)
 ):
     """退款单推进：待退款→退款中→已退款；失败可重试"""
-    from app.services.aftersale import AftersaleService
+    from app.modules.m6_aftersale.service.aftersale import AftersaleService
 
     svc = AftersaleService(session, None)
     row = await svc.refund_transit(
@@ -200,7 +200,7 @@ async def list_refunds(
     if status:
         q = q.where(AftRefund.status == status)
     rows = list(await session.scalars(q.order_by(AftRefund.id.desc()).limit(limit)))
-    from app.services.aftersale import REFUND_STATUS_LABEL
+    from app.modules.m6_aftersale.service.aftersale import REFUND_STATUS_LABEL
 
     items = [
         {

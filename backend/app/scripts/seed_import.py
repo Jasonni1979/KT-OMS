@@ -10,8 +10,8 @@ from sqlalchemy import select
 
 from app.core.db import SessionFactory, engine, without_data_scope
 from app.models.base import BaseImportTemplate
-from app.services import importers  # noqa: F401  # 导入即注册模板
-from app.services.import_center import TEMPLATE_REGISTRY
+from app.modules.m2_stock.service import importers  # noqa: F401  # 导入即注册模板
+from app.modules.m2_stock.service.import_center import TEMPLATE_REGISTRY
 
 
 async def seed() -> None:

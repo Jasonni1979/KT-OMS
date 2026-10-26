@@ -245,7 +245,7 @@ def test_canonical_status_mapping_table():
 
 def test_allocation_proportional_with_tail():
     """比例分摊：尾差归最大金额行；Σ行实付 = 订单实付（不含运费）"""
-    from app.services.allocation import allocate, check_amount_consistency
+    from app.modules.m3_trade.service.allocation import allocate, check_amount_consistency
 
     lines = [(1, 33.33), (2, 33.33), (3, 33.34)]
     allocs, _ = allocate(lines, shop_discount=10.0, platform_subsidy=0.0)
@@ -258,7 +258,7 @@ def test_allocation_proportional_with_tail():
 
 def test_allocation_dual_split():
     """双口径二次拆分：商家 6 + 平台 4 = 10，分摊到行"""
-    from app.services.allocation import allocate
+    from app.modules.m3_trade.service.allocation import allocate
 
     lines = [(1, 50.0), (2, 50.0)]
     allocs, _ = allocate(lines, shop_discount=6.0, platform_subsidy=4.0)
@@ -269,7 +269,7 @@ def test_allocation_dual_split():
 
 def test_allocation_gift_line_zero():
     """0 元行（赠品）不参与分摊，实付为 0"""
-    from app.services.allocation import allocate
+    from app.modules.m3_trade.service.allocation import allocate
 
     lines = [(1, 100.0), (2, 0.0)]
     allocs, _ = allocate(lines, shop_discount=10.0, platform_subsidy=0.0)
@@ -279,7 +279,7 @@ def test_allocation_gift_line_zero():
 
 def test_allocation_consistency_detects_mismatch():
     """金额勾稽超差 → 检出（FR-04b 硬失败前置）"""
-    from app.services.allocation import LineAmount, check_amount_consistency
+    from app.modules.m3_trade.service.allocation import LineAmount, check_amount_consistency
 
     lines = [LineAmount(1, 100.0, 0.0, 0.0, 100.0)]
     ok, msg = check_amount_consistency(lines, 50.0, 0.0)
@@ -292,13 +292,13 @@ def test_allocation_consistency_detects_mismatch():
 
 async def test_order_bn_format_and_uniqueness(auth_client):
     """订单号 17 位规则：前缀+yyMMdd+店铺码3位+混淆序列7位，且不重复"""
-    from app.services.order_bn import OrderBnGenerator, shop_code_of
+    from app.modules.m3_trade.service.order_bn import OrderBnGenerator, shop_code_of
 
     assert shop_code_of("S20261025000123") == "123"
     assert shop_code_of("S20261025999999") == "999"
     assert len(shop_code_of("S1")) == 3
 
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:
@@ -324,8 +324,8 @@ async def _canonical_of(trade: dict, shop_id: int):
 
 async def test_create_order_persists_aggregate(auth_client):
     """建单落库：订单头+行+收货人(加密)+优惠分摊+状态日志，四套状态初始化"""
-    from app.services.master import get_redis
-    from app.services.order_create import OrderCreateService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m3_trade.service.order_create import OrderCreateService
 
     owner = await _make_owner(auth_client, "T_OI_01", "接入测试货主")
     shop = await _make_shop(auth_client, "测试拉单店01", owner["id"])
@@ -374,8 +374,8 @@ async def test_create_order_persists_aggregate(auth_client):
 
 async def test_create_order_is_idempotent(auth_client):
     """幂等防重（FR-02a）：同 (shop, 平台单号) 重复创建返回已存在 order_id，不重复落库"""
-    from app.services.master import get_redis
-    from app.services.order_create import OrderCreateService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m3_trade.service.order_create import OrderCreateService
 
     owner = await _make_owner(auth_client, "T_OI_02", "幂等测试货主")
     shop = await _make_shop(auth_client, "测试拉单店02", owner["id"])
@@ -395,8 +395,8 @@ async def test_create_order_is_idempotent(auth_client):
 
 async def test_hard_fail_amount_mismatch(auth_client):
     """硬失败：金额勾稽超差 → 落失败单，不建订单（FR-04c）"""
-    from app.services.master import get_redis
-    from app.services.order_create import OrderCreateService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m3_trade.service.order_create import OrderCreateService
 
     owner = await _make_owner(auth_client, "T_OI_03", "勾稽测试货主")
     shop = await _make_shop(auth_client, "测试拉单店03", owner["id"])
@@ -423,8 +423,8 @@ async def test_hard_fail_amount_mismatch(auth_client):
 
 async def test_hard_fail_empty_items(auth_client):
     """硬失败：商品行为空 → 落失败单"""
-    from app.services.master import get_redis
-    from app.services.order_create import OrderCreateService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m3_trade.service.order_create import OrderCreateService
 
     owner = await _make_owner(auth_client, "T_OI_04", "空行测试货主")
     shop = await _make_shop(auth_client, "测试拉单店04", owner["id"])
@@ -440,8 +440,8 @@ async def test_hard_fail_empty_items(auth_client):
 
 async def test_hard_fail_invalid_shop(auth_client):
     """硬失败：店铺无效 → 落失败单"""
-    from app.services.master import get_redis
-    from app.services.order_create import OrderCreateService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m3_trade.service.order_create import OrderCreateService
 
     redis = await get_redis()
     c = await _canonical_of(_trade(tid="SIM900005"), 999999)
@@ -453,8 +453,8 @@ async def test_hard_fail_invalid_shop(auth_client):
 
 async def test_soft_fail_unbound_sku(auth_client):
     """软失败：商品未绑定 → 正常落库 + parse_status=pending + 软失败标记"""
-    from app.services.master import get_redis
-    from app.services.order_create import OrderCreateService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m3_trade.service.order_create import OrderCreateService
 
     owner = await _make_owner(auth_client, "T_OI_05", "未绑定测试货主")
     shop = await _make_shop(auth_client, "测试拉单店05", owner["id"])
@@ -474,8 +474,8 @@ async def test_soft_fail_unbound_sku(auth_client):
 
 async def test_unknown_sku_auto_create(auth_client):
     """未知商品自动建档：生成销售物料档案（幂等，FR-05a）"""
-    from app.services.master import get_redis
-    from app.services.sku_mapping import SkuMappingService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m2_stock.service.sku_mapping import SkuMappingService
 
     owner = await _make_owner(auth_client, "T_OI_06", "自动建档货主")
     shop = await _make_shop(auth_client, "测试拉单店06", owner["id"])
@@ -504,9 +504,9 @@ async def test_watermark_advances_and_never_regresses(auth_client):
     """水位：CAS 推进且只进不退"""
     from datetime import datetime, timedelta
 
-    from app.services.gateway import get_gateway
-    from app.services.master import get_redis
-    from app.services.pull import PullService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m7_integration.service.gateway import get_gateway
+    from app.modules.m7_integration.service.pull import PullService
 
     owner = await _make_owner(auth_client, "T_OI_07", "水位测试货主")
     shop = await _make_shop(auth_client, "测试拉单店07", owner["id"])
@@ -569,9 +569,9 @@ async def test_end_to_end_pull_to_order(mock_platform, auth_client, monkeypatch)
     import httpx
 
     from app.core.config import settings
-    from app.services.gateway import get_gateway
-    from app.services.master import get_redis
-    from app.services.pull import PullService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m7_integration.service.gateway import get_gateway
+    from app.modules.m7_integration.service.pull import PullService
 
     # 网关指向模拟器
     monkeypatch.setattr(settings, "platform_gateway_url", mock_platform)

@@ -5,32 +5,32 @@ module: M6
 slug: m6_aftersale
 name: 售后与改单
 write:
-  - oms_oms_aftersale.aft_audit_task
-  - oms_oms_aftersale.aft_auto_audit_log
-  - oms_oms_aftersale.aft_auto_audit_rule
-  - oms_oms_aftersale.aft_buyer_profile
-  - oms_oms_aftersale.aft_defect_disposal
-  - oms_oms_aftersale.aft_exchange
-  - oms_oms_aftersale.aft_exchange_item
-  - oms_oms_aftersale.aft_exchange_log
-  - oms_oms_aftersale.aft_reason_dict
-  - oms_oms_aftersale.aft_refund
-  - oms_oms_aftersale.aft_refund_alloc
-  - oms_oms_aftersale.aft_refund_log
-  - oms_oms_aftersale.aft_reship
-  - oms_oms_aftersale.aft_reship_item
-  - oms_oms_aftersale.aft_reship_package
-  - oms_oms_aftersale.aft_reship_sn
-  - oms_oms_aftersale.aft_return_address
-  - oms_oms_aftersale.aft_return_apply
-  - oms_oms_aftersale.aft_return_apply_item
-  - oms_oms_aftersale.aft_return_apply_log
-  - oms_oms_aftersale.aft_return_logistics
-  - oms_oms_aftersale.aft_risk_flag
-  - oms_oms_aftersale.aft_timeout_monitor
-  - oms_oms_order.ord_order_modify
-  - oms_oms_order.ord_order_snapshot
-  - oms_oms_order.ord_modify_log
+  - oms_aftersale.aft_audit_task
+  - oms_aftersale.aft_auto_audit_log
+  - oms_aftersale.aft_auto_audit_rule
+  - oms_aftersale.aft_buyer_profile
+  - oms_aftersale.aft_defect_disposal
+  - oms_aftersale.aft_exchange
+  - oms_aftersale.aft_exchange_item
+  - oms_aftersale.aft_exchange_log
+  - oms_aftersale.aft_reason_dict
+  - oms_aftersale.aft_refund
+  - oms_aftersale.aft_refund_alloc
+  - oms_aftersale.aft_refund_log
+  - oms_aftersale.aft_reship
+  - oms_aftersale.aft_reship_item
+  - oms_aftersale.aft_reship_package
+  - oms_aftersale.aft_reship_sn
+  - oms_aftersale.aft_return_address
+  - oms_aftersale.aft_return_apply
+  - oms_aftersale.aft_return_apply_item
+  - oms_aftersale.aft_return_apply_log
+  - oms_aftersale.aft_return_logistics
+  - oms_aftersale.aft_risk_flag
+  - oms_aftersale.aft_timeout_monitor
+  - oms_order.ord_order_modify
+  - oms_order.ord_order_snapshot
+  - oms_order.ord_modify_log
 read_only:
   # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
   []

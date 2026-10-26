@@ -13,6 +13,7 @@
 | schema | 表数 | 表 |
 |---|---|---|
 | oms_gateway | 24 | `gw_adapter_config` `gw_api_fail` `gw_api_log` `gw_credential_audit` `gw_enum_mapping` `gw_errcode_dict` `gw_msg_notify` `gw_openapi_app` `gw_openapi_log` `gw_openapi_register` `gw_order_buffer` `gw_order_buffer_item` `gw_order_buffer_promotion` `gw_platform_config` `gw_pull_watermark` `gw_ratelimit_config` `gw_recon_diff` `gw_rpc_pending` `gw_shop` `gw_shop_auth` `gw_shop_config` `gw_stock_sync_batch` `gw_stock_sync_item` `gw_writeback_task` |
+| oms_fulfill | 5 | `ful_outbound_cmd` `ful_outbound_callback` `ful_outbound_buffer` `ful_cmd_fail` `ful_channel_log` |
 
 完整清单见同目录 `tables.yaml`。
 

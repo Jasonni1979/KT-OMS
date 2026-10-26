@@ -32,23 +32,23 @@ from app.models.abnormal import OrdStockout  # noqa: E402
 from app.models.abnormal_ext import OrdOversoldBatch  # noqa: E402
 from app.models.aftersale import AftRefund  # noqa: E402
 from app.models.order import OrdOrder  # noqa: E402
-from app.scripts._checker import Checker  # noqa: E402
-from app.services.abnormal_action import ACT_TO_AFTERSALE, AbnormalActionService  # noqa: E402
-from app.services.abnormal_ext import (  # noqa: E402
+from app.modules.m1_master.service.master import get_redis  # noqa: E402
+from app.modules.m5_abnormal.service.abnormal_action import ACT_TO_AFTERSALE, AbnormalActionService  # noqa: E402
+from app.modules.m5_abnormal.service.abnormal_ext import (  # noqa: E402
     STAGE_ALLOC_CALC,
     STAGE_COMPENSATE,
     STAGE_NEGOTIATE,
     STAGE_REFUND,
     AbnormalExtService,
 )
-from app.services.aftersale import (  # noqa: E402
+from app.modules.m6_aftersale.service.aftersale import (  # noqa: E402
     REFUNDED,
     REFUNDING,
     ST_REFUNDING,
     AftersaleService,
 )
-from app.services.master import get_redis  # noqa: E402
-from app.services.monitor import MonitorService  # noqa: E402
+from app.modules.m8_insight.service.monitor import MonitorService  # noqa: E402
+from app.scripts._checker import Checker  # noqa: E402
 
 PREFIX = "XDE"
 

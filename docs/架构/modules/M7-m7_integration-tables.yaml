@@ -5,30 +5,35 @@ module: M7
 slug: m7_integration
 name: 外部集成
 write:
-  - oms_oms_gateway.gw_adapter_config
-  - oms_oms_gateway.gw_api_fail
-  - oms_oms_gateway.gw_api_log
-  - oms_oms_gateway.gw_credential_audit
-  - oms_oms_gateway.gw_enum_mapping
-  - oms_oms_gateway.gw_errcode_dict
-  - oms_oms_gateway.gw_msg_notify
-  - oms_oms_gateway.gw_openapi_app
-  - oms_oms_gateway.gw_openapi_log
-  - oms_oms_gateway.gw_openapi_register
-  - oms_oms_gateway.gw_order_buffer
-  - oms_oms_gateway.gw_order_buffer_item
-  - oms_oms_gateway.gw_order_buffer_promotion
-  - oms_oms_gateway.gw_platform_config
-  - oms_oms_gateway.gw_pull_watermark
-  - oms_oms_gateway.gw_ratelimit_config
-  - oms_oms_gateway.gw_recon_diff
-  - oms_oms_gateway.gw_rpc_pending
-  - oms_oms_gateway.gw_shop
-  - oms_oms_gateway.gw_shop_auth
-  - oms_oms_gateway.gw_shop_config
-  - oms_oms_gateway.gw_stock_sync_batch
-  - oms_oms_gateway.gw_stock_sync_item
-  - oms_oms_gateway.gw_writeback_task
+  - oms_gateway.gw_adapter_config
+  - oms_gateway.gw_api_fail
+  - oms_gateway.gw_api_log
+  - oms_gateway.gw_credential_audit
+  - oms_gateway.gw_enum_mapping
+  - oms_gateway.gw_errcode_dict
+  - oms_gateway.gw_msg_notify
+  - oms_gateway.gw_openapi_app
+  - oms_gateway.gw_openapi_log
+  - oms_gateway.gw_openapi_register
+  - oms_gateway.gw_order_buffer
+  - oms_gateway.gw_order_buffer_item
+  - oms_gateway.gw_order_buffer_promotion
+  - oms_gateway.gw_platform_config
+  - oms_gateway.gw_pull_watermark
+  - oms_gateway.gw_ratelimit_config
+  - oms_gateway.gw_recon_diff
+  - oms_gateway.gw_rpc_pending
+  - oms_gateway.gw_shop
+  - oms_gateway.gw_shop_auth
+  - oms_gateway.gw_shop_config
+  - oms_gateway.gw_stock_sync_batch
+  - oms_gateway.gw_stock_sync_item
+  - oms_gateway.gw_writeback_task
+  - oms_fulfill.ful_outbound_cmd
+  - oms_fulfill.ful_outbound_callback
+  - oms_fulfill.ful_outbound_buffer
+  - oms_fulfill.ful_cmd_fail
+  - oms_fulfill.ful_channel_log
 read_only:
   # 本模块只读其它模块的表；读取须经对方 contract.py 的只读接口
   []

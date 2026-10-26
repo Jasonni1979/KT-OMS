@@ -85,8 +85,8 @@ async def _brand_node_id() -> int:
 
 async def test_shop_created_with_profile(auth_client):
     """FR-01a：建档含平台/平台店铺ID/货主/业务类型"""
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     await _cleanup_shops()
     oid = await _owner_id()
@@ -120,8 +120,8 @@ async def test_shop_created_with_profile(auth_client):
 async def test_shop_must_hang_under_brand_or_owner_node(auth_client):
     """FR-01a：店铺必须挂 brand / owner_co 节点（层级矩阵约束）"""
     from app.core.exceptions import ValidationError
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     oid = await _owner_id()
     if not oid:
@@ -159,8 +159,8 @@ async def test_platform_shop_id_unique_per_platform(auth_client):
     nid = await _brand_node_id()
     if not oid or not nid:
         pytest.skip("缺少货主或组织节点")
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:
@@ -199,8 +199,8 @@ async def test_same_shop_id_allowed_across_platforms(auth_client):
     nid = await _brand_node_id()
     if not oid or not nid:
         pytest.skip("缺少货主或组织节点")
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:
@@ -234,8 +234,8 @@ async def test_blank_platform_shop_id_gets_placeholder(auth_client):
     nid = await _brand_node_id()
     if not oid or not nid:
         pytest.skip("缺少货主或组织节点")
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:
@@ -271,7 +271,7 @@ async def test_shop_list_filters_by_tenant(auth_client):
 
 async def test_shop_list_keyword_search(auth_client):
     """FR-01c：按关键字过滤（店名 / 店铺编码）"""
-    from app.services.master import ShopService, get_redis
+    from app.modules.m1_master.service.master import ShopService, get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:
@@ -294,8 +294,8 @@ async def test_shop_status_toggle(auth_client):
     nid = await _brand_node_id()
     if not oid or not nid:
         pytest.skip("缺少货主或组织节点")
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:
@@ -319,8 +319,8 @@ async def test_shop_status_toggle(auth_client):
 async def test_shop_update_optimistic_lock(auth_client):
     """店铺更新走乐观锁（version 不符 → 冲突）"""
     from app.core.exceptions import ConflictError
+    from app.modules.m1_master.service.master import ShopService, get_redis
     from app.schemas import master as sc
-    from app.services.master import ShopService, get_redis
 
     redis = await get_redis()
     async with SessionFactory() as s:

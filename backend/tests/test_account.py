@@ -21,7 +21,7 @@ import pytest
 from sqlalchemy import select, text
 
 from app.core.db import SessionFactory
-from app.services.auth import (
+from app.modules.m1_master.service.auth import (
     LOCK_MINUTES,
     MAX_FAIL,
     REFRESH_DAYS,
@@ -318,7 +318,7 @@ async def test_refresh_token_expiry_days():
 
 async def test_logout_deletes_redis_session(client):
     """FR-05b：登出 = 删 Redis + refresh 吊销（双保险）"""
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await _login(client)
     assert r.status_code == 200, r.text

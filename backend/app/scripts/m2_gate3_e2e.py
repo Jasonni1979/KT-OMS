@@ -44,15 +44,15 @@ from app.models.abnormal import (  # noqa: E402
     OrdAbnormal,
 )
 from app.models.audit import OrdRetrial  # noqa: E402
-from app.services.abnormal import AbnormalService  # noqa: E402
-from app.services.abnormal_action import (  # noqa: E402
+from app.modules.m1_master.service.master import get_redis  # noqa: E402
+from app.modules.m5_abnormal.service.abnormal import AbnormalService  # noqa: E402
+from app.modules.m5_abnormal.service.abnormal_action import (  # noqa: E402
     ACT_FORCE_PASS,
     ACT_REAUDIT,
     ACT_TO_RETRIAL,
     AbnormalActionService,
 )
-from app.services.master import get_redis  # noqa: E402
-from app.services.stockout_strategy import StockoutStrategyService  # noqa: E402
+from app.modules.m5_abnormal.service.stockout_strategy import StockoutStrategyService  # noqa: E402
 
 #: 独立前缀（与演示数据 DLVW7DEMO% / 其他 E2E 的 DLVE2E% / W7WB% 不冲突）
 PREFIX = "M2G3"

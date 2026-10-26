@@ -29,7 +29,7 @@ CLEANUP_SQL = [
 
 
 async def _cleanup_redis() -> None:
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     keys: list = []

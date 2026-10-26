@@ -20,10 +20,10 @@ from sqlalchemy import select, text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
 from app.models.order import OrdOrder
-from app.services.delivery_service import DeliveryService
-from app.services.dispatch_service import DispatchService
-from app.services.master import get_redis
-from app.services.split_service import SplitRuleService, SplitService
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m4_fulfill.service.delivery_service import DeliveryService
+from app.modules.m4_fulfill.service.dispatch_service import DispatchService
+from app.modules.m4_fulfill.service.split_service import SplitRuleService, SplitService
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -732,7 +732,7 @@ async def main() -> int:
         )
 
         # 守恒校验：注入漏行的策略
-        from app.services.split_service import SplitGroup, SplitResult
+        from app.modules.m4_fulfill.service.split_service import SplitGroup, SplitResult
 
         class BuggyStrategy:
             split_type = "buggy"
@@ -1031,7 +1031,7 @@ async def main() -> int:
         check("FR-10b 异常视图有数据", len(abnormal) > 0, f"{len(abnormal)} 条")
 
         # 状态机字典
-        from app.services.delivery_service import allowed_commands as ac
+        from app.modules.m4_fulfill.service.delivery_service import allowed_commands as ac
 
         check(
             "状态机字典可枚举",

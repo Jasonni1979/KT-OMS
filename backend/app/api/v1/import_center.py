@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
-from app.services import import_center as svc
-from app.services import importers  # noqa: F401  # 导入即注册模板与导入器
-from app.services.master import get_redis
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m2_stock.service import import_center as svc
+from app.modules.m2_stock.service import importers  # noqa: F401  # 导入即注册模板与导入器
 
 router = APIRouter(tags=["import-导入导出"])
 

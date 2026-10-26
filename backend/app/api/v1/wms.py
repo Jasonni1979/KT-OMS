@@ -16,9 +16,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
-from app.services.master import get_redis
-from app.services.wms_channel import OutboundCommandService, WmsRouteService
-from app.services.wms_events import WmsEventDispatcher
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m7_integration.service.wms_channel import OutboundCommandService, WmsRouteService
+from app.modules.m7_integration.service.wms_events import WmsEventDispatcher
 
 router = APIRouter()
 

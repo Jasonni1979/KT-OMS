@@ -23,7 +23,7 @@ from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
 from app.core.exceptions import ConflictError, ValidationError
 from app.models.abnormal import OrdStockout
 from app.models.order import OrdOrder
-from app.services.abnormal_ext import (
+from app.modules.m5_abnormal.service.abnormal_ext import (
     LIST_BLACK,
     LIST_GRAY,
     LIST_WHITE,

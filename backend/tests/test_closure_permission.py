@@ -164,7 +164,7 @@ async def test_marks_released_only_when_all_abnormals_closed():
 
     这是 FR-02e 的核心规则（对齐 D03.02「结构化原因清零才可审」）。
     """
-    from app.services.abnormal import AbnormalService
+    from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
     oid = await _mk_order()
     try:
@@ -189,7 +189,7 @@ async def test_marks_released_only_when_all_abnormals_closed():
 
 async def test_release_order_marks_direct_call():
     """FR-02e：release_order_marks 直接调用 —— 无其它在途异常单时清标记"""
-    from app.services.abnormal import AbnormalService
+    from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
     oid = await _mk_order()
     try:
@@ -208,7 +208,7 @@ async def test_release_order_marks_direct_call():
 
 async def test_release_order_marks_returns_false_with_open_sibling():
     """FR-02e：存在未闭环的兄弟异常单 → 返回 False（不解除标记）"""
-    from app.services.abnormal import AbnormalService
+    from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
     oid = await _mk_order()
     try:
@@ -229,7 +229,7 @@ async def test_release_order_marks_returns_false_with_open_sibling():
 
 async def test_cancel_also_releases_marks():
     """FR-02e：取消异常单（订单取消收口）同样触发标记解除"""
-    from app.services.abnormal import AbnormalService
+    from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
     oid = await _mk_order()
     try:
@@ -248,7 +248,7 @@ async def test_cancel_also_releases_marks():
 
 async def test_resolve_closed_abnormal_rejected():
     """边界：已闭环的异常单不可重复解决（幂等保护）"""
-    from app.services.abnormal import AbnormalService
+    from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
     oid = await _mk_order()
     try:
@@ -269,7 +269,7 @@ async def test_resolve_closed_abnormal_rejected():
 async def test_build_auth_context_carries_scope():
     """D10.03：build_auth_context 把权限范围装进 AuthContext（四维）"""
     from app.core.db import AuthContext as AC
-    from app.services.permission import build_auth_context
+    from app.modules.m1_master.service.permission import build_auth_context
 
     async with SessionFactory() as s:
         # 超管 → 全量数据
@@ -284,7 +284,7 @@ async def test_build_auth_context_carries_scope():
 
 async def test_build_auth_context_for_non_superuser():
     """D10.03：非超管的上下文带 account_id（供数据权限过滤）"""
-    from app.services.permission import build_auth_context
+    from app.modules.m1_master.service.permission import build_auth_context
 
     async with SessionFactory() as s:
         ctx = await build_auth_context(
@@ -297,8 +297,8 @@ async def test_build_auth_context_for_non_superuser():
 
 async def test_invalidate_account_clears_permission_cache():
     """D10.03：账户权限缓存失效（改角色后立即生效）"""
-    from app.services.master import get_redis
-    from app.services.permission import PermissionService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m1_master.service.permission import PermissionService
 
     redis = await get_redis()
     async with SessionFactory() as s:

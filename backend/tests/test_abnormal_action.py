@@ -24,8 +24,8 @@ from app.models.abnormal import (
     OrdAbnormalTypeDict,
 )
 from app.models.order import OrdOrder
-from app.services.abnormal import AbnormalService
-from app.services.abnormal_action import (
+from app.modules.m5_abnormal.service.abnormal import AbnormalService
+from app.modules.m5_abnormal.service.abnormal_action import (
     ACT_CANCEL,
     ACT_FORCE_PASS,
     ACT_REAUDIT,
@@ -35,7 +35,7 @@ from app.services.abnormal_action import (
     ACT_TO_RETRIAL,
     AbnormalActionService,
 )
-from app.services.abnormal_dispatch import AbnormalDispatchEngine
+from app.modules.m5_abnormal.service.abnormal_dispatch import AbnormalDispatchEngine
 
 pytestmark = pytest.mark.asyncio
 
@@ -620,7 +620,7 @@ async def test_goods_match_plugin_produces_unbound_reason():
     不会落异常单。
     """
     from app.core.plugin_chain import RuleContext
-    from app.services.audit_plugins import GoodsMatchPlugin
+    from app.modules.m3_trade.service.audit_plugins import GoodsMatchPlugin
 
     ctx = RuleContext()
     ctx.meta["items"] = [
@@ -640,7 +640,7 @@ async def test_goods_match_plugin_produces_unbound_reason():
 async def test_goods_match_plugin_passes_when_all_bound():
     """FR-03a：全部已绑定 → 放行"""
     from app.core.plugin_chain import RuleContext
-    from app.services.audit_plugins import GoodsMatchPlugin
+    from app.modules.m3_trade.service.audit_plugins import GoodsMatchPlugin
 
     ctx = RuleContext()
     ctx.meta["items"] = [
@@ -654,7 +654,7 @@ async def test_goods_match_plugin_passes_when_all_bound():
 async def test_goods_match_plugin_skips_gift_and_virtual():
     """FR-03a：赠品/虚拟品不参与未绑定判定"""
     from app.core.plugin_chain import RuleContext
-    from app.services.audit_plugins import GoodsMatchPlugin
+    from app.modules.m3_trade.service.audit_plugins import GoodsMatchPlugin
 
     ctx = RuleContext()
     ctx.meta["items"] = [
@@ -667,7 +667,7 @@ async def test_goods_match_plugin_skips_gift_and_virtual():
 
 async def test_goods_match_plugin_registered_in_chain():
     """回归：goods_match 已注册进审单插件链（否则不会执行）"""
-    from app.services.audit_plugins import build_plugins
+    from app.modules.m3_trade.service.audit_plugins import build_plugins
 
     names = [p.name() for p in build_plugins()]
     assert "goods_match" in names

@@ -23,10 +23,10 @@ import httpx
 from sqlalchemy import text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
-from app.services.delivery_service import DeliveryService
-from app.services.master import get_redis
-from app.services.wms_channel import OutboundCommandService
-from app.services.wms_events import WmsEventDispatcher
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m4_fulfill.service.delivery_service import DeliveryService
+from app.modules.m7_integration.service.wms_channel import OutboundCommandService
+from app.modules.m7_integration.service.wms_events import WmsEventDispatcher
 
 MOCK_WMS = os.environ.get("MOCK_WMS_ENDPOINT", "http://127.0.0.1:9001")
 DEMO_PREFIX = "DLVW7DEMO"

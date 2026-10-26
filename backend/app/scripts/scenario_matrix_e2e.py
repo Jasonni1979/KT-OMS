@@ -125,9 +125,9 @@ async def _run(gateway_url: str) -> int:
 
     from app.core.config import settings
     from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
-    from app.services.gateway import Gateway
-    from app.services.master import get_redis
-    from app.services.pull import PullService
+    from app.modules.m1_master.service.master import get_redis
+    from app.modules.m7_integration.service.gateway import Gateway
+    from app.modules.m7_integration.service.pull import PullService
 
     set_auth_context(AuthContext(tenant_id=1, is_superuser=True))
     ck = Checker()
@@ -137,7 +137,7 @@ async def _run(gateway_url: str) -> int:
 
     async with SessionFactory() as s:
         # ── 基础数据：货主 / 店铺 / 物料 / 仓 / 期初库存（复用 scenario_e2e 的准备逻辑）
-        from app.services.scenario import ScenarioRunner
+        from app.tools.simulation.scenario import ScenarioRunner
 
         runner = ScenarioRunner(s, redis, gateway_url)
         await runner.cleanup()

@@ -55,7 +55,7 @@ def start_mock() -> tuple[subprocess.Popen, str]:
 
 
 async def _main(gateway_url: str) -> int:
-    from app.services.scenario import run_scenario
+    from app.tools.simulation.scenario import run_scenario
 
     report = await run_scenario(gateway_url)
     print("\n=== KT-OMS 业务场景端到端（模拟下单 → 拉单 → 预占 → 出库 → 记账）===\n")

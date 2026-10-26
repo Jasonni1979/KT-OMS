@@ -16,10 +16,10 @@ import sys
 from sqlalchemy import text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
-from app.services.delivery_service import DeliveryService
-from app.services.dispatch_service import DispatchService
-from app.services.master import get_redis
-from app.services.split_service import SplitService
+from app.modules.m1_master.service.master import get_redis
+from app.modules.m4_fulfill.service.delivery_service import DeliveryService
+from app.modules.m4_fulfill.service.dispatch_service import DispatchService
+from app.modules.m4_fulfill.service.split_service import SplitService
 
 DEMO_BN_PREFIX = "W6DEMO"
 

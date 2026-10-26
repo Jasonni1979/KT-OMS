@@ -29,7 +29,7 @@ async def _cleanup_redis() -> None:
     必须同时清理：DB 台账被清但 Redis 标记残留时，下一轮预占会命中
     FREEZE_MARKER_CONFLICT（标记在、台账无）——测试隔离的必修项。
     """
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     keys: list = []
@@ -107,7 +107,7 @@ async def _stock_in(auth_client, branch_id: int, bm_id: int, owner_id: int, num:
 
 
 async def _clear_redis(branch_id: int, bm_id: int, owner_id: int, obj_bns: list[str]) -> None:
-    from app.services.master import get_redis
+    from app.modules.m1_master.service.master import get_redis
 
     r = await get_redis()
     keys = [f"inv:{branch_id}:{bm_id}:{owner_id}"]
