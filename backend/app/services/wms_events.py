@@ -23,10 +23,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from redis.asyncio import Redis
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.services.abnormal import (
+    EXC_WMS_PUSH_FAILED,
+)
 from app.services.delivery_service import (
     CMD_PUSH,
     CMD_PUSH_FAILED,
@@ -79,6 +82,54 @@ class WmsEventDispatcher:
         self.s = session
         self.r = redis
 
+    async def _raise_abnormal(
+        self,
+        delivery_id: int,
+        *,
+        exc_type: str,
+        source: str,
+        source_ref: str = "",
+        note: str = "",
+    ) -> None:
+        """履约链路事件落异常单（FR-03b）
+
+        落单失败**不阻断事件编排**（事件主流程已由 DeliveryService 落库）。
+        """
+        from app.models.fulfill import OrdDelivery
+        from app.models.order import OrdOrder
+        from app.services.abnormal import AbnormalService
+
+        try:
+            dlv = await self.s.scalar(
+                select(OrdDelivery).where(
+                    OrdDelivery.id == delivery_id, OrdDelivery.is_deleted == 0
+                )
+            )
+            if dlv is None or not dlv.order_id:
+                return
+            order = await self.s.scalar(
+                select(OrdOrder).where(
+                    OrdOrder.id == dlv.order_id, OrdOrder.is_deleted == 0
+                )
+            )
+            if order is None:
+                return
+            svc = AbnormalService(self.s, self.r)
+            await svc.create(
+                order=order,
+                exc_type=exc_type,
+                source=source,
+                source_ref=source_ref,
+                reason_detail={"note": note, "delivery_id": delivery_id},
+            )
+        except Exception as e:  # noqa: BLE001 —— 落单失败不阻断事件编排
+            logger.warning(
+                "abnormal_raise_failed",
+                detail=str(e),
+                delivery_id=delivery_id,
+                exc_type=exc_type,
+            )
+
     async def dispatch(self, event: str, payload: dict[str, Any]) -> DispatchResult:
         """按事件类型分发到编排动作"""
         delivery_id = int(payload.get("delivery_id") or 0)
@@ -121,6 +172,14 @@ class WmsEventDispatcher:
                 delivery_id, CMD_PUSH_FAILED, operator="wms",
                 reason=str(payload.get("err_msg", "") or "")[:200],
             )
+            # FR-03b 履约链路事件落单：推仓失败 → WMS_PUSH_FAILED 异常单
+            await self._raise_abnormal(
+                delivery_id,
+                exc_type=EXC_WMS_PUSH_FAILED,
+                source="push",
+                source_ref=str(payload.get("cmd_no") or "")[:128],
+                note=str(payload.get("err_msg", "") or "")[:512],
+            )
             return DispatchResult(
                 ok=res.ok, event=event, delivery_id=delivery_id,
                 action="push_failed", message=res.fail_message, detail=res.to_dict(),
@@ -148,6 +207,14 @@ class WmsEventDispatcher:
                 delivery_id,
                 reason=str(payload.get("reject_reason", "") or "WMS 打回"),
                 operator="wms",
+            )
+            # FR-03b：WMS 打回 → 履约类异常单（人工事后处理）
+            await self._raise_abnormal(
+                delivery_id,
+                exc_type=EXC_WMS_PUSH_FAILED,
+                source="push",
+                source_ref=str(payload.get("cmd_no") or "")[:128],
+                note=str(payload.get("reject_reason", "") or "WMS 打回")[:512],
             )
             return DispatchResult(
                 ok=res.ok, event=event, delivery_id=delivery_id,
