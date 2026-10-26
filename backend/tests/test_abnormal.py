@@ -538,3 +538,143 @@ async def test_list_abnormals_filter_by_type_and_category():
             assert a.id in [r.id for r in rows2]
     finally:
         await _clean([order_id])
+
+
+# ============ FR-03a/03b 统一落单入口 ============
+
+
+async def test_raise_by_reason_creates_abnormal_for_mapped_code():
+    """FR-03a：映射了异常类型的原因码 → 落异常单"""
+    order_id = await _mk_order()
+    try:
+        async with SessionFactory() as s:
+            svc = AbnormalService(s, None)
+            row, created = await svc.raise_by_reason(
+                order_id=order_id,
+                reason_code="GOODS_UNBOUND",
+                source="audit",
+                source_ref="goods_match:GOODS_UNBOUND",
+            )
+        assert row is not None
+        assert created is True
+        assert row.exc_type == EXC_PRODUCT_UNBOUND
+        assert row.source == "audit"
+        assert row.status == ABNORMAL_STATUS_WAIT_DISPATCH
+        assert row.order_id == order_id
+    finally:
+        await _clean([order_id])
+
+
+async def test_raise_by_reason_skips_unmapped_code():
+    """FR-03a：未映射异常类型的原因码 → **不落单**（避免异常池泛滥）"""
+    order_id = await _mk_order()
+    try:
+        async with SessionFactory() as s:
+            svc = AbnormalService(s, None)
+            row, created = await svc.raise_by_reason(
+                order_id=order_id,
+                reason_code="MEMO_HOLD",  # DDL 里 exc_type=NULL
+                source="audit",
+            )
+        assert row is None
+        assert created is False
+        async with SessionFactory() as s:
+            cnt = await s.scalar(
+                text(
+                    "SELECT COUNT(*) FROM oms_order.ord_abnormal WHERE order_id = :o"
+                ),
+                {"o": order_id},
+            )
+        assert int(cnt or 0) == 0
+    finally:
+        await _clean([order_id])
+
+
+async def test_raise_by_reason_follows_need_abnormal_bill_flag():
+    """FR-03a：是否落单由类型字典的 need_abnormal_bill 决定
+
+    DDL 预置的 16 种类型当前全为 1（= 1）→ 映射了 exc_type 的原因码都落单；
+    「不落单」实际由 **exc_type 是否为空** 决定（见上一个用例）。
+    本用例锁住「need_abnormal_bill=0 时不落单」这条规则（可配置项，值可被运营改）。
+    """
+    order_id = await _mk_order()
+    try:
+        async with SessionFactory() as s:
+            svc = AbnormalService(s, None)
+            t = await svc.type_of("PRICE_ABNORMAL")
+            assert t is not None
+            # 临时把 need_abnormal_bill 置 0 → 应不落单
+            t.need_abnormal_bill = 0
+            await s.commit()
+            row, _ = await svc.raise_by_reason(
+                order_id=order_id, reason_code="PRICE_ABNORMAL", source="audit"
+            )
+        assert row is None
+    finally:
+        # 还原字典（避免污染其他用例）
+        async with SessionFactory() as s:
+            t = await s.scalar(
+                select(OrdAbnormalTypeDict).where(
+                    OrdAbnormalTypeDict.type_code == "PRICE_ABNORMAL"
+                )
+            )
+            if t is not None:
+                t.need_abnormal_bill = 1
+                await s.commit()
+        await _clean([order_id])
+
+
+async def test_raise_by_reason_creates_stockout_details():
+    """FR-04a：缺货原因码 → 同时落缺货明细（三元键 + 缺口量）"""
+    order_id = await _mk_order()
+    try:
+        detail = {
+            "shortages": [
+                {
+                    "branch_id": 11,
+                    "bm_id": 22,
+                    "owner_id": 1,
+                    "need": 5,
+                    "available": 2,
+                    "shortage": 3,
+                }
+            ]
+        }
+        async with SessionFactory() as s:
+            svc = AbnormalService(s, None)
+            row, _ = await svc.raise_by_reason(
+                order_id=order_id,
+                reason_code="STOCK_SHORTAGE",
+                source="audit",
+                detail=detail,
+            )
+            assert row is not None
+            assert row.exc_type == EXC_STOCK_SHORT
+            details = await svc.stockouts_of(row.id)
+        assert len(details) == 1
+        assert details[0].branch_id == 11
+        assert details[0].bm_id == 22
+        assert details[0].lack_num == 3
+        assert details[0].stock_snapshot["need"] == 5
+    finally:
+        await _clean([order_id])
+
+
+async def test_raise_by_reason_is_idempotent():
+    """FR-02a：同一原因码重复触发 → 复用同一异常单"""
+    order_id = await _mk_order()
+    try:
+        async with SessionFactory() as s:
+            svc = AbnormalService(s, None)
+            r1, c1 = await svc.raise_by_reason(
+                order_id=order_id, reason_code="GOODS_UNBOUND", source="audit"
+            )
+            r2, c2 = await svc.raise_by_reason(
+                order_id=order_id, reason_code="GOODS_UNBOUND", source="audit"
+            )
+        assert c1 is True and c2 is False
+        assert r1 is not None and r2 is not None
+        assert r1.id == r2.id
+    finally:
+        await _clean([order_id])
+

@@ -472,7 +472,37 @@ class AuditEngine:
                 )
             )
         await self.s.commit()
+        # FR-03a：审单不通过 → 按原因码字典落异常单
+        #   落单与否由字典决定（exc_type 为空 / need_abnormal_bill=0 → 不落单），
+        #   避免异常池泛滥；缺货类同时落缺货明细（FR-04a）。
+        await self._raise_abnormals(order_id, reasons)
         return len(reasons)
+
+    async def _raise_abnormals(
+        self, order_id: int, reasons: list[Reason]
+    ) -> int:
+        """按结构化原因落异常单（FR-03a）"""
+        from app.services.abnormal import AbnormalService
+
+        svc = AbnormalService(self.s, self.r)
+        raised = 0
+        for r in reasons:
+            try:
+                row, _created = await svc.raise_by_reason(
+                    order_id=order_id,
+                    reason_code=r.code,
+                    source="audit",
+                    source_ref=f"{r.plugin}:{r.code}",
+                    detail=r.detail or {},
+                )
+            except Exception as e:  # noqa: BLE001 —— 落单失败不阻断审单主流程
+                logger.warning(
+                    "abnormal_raise_failed", detail=str(e), order_id=order_id, code=r.code
+                )
+                continue
+            if row is not None:
+                raised += 1
+        return raised
 
     # ---------- plan 落库 ----------
 

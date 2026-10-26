@@ -295,6 +295,82 @@ class AbnormalService:
         )
         row.timeline = tl
 
+    # ============ 统一落单入口（FR-03a/FR-03b）============
+
+    async def raise_by_reason(
+        self,
+        *,
+        order_id: int,
+        reason_code: str,
+        source: str,
+        source_ref: str = "",
+        detail: dict | None = None,
+    ) -> tuple[OrdAbnormal | None, bool]:
+        """按原因码落异常单 —— **唯一入口**（FR-03a 审单不通过 / FR-03b 履约链路）
+
+        落单与否由**字典**决定（不写死在代码里）：
+        ① `ord_reason_code_dict.exc_type` 为空 → **不落单**
+           （普通不通过原因仍留在审单工作台，避免异常池泛滥 —— FR-03a）
+        ② 映射到的类型 `need_abnormal_bill=0` → **不落单**
+        ③ 否则落异常单；若是缺货类且 detail 带缺口明细 → 一并落缺货明细（FR-04a）
+
+        返回 (异常单 or None, 是否新建)
+        """
+        rd = await self.reason_dict(reason_code)
+        if rd is None or not rd.exc_type:
+            return None, False
+        tdict = await self.type_of(str(rd.exc_type))
+        if tdict is None or not int(tdict.need_abnormal_bill or 0):
+            return None, False
+        order = await self.s.scalar(
+            select(OrdOrder).where(OrdOrder.id == order_id, OrdOrder.is_deleted == 0)
+        )
+        if order is None:
+            return None, False
+
+        row, created = await self.create(
+            order=order,
+            exc_type=str(rd.exc_type),
+            source=source,
+            source_ref=source_ref or reason_code,
+            reason_detail={
+                "reason_code": reason_code,
+                "reason_name": rd.reason_name,
+                "plugin": rd.plugin_name,
+                "route": rd.default_route,
+                "suggest": rd.default_suggest,
+                "detail": detail or {},
+            },
+        )
+        # 缺货类 → 落缺货明细（三元键 + 缺口量 + 库存快照）
+        if str(rd.exc_type) in STOCKOUT_TYPES:
+            shortages = (detail or {}).get("shortages") or []
+            if shortages:
+                items = []
+                for sh in shortages:
+                    items.append(
+                        {
+                            "branch_id": int(sh.get("branch_id") or 0),
+                            "bm_id": int(sh.get("bm_id") or 0),
+                            "lack_num": int(
+                                sh.get("shortage")
+                                or (
+                                    int(sh.get("need") or 0)
+                                    - int(sh.get("available") or 0)
+                                )
+                            ),
+                            "stock_snapshot": {
+                                "need": sh.get("need"),
+                                "available": sh.get("available"),
+                                "owner_id": sh.get("owner_id"),
+                            },
+                        }
+                    )
+                await self.mark_stockout(
+                    row, items, oversold=(str(rd.exc_type) == EXC_OVERSOLD)
+                )
+        return row, created
+
     # ============ 状态机（FR-02b）============
 
     async def transit(
