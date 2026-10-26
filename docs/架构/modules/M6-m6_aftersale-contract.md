@@ -1,6 +1,6 @@
 # M6 售后与改单
 
-**目录** `backend/app/modules/m6_aftersale/` · **代码行** 1,522 · **service** 2 个
+**目录** `backend/app/modules/m6_aftersale/` · **代码行** 1,804 · **service** 9 个
 
 **职责**：售后申请 / 审核 / 退款单 / 改地址（快照 + 差异对比 + 叫回联动）
 

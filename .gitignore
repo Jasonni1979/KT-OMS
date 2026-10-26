@@ -22,6 +22,8 @@ build/
 
 # 后端运行时产物（导入源文件/错误报告等，本地存储不进库）
 backend/var/
+# 历史遗留：P1 重组前 UPLOAD_DIR 层级算错，产物落到了 modules/ 下（已修正）
+backend/app/modules/var/
 
 # Node / 前端
 node_modules/

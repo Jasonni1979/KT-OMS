@@ -100,12 +100,17 @@ echo "=== Job 3/4: Mock Platform (pytest) ==="
   && ok "mock pytest（$(grep -oE '[0-9]+ passed' /tmp/ci_mock.log | tail -1)）" \
   || { bad "mock pytest"; tail -15 /tmp/ci_mock.log; }
 
-echo "=== Job 3e/4: 架构门禁（4 条模块边界规则 · P1 warn 模式）==="
+echo "=== Job 3e/4: 架构门禁（4 条模块边界规则 · P3 起 R4 纳入 fail）==="
 # R1 底层不依赖高层 / R2 跨模块只走 contract.py / R3 一表一写者 / R4 上下文体积
-# ⚠ 当前为 **warn 模式**（P1 观察 2 周再转 fail）→ 有违规不算失败
+# ⚠ 自 P3 起 **R4 也纳入 fail**（4 条规则全部阻断）
 (cd "$ROOT/backend" && "$PY" ../tools/check_arch_rules.py >/tmp/ci_archrules.log 2>&1) \
   && ok "架构门禁（$(grep -oE '合计违规 [0-9]+ 处' /tmp/ci_archrules.log | tail -1)）" \
   || { bad "架构门禁"; tail -20 /tmp/ci_archrules.log; }
+
+echo "=== Job 3f/4: 契约文档元信息一致性（代码行 / service 个数 ↔ 真实目录）==="
+# P3 拆分后契约文档头部数字会过时 → 漂移即失败（两份契约不一致比一份过时更糟）
+(cd "$ROOT" && "$PY" tools/sync_contract_meta.py --check >/tmp/ci_contractmeta.log 2>&1) \
+  && ok "契约元信息一致" || { bad "契约元信息漂移"; tail -12 /tmp/ci_contractmeta.log; }
 
 echo "=== Job 3d/4: 契约一致性门禁（枚举/状态机 ↔ DDL 权威）==="
 # 契约中心（app/contracts/enums.py）从 **DDL SQL 文件** 自动生成，

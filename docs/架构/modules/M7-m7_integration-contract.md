@@ -1,6 +1,6 @@
 # M7 外部集成
 
-**目录** `backend/app/modules/m7_integration/` · **代码行** 3,206 · **service** 7 个
+**目录** `backend/app/modules/m7_integration/` · **代码行** 3,000 · **service** 11 个
 
 **职责**：平台拉单 / 平台回传 / WMS 指令通道 / 导入中心
 

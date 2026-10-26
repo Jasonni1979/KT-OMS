@@ -18,6 +18,12 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "backend"
 MODULES_DIR = BACKEND / "app" / "modules"
+#: **契约别名稳定表**：`模块:符号` → 固定导出名。
+#:   为什么需要：别名的默认值带来源文件名（`X_<stem>`），
+#:   而 P3 拆分会把符号挪到别的文件 → 别名跟着变 → **公开面被改名**（破坏契约）。
+#:   实测：`DispatchResult_dispatch_service` → `DispatchResult_dispatch_models`。
+#:   契约一旦发布就不该改名 → 别名落库固化，此后无论文件怎么挪，导出名不变。
+ALIAS_FILE = ROOT / "tools" / "_contract_aliases.json"
 
 TITLES = {
     "m1_master": "M1 基础主数据", "m2_stock": "M2 商品与库存账本",
@@ -35,6 +41,10 @@ def public_symbols(path: pathlib.Path) -> list[str]:
     out: list[str] = []
     for node in tree.body:
         if isinstance(node, ast.ClassDef) and not node.name.startswith("_"):
+            # ⚠ `*Mixin` 是 **内部拆分产物**（P3 上下文体积治理），不是对外能力
+            #   → 不进公开面（否则 contract.py 会被实现细节污染）
+            if node.name.endswith("Mixin"):
+                continue
             out.append(node.name)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith("_"):
             out.append(node.name)
@@ -52,6 +62,12 @@ def main() -> int:
     if not MODULES_DIR.exists():
         print("❌ 未找到 app/modules/")
         return 2
+    import json
+
+    # 载入别名稳定表
+    stable: dict[str, str] = {}
+    if ALIAS_FILE.exists():
+        stable = json.loads(ALIAS_FILE.read_text(encoding="utf-8"))
     total = 0
     for mod_dir in sorted(MODULES_DIR.iterdir()):
         if not mod_dir.is_dir() or not mod_dir.name.startswith("m"):
@@ -74,7 +90,10 @@ def main() -> int:
             for sym in public_symbols(f):
                 if sym in seen:
                     conflicts.append(sym)
-                    ali = f"{sym}_{f.stem}"
+                    # ⚠ 别名走稳定表 → 符号换文件后导出名不变（契约不改名）
+                    key = f"{mod_dir.name}:{sym}"
+                    ali = stable.get(key) or f"{sym}_{f.stem}"
+                    stable[key] = ali
                     alias[(f.stem, sym)] = ali
                     by_file.setdefault(f.stem, []).append((sym, ali))
                     continue
@@ -124,8 +143,6 @@ def main() -> int:
         print(f"✓ ruff --fix：{(r.stdout or '').strip().splitlines()[-1] if r.stdout.strip() else 'OK'}")
     print(f"✓ 共生成 {total} 个 contract.py")
     # 输出符号来源映射（供 P2 改写脚本精确对应，避免拿到错的同名符号）
-    import json
-
     mapping = {}
     for mod_dir in sorted(MODULES_DIR.iterdir()):
         if not mod_dir.is_dir() or not mod_dir.name.startswith("m"):
@@ -140,7 +157,10 @@ def main() -> int:
                 continue
             for sym in public_symbols(f):
                 if sym in used:
-                    entry[f"{f.stem}.{sym}"] = f"{sym}_{f.stem}"
+                    key = f"{mod_dir.name}:{sym}"
+                    ali = stable.get(key) or f"{sym}_{f.stem}"
+                    stable[key] = ali
+                    entry[f"{f.stem}.{sym}"] = ali
                 else:
                     entry[f"{f.stem}.{sym}"] = sym
                 used.add(sym)
@@ -149,6 +169,10 @@ def main() -> int:
         json.dumps(mapping, ensure_ascii=False, indent=1), encoding="utf-8"
     )
     print("✓ 符号来源映射 → tools/_module_symbol_map.json")
+    ALIAS_FILE.write_text(
+        json.dumps(stable, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8"
+    )
+    print(f"✓ 契约别名稳定表 → tools/_contract_aliases.json（{len(stable)} 条）")
     return 0
 
 

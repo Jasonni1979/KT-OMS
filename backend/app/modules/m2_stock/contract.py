@@ -36,17 +36,23 @@ from app.modules.m2_stock.service.io_bill import (
     IoBillService,
 )
 from app.modules.m2_stock.service.material import (
-    _SPEC_NOISE,
-    MAX_CAT_LEVEL,
-    BarcodeService,
-    BomExpandItem,
-    BomService,
-    BrandService,
-    CategoryService,
     MaterialService,
     SalesMaterialService,
-    bom_expand,
     crc32_of,
+)
+from app.modules.m2_stock.service.material_barcode import (
+    BarcodeService,
+)
+from app.modules.m2_stock.service.material_bom import (
+    BomExpandItem,
+    BomService,
+    bom_expand,
+)
+from app.modules.m2_stock.service.material_catalog import (
+    _SPEC_NOISE,
+    MAX_CAT_LEVEL,
+    BrandService,
+    CategoryService,
 )
 from app.modules.m2_stock.service.sellable import (
     CACHE_TTL,
@@ -93,17 +99,17 @@ __all__ = [
     "STATUS_PUSHED",
     "STATUS_RED_FLUSHED",
     "TEMPLATE_FIELD_MAP",
+    "MaterialService",
+    "SalesMaterialService",
+    "crc32_of",
     "BarcodeService",
     "BomExpandItem",
     "BomService",
+    "bom_expand",
     "BrandService",
     "CategoryService",
     "MAX_CAT_LEVEL",
-    "MaterialService",
-    "SalesMaterialService",
     "_SPEC_NOISE",
-    "bom_expand",
-    "crc32_of",
     "CACHE_TTL",
     "SellableResult",
     "SellableService",

@@ -44,7 +44,14 @@ LAYER: dict[str, int] = {
 LOW_LAYERS = (1, 2)
 
 MAX_SERVICE_LINES = 500
-MAX_MODULE_FILES = 12
+#: 单模块 service 文件数上限。
+#:   P3 拆分必然增加文件数（1400 行的 1 个文件 → 6 个小文件）→ 由 12 放宽到 20。
+#:   真正的约束是下面两条（文件数只是「导航不至于失控」的粗略护栏）：
+#:     · R4a 单文件 ≤ 500 行（agent 一次要读完的上限）
+#:     · R4b 单模块总行数 ≤ 6000（agent 读整个模块的上限）
+MAX_MODULE_FILES = 20
+#: 单模块 service **总行数**上限（比文件数更能约束「上下文体积」的真实目标）
+MAX_MODULE_LINES = 6000
 
 #: R2 白名单：`文件 → {说明}`
 #:   仅用于**无法走 contract 的副作用导入**（导入即注册模板/导入器）
@@ -109,8 +116,8 @@ def main() -> int:
     ap.add_argument("--strict", action="store_true", help="全部规则有问题即失败")
     ap.add_argument(
         "--fail-on",
-        default="R1,R2,R3",
-        help="哪些规则的违规算失败（逗号分隔）；R4 上下文体积待 P3 拆分后再纳入",
+        default="R1,R2,R3,R4",
+        help="哪些规则的违规算失败（逗号分隔）；R4 自 P3 起纳入 fail",
     )
     args = ap.parse_args()
     fail_on = {x.strip().upper() for x in args.fail_on.split(",") if x.strip()}
@@ -186,12 +193,18 @@ def main() -> int:
             violations["R4"].append(
                 f"{mod}：{len(py_list)} 个 service 文件 > {MAX_MODULE_FILES}"
             )
+        total_lines = 0
         for p in py_list:
             n = len(p.read_text(encoding="utf-8").splitlines())
+            total_lines += n
             if n > MAX_SERVICE_LINES:
                 violations["R4"].append(
                     f"{p.relative_to(BACKEND)}：{n} 行 > {MAX_SERVICE_LINES}"
                 )
+        if total_lines > MAX_MODULE_LINES:
+            violations["R4"].append(
+                f"{mod}：service 总行数 {total_lines} > {MAX_MODULE_LINES}"
+            )
 
     # ---------- 输出 ----------
     titles = {

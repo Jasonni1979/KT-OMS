@@ -1,6 +1,6 @@
 # M3 订单与审单
 
-**目录** `backend/app/modules/m3_trade/` · **代码行** 2,461 · **service** 6 个
+**目录** `backend/app/modules/m3_trade/` · **代码行** 2,618 · **service** 12 个
 
 **职责**：订单建单 / 单号生成 / 金额分摊 / 审单插件链 / 审单原因落库
 

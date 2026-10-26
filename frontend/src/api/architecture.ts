@@ -14,6 +14,18 @@ export interface AllowedDep {
   note: string
 }
 
+/**
+ * 模块内部的一个 service 文件（P3 上下文体积治理后可见）
+ * - main：主服务（对外提供能力的入口类）
+ * - mixin：混入主服务的部分能力（按职责拆出的方法组）
+ * - codes：常量 / 数据模型层（状态码、枚举、dataclass）
+ */
+export interface ServiceFile {
+  name: string
+  lines: number
+  kind: 'main' | 'mixin' | 'codes'
+}
+
 /** 单个模块的契约 */
 export interface ModuleContract {
   code: string
@@ -22,6 +34,13 @@ export interface ModuleContract {
   duty: string
   services: string[]
   meta: string
+  /** 模块 service 目录下的实时文件清单 */
+  service_files: ServiceFile[]
+  service_file_count: number
+  /** 模块 service 总行数 */
+  module_lines: number
+  /** 模块内最大单文件行数（R4 上限 500） */
+  max_file_lines: number
   /** 可写表（`schema.table` 全名） */
   write_tables: string[]
   forbidden_write: string[]
@@ -41,6 +60,12 @@ export interface ContractsOverview {
   enum_by_schema: { schema: string; count: number }[]
   enum_by_kind: Record<string, number>
   total_write_tables: number
+  /** 全部模块的 service 文件总数 */
+  total_service_files: number
+  /** 全部模块的 service 总行数 */
+  total_module_lines: number
+  /** 全库最大的单个 service 文件 */
+  largest_service_file: { module: string; name: string; lines: number }
   /** 契约漂移数（后端实时跑门禁算出，非硬编码）；-1 = 门禁不可用 */
   drift_count: number
   modules: ModuleContract[]

@@ -23,7 +23,6 @@
         </el-card>
       </el-col>
     </el-row>
-
     <!-- 模块契约 -->
     <div class="section-title">
       <span class="dot" />
@@ -41,13 +40,20 @@
           <div class="mod-duty">{{ m.duty }}</div>
           <div class="mod-tags">
             <el-tag size="small" type="info" effect="plain">
-              {{ m.services.length }} service
+              {{ m.service_file_count }} 文件
             </el-tag>
             <el-tag size="small" type="info" effect="plain">
               {{ m.write_tables.length }} 表
             </el-tag>
             <el-tag size="small" type="success" effect="plain">
               {{ m.read_apis.length + m.write_apis.length }} 接口
+            </el-tag>
+            <el-tag
+              size="small"
+              :type="m.max_file_lines > 500 ? 'danger' : 'info'"
+              effect="plain"
+            >
+              最大文件 {{ m.max_file_lines }} 行
             </el-tag>
             <el-tag v-if="m.todos.length" size="small" type="warning" effect="plain">
               {{ m.todos.length }} 待收口
@@ -130,7 +136,40 @@
 
         <div class="detail-block">
           <div class="block-title">
-            可写表
+            内部文件结构
+            <span class="muted">
+              （{{ cur.service_file_count }} 个文件 · {{ cur.module_lines }} 行 ·
+              单文件上限 500 行）
+            </span>
+          </div>
+          <el-table :data="cur.service_files" size="small">
+            <el-table-column prop="name" label="文件" min-width="220">
+              <template #default="{ row }">
+                <code>{{ row.name }}.py</code>
+              </template>
+            </el-table-column>
+            <el-table-column prop="lines" label="行数" width="90" align="right" />
+            <el-table-column label="角色" width="120" align="center">
+              <template #default="{ row }">
+                <el-tag
+                  size="small"
+                  effect="plain"
+                  :type="row.kind === 'main' ? 'success' : row.kind === 'mixin' ? 'warning' : 'info'"
+                >
+                  {{ kindLabel[row.kind as keyof typeof kindLabel] ?? row.kind }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <template #empty><span class="muted">无</span></template>
+          </el-table>
+          <div class="muted tiny-hint">
+            「能力混入」= 按职责从主类拆出的方法组（P3 上下文体积治理）；
+            「常量层」= 状态码 / 枚举 / 数据模型，被 service 与混入共同引用。
+          </div>
+        </div>
+
+        <div class="detail-block">
+          <div class="block-title">可写表
             <span class="muted">（{{ cur.write_tables.length }} 张 · 一表一写者）</span>
           </div>
           <div v-for="t in cur.table_summary" :key="t.schema" class="schema-group">
@@ -206,6 +245,13 @@ const kw = ref('')
 const drawer = ref(false)
 const cur = ref<ModuleContract | null>(null)
 
+/** service 文件角色 → 中文标签 */
+const kindLabel = {
+  main: '主服务',
+  mixin: '能力混入',
+  codes: '常量层',
+} as const
+
 const stats = computed(() => [
   {
     key: 'm',
@@ -233,6 +279,34 @@ const stats = computed(() => [
       overview.value?.drift_count === -1
         ? '门禁不可用'
         : '实时跑契约门禁的结果（0 = 无漂移）',
+  },
+  {
+    key: 'f',
+    title: 'service 文件',
+    value: overview.value?.total_service_files ?? 0,
+    hint: 'P3 拆分后的内部文件总数',
+  },
+  {
+    key: 'l',
+    title: '模块总行数',
+    value: overview.value?.total_module_lines ?? 0,
+    hint: '全部模块 service 代码量（R4b 上限 6000/模块）',
+  },
+  {
+    key: 'x',
+    title: '最大单文件',
+    value: overview.value?.largest_service_file?.lines ?? 0,
+    hint:
+      '全库最大 service 文件行数（R4a 上限 500）' +
+      (overview.value?.largest_service_file?.name
+        ? ` · ${overview.value.largest_service_file.module}/${overview.value.largest_service_file.name}`
+        : ''),
+  },
+  {
+    key: 'g',
+    title: '架构门禁',
+    value: '4 条',
+    hint: 'R1 底层不依赖高层 · R2 跨模块只走 contract · R3 一表一写者 · R4 上下文体积',
   },
 ])
 
@@ -463,5 +537,10 @@ onMounted(loadAll)
 }
 .todo {
   color: var(--el-color-warning);
+}
+.tiny-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.7;
 }
 </style>

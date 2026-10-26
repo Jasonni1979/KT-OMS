@@ -32,7 +32,11 @@ from app.core.importer import (
 from app.models.base import BaseImportError, BaseImportTask
 
 BATCH_SIZE = 1000
-UPLOAD_DIR = pathlib.Path(__file__).resolve().parents[2] / "var" / "imports"
+# ⚠ 层级：app/modules/m2_stock/service/x.py → parents[4] 才是 backend/
+#   （P1 目录重组后 service 下沉了两层；parents[2] 会指向 modules/ → 产物落到
+#    app/modules/var/ 里，既是垃圾目录又不在 .gitignore 覆盖范围）
+#   运行时产物统一放 backend/var/（.gitignore 已覆盖 backend/var/）
+UPLOAD_DIR = pathlib.Path(__file__).resolve().parents[4] / "var" / "imports"
 
 # ---------- 模板注册表（代码=权威，DB 登记供任务中心筛选） ----------
 

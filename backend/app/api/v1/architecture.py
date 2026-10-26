@@ -96,11 +96,13 @@ def _load_modules() -> list[dict[str, Any]]:
         rw = _table(sec.get("对外写接口（跨模块调用须在本模块登记）", ""))
         deps = _table(sec.get("允许的跨模块调用", ""))
         write_rows = _table(sec.get("可写表", ""))
+        slug = tables.get("slug", "")
+        files = _service_files(slug) if slug else []
 
         modules.append(
             {
                 "code": code,
-                "slug": tables.get("slug", ""),
+                "slug": slug,
                 "title": md.splitlines()[0].lstrip("# ").strip() if md else "",
                 "duty": _meta_value(md, "职责"),
                 "services": [
@@ -108,6 +110,10 @@ def _load_modules() -> list[dict[str, Any]]:
                     for s in _meta_value(md, "收编 service").split(",")
                     if s.strip()
                 ],
+                "service_files": files,
+                "service_file_count": len(files),
+                "module_lines": sum(f["lines"] for f in files),
+                "max_file_lines": max((f["lines"] for f in files), default=0),
                 "meta": _meta_value(md, "目录"),
                 "write_tables": tables.get("write", []) or [],
                 "forbidden_write": tables.get("forbidden_write", []) or [],
@@ -176,6 +182,52 @@ def _load_enum_meta() -> list[dict[str, Any]]:
     return list(data.get("columns", []))
 
 
+#: 模块 service 目录（backend/app/modules/<slug>/service/）
+_MODULES_DIR = _ROOT / "backend" / "app" / "modules"
+
+#: 文件角色判定
+_KIND_CODES_SUFFIX = ("_codes.py", "_models.py", "_states.py", "_constants.py")
+
+
+def _service_files(slug: str) -> list[dict[str, Any]]:
+    """实时扫描模块 service 目录 → 文件清单（行数 + 角色）
+
+    **为什么要实时**：P3 把 11 个超大 service 拆成了 40+ 个小文件，
+    契约文档里的「service N 个 / 代码行 M」会立刻过时。
+    契约页与文档都应反映**当下**的真实结构，而不是手工维护的数字。
+    """
+    import ast
+
+    svc_dir = _MODULES_DIR / slug / "service"
+    if not svc_dir.exists():
+        return []
+    out: list[dict[str, Any]] = []
+    for f in sorted(svc_dir.glob("*.py")):
+        if f.name == "__init__.py":
+            continue
+        src = f.read_text(encoding="utf-8")
+        lines = len(src.splitlines())
+        kind = "main"
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            tree = None
+        if tree is not None:
+            classes = [
+                n.name for n in tree.body if isinstance(n, ast.ClassDef)
+            ]
+            has_public_class = any(not c.startswith("_") for c in classes)
+            all_mixin = bool(classes) and all(c.endswith("Mixin") for c in classes)
+            if all_mixin:
+                kind = "mixin"
+            elif not has_public_class:
+                kind = "codes"
+        if kind == "main" and f.name.endswith(_KIND_CODES_SUFFIX):
+            kind = "codes"
+        out.append({"name": f.stem, "lines": lines, "kind": kind})
+    return out
+
+
 @router.get("/architecture/contracts", summary="模块契约总览")
 async def contracts() -> JSONResponse:
     """8 个模块的契约（职责 / 可写表 / 对外接口 / 允许调用 / 禁止 / 待收口）"""
@@ -192,6 +244,16 @@ async def contracts() -> JSONResponse:
         kind_count[kind] = kind_count.get(kind, 0) + 1
 
     total_tables = sum(len(m["write_tables"]) for m in modules)
+    total_files = sum(m["service_file_count"] for m in modules)
+    max_file = max(
+        (
+            {"module": m["code"], "name": f["name"], "lines": f["lines"]}
+            for m in modules
+            for f in m["service_files"]
+        ),
+        key=lambda x: x["lines"],
+        default={"module": "", "name": "", "lines": 0},
+    )
     return JSONResponse(
         {
             "code": 0,
@@ -204,6 +266,9 @@ async def contracts() -> JSONResponse:
                 ],
                 "enum_by_kind": kind_count,
                 "total_write_tables": total_tables,
+                "total_service_files": total_files,
+                "total_module_lines": sum(m["module_lines"] for m in modules),
+                "largest_service_file": max_file,
                 "drift_count": _drift_count(),
                 "modules": modules,
             },

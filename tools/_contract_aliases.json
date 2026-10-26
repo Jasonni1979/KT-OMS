@@ -1,0 +1,7 @@
+{
+ "m4_fulfill:DispatchResult": "DispatchResult_dispatch_service",
+ "m4_fulfill:DispatchService": "DispatchService_dispatch_service",
+ "m7_integration:BACKOFF_MINUTES": "BACKOFF_MINUTES_writeback",
+ "m7_integration:MAX_RETRY": "MAX_RETRY_writeback",
+ "m7_integration:WritebackResult": "WritebackResult_writeback"
+}

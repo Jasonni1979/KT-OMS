@@ -1,6 +1,6 @@
 # M2 商品与库存账本
 
-**目录** `backend/app/modules/m2_stock/` · **代码行** 3,161 · **service** 7 个
+**目录** `backend/app/modules/m2_stock/` · **代码行** 3,664 · **service** 11 个
 
 **职责**：物料 / SKU 映射 / 可用量计算 / 库存台账 / 预占冻结 / 出入库单 / 盘点对账
 

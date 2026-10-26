@@ -1,6 +1,6 @@
 # M4 履约与发货
 
-**目录** `backend/app/modules/m4_fulfill/` · **代码行** 4,402 · **service** 5 个
+**目录** `backend/app/modules/m4_fulfill/` · **代码行** 4,907 · **service** 18 个
 
 **职责**：拆单 / 发货单 / 四指令状态机 / 分派计划执行 / 换仓重试
 

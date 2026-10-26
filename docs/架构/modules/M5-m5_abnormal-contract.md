@@ -1,6 +1,6 @@
 # M5 异常单域
 
-**目录** `backend/app/modules/m5_abnormal/` · **代码行** 2,604 · **service** 5 个
+**目录** `backend/app/modules/m5_abnormal/` · **代码行** 2,872 · **service** 12 个
 
 **职责**：异常单 / 类型字典 / 分派引擎 / 动作执行器 / 缺货策略链 / 应急批次 / 名单服务 / 告警扫描
 
