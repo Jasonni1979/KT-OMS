@@ -34,8 +34,8 @@ async def create_address_modify(
     - 无发货单 → 直接生效（FR-03b：纯地址改单不动库存）
     - 有发货单 → 先叫回（W7 链路），叫回成功后需再调 `/recall-complete` 才生效
     """
-    from app.modules.m1_master.service.master import get_redis
-    from app.modules.m6_aftersale.service.modify import ModifyService
+    from app.modules.m1_master.contract import get_redis
+    from app.modules.m6_aftersale.contract import ModifyService
 
     svc = ModifyService(session, await get_redis())
     return ok(
@@ -60,7 +60,7 @@ async def list_modifies(
     session: AsyncSession = Depends(get_session),
 ):
     """改单列表（按订单 / 状态筛选）"""
-    from app.modules.m6_aftersale.service.modify import ModifyService
+    from app.modules.m6_aftersale.contract import ModifyService
 
     svc = ModifyService(session, None)
     items = await svc.list_modifies(order_id=order_id, status=status, limit=limit)
@@ -70,7 +70,7 @@ async def list_modifies(
 @router.get("/modify/{modify_id}", summary="改单详情（含快照与 Saga 日志）")
 async def get_modify(modify_id: int, session: AsyncSession = Depends(get_session)):
     """改单详情：快照 + 差异对比 + Saga 编排日志"""
-    from app.modules.m6_aftersale.service.modify import ModifyService
+    from app.modules.m6_aftersale.contract import ModifyService
 
     svc = ModifyService(session, None)
     return ok(await svc.get_modify(modify_id))
@@ -81,8 +81,8 @@ async def recall_complete(
     modify_id: int, session: AsyncSession = Depends(get_session)
 ):
     """叫回成功后继续改单流程并生效（FR-06c）"""
-    from app.modules.m1_master.service.master import get_redis
-    from app.modules.m6_aftersale.service.modify import ModifyService
+    from app.modules.m1_master.contract import get_redis
+    from app.modules.m6_aftersale.contract import ModifyService
 
     svc = ModifyService(session, await get_redis())
     return ok(await svc.complete_recall_and_effective(modify_id, operator="api"))
@@ -93,7 +93,7 @@ async def cancel_modify(
     modify_id: int, session: AsyncSession = Depends(get_session)
 ):
     """撤销改单（叫回失败时的人工决策之一：撤销改单恢复现场，FR-06c）"""
-    from app.modules.m6_aftersale.service.modify import ModifyService
+    from app.modules.m6_aftersale.contract import ModifyService
 
     svc = ModifyService(session, None)
     return ok(await svc.cancel_recall_modify(modify_id, operator="api"))

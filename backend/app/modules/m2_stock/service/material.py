@@ -25,7 +25,7 @@ from app.models.material import (
 )
 from app.models.org import OrgNode
 from app.models.shop import GwShop
-from app.modules.m1_master.service.master import OwnerService
+from app.modules.m1_master.contract import OwnerService
 from app.schemas import material as sc
 
 MAX_CAT_LEVEL = 5

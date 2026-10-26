@@ -33,7 +33,7 @@ from app.models.order import (
     OrdStatusLog,
 )
 from app.models.shop import GwShop
-from app.modules.m2_stock.service.sku_mapping import LineMapping, SkuMappingService
+from app.modules.m2_stock.contract import LineMapping, SkuMappingService
 from app.modules.m3_trade.service.allocation import allocate, check_amount_consistency
 from app.modules.m3_trade.service.order_bn import (
     PREFIX_EXCHANGE,

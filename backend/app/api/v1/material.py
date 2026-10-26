@@ -8,7 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
-from app.modules.m2_stock.service import material as svc
+from app.modules.m2_stock.contract import (
+    BarcodeService,
+    BomService,
+    BrandService,
+    CategoryService,
+    MaterialService,
+    SalesMaterialService,
+)
 from app.schemas import material as sc
 
 router = APIRouter(tags=["material-物料"])
@@ -21,13 +28,13 @@ async def list_categories(
     parent_id: int = Query(0, ge=0),
     session: AsyncSession = Depends(get_session),
 ):
-    cats = await svc.CategoryService(session).children(parent_id)
+    cats = await CategoryService(session).children(parent_id)
     return ok([sc.MaterialCatOut.model_validate(c) for c in cats])
 
 
 @router.get("/categories/all", summary="全部分类（树选择器用）")
 async def list_all_categories(session: AsyncSession = Depends(get_session)):
-    cats = await svc.CategoryService(session).list_all()
+    cats = await CategoryService(session).list_all()
     return ok([sc.MaterialCatOut.model_validate(c) for c in cats])
 
 
@@ -35,7 +42,7 @@ async def list_all_categories(session: AsyncSession = Depends(get_session)):
 async def create_category(
     data: sc.MaterialCatCreate, session: AsyncSession = Depends(get_session)
 ):
-    cat = await svc.CategoryService(session).create(data)
+    cat = await CategoryService(session).create(data)
     return ok(sc.MaterialCatOut.model_validate(cat))
 
 
@@ -43,7 +50,7 @@ async def create_category(
 async def update_category(
     cat_id: int, data: sc.MaterialCatUpdate, session: AsyncSession = Depends(get_session)
 ):
-    cat = await svc.CategoryService(session).update(cat_id, data)
+    cat = await CategoryService(session).update(cat_id, data)
     return ok(sc.MaterialCatOut.model_validate(cat))
 
 
@@ -53,13 +60,13 @@ async def move_category(
     new_parent_id: int = Query(ge=0, description="0=移到根层"),
     session: AsyncSession = Depends(get_session),
 ):
-    cat = await svc.CategoryService(session).move(cat_id, new_parent_id)
+    cat = await CategoryService(session).move(cat_id, new_parent_id)
     return ok(sc.MaterialCatOut.model_validate(cat))
 
 
 @router.delete("/categories/{cat_id}", summary="删除分类（有子分类/被引用则拒绝）")
 async def delete_category(cat_id: int, session: AsyncSession = Depends(get_session)):
-    await svc.CategoryService(session).delete(cat_id)
+    await CategoryService(session).delete(cat_id)
     return ok(None)
 
 
@@ -70,13 +77,13 @@ async def list_brands(
     keyword: str | None = Query(default=None, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    brands = await svc.BrandService(session).list_all(keyword)
+    brands = await BrandService(session).list_all(keyword)
     return ok([sc.BrandOut.model_validate(b) for b in brands])
 
 
 @router.post("/brands", summary="新增品牌")
 async def create_brand(data: sc.BrandCreate, session: AsyncSession = Depends(get_session)):
-    brand = await svc.BrandService(session).create(data)
+    brand = await BrandService(session).create(data)
     return ok(sc.BrandOut.model_validate(brand))
 
 
@@ -84,7 +91,7 @@ async def create_brand(data: sc.BrandCreate, session: AsyncSession = Depends(get
 async def update_brand(
     brand_id: int, data: sc.BrandUpdate, session: AsyncSession = Depends(get_session)
 ):
-    brand = await svc.BrandService(session).update(brand_id, data)
+    brand = await BrandService(session).update(brand_id, data)
     return ok(sc.BrandOut.model_validate(brand))
 
 
@@ -98,7 +105,7 @@ async def list_materials(
     brand_id: int | None = Query(default=None, ge=0),
     session: AsyncSession = Depends(get_session),
 ):
-    mats = await svc.MaterialService(session).list_all(keyword, owner_id, cat_id, brand_id)
+    mats = await MaterialService(session).list_all(keyword, owner_id, cat_id, brand_id)
     return ok([sc.MaterialOut.model_validate(m) for m in mats])
 
 
@@ -106,7 +113,7 @@ async def list_materials(
 async def create_material(
     data: sc.MaterialCreate, session: AsyncSession = Depends(get_session)
 ):
-    mat = await svc.MaterialService(session).create(data)
+    mat = await MaterialService(session).create(data)
     return ok(sc.MaterialOut.model_validate(mat))
 
 
@@ -114,7 +121,7 @@ async def create_material(
 async def update_material(
     material_id: int, data: sc.MaterialUpdate, session: AsyncSession = Depends(get_session)
 ):
-    mat = await svc.MaterialService(session).update(material_id, data)
+    mat = await MaterialService(session).update(material_id, data)
     return ok(sc.MaterialOut.model_validate(mat))
 
 
@@ -127,7 +134,7 @@ async def list_sales_materials(
     bind_status: int | None = Query(default=None, ge=0, le=1),
     session: AsyncSession = Depends(get_session),
 ):
-    sms = await svc.SalesMaterialService(session).list_all(keyword, shop_id, bind_status)
+    sms = await SalesMaterialService(session).list_all(keyword, shop_id, bind_status)
     return ok([sc.SalesMaterialOut.model_validate(s) for s in sms])
 
 
@@ -136,7 +143,7 @@ async def list_unbound_sales_materials(
     shop_id: int | None = Query(default=None, ge=1),
     session: AsyncSession = Depends(get_session),
 ):
-    sms = await svc.SalesMaterialService(session).unbound_list(shop_id)
+    sms = await SalesMaterialService(session).unbound_list(shop_id)
     return ok([sc.SalesMaterialOut.model_validate(s) for s in sms])
 
 
@@ -144,7 +151,7 @@ async def list_unbound_sales_materials(
 async def create_sales_material(
     data: sc.SalesMaterialCreate, session: AsyncSession = Depends(get_session)
 ):
-    sm = await svc.SalesMaterialService(session).create(data)
+    sm = await SalesMaterialService(session).create(data)
     return ok(sc.SalesMaterialOut.model_validate(sm))
 
 
@@ -152,7 +159,7 @@ async def create_sales_material(
 async def auto_create_sales_material(
     data: sc.SalesMaterialAutoCreate, session: AsyncSession = Depends(get_session)
 ):
-    sm, created = await svc.SalesMaterialService(session).auto_create(data)
+    sm, created = await SalesMaterialService(session).auto_create(data)
     return ok({"material": sc.SalesMaterialOut.model_validate(sm), "created": created})
 
 
@@ -160,7 +167,7 @@ async def auto_create_sales_material(
 async def update_sales_material(
     sm_id: int, data: sc.SalesMaterialUpdate, session: AsyncSession = Depends(get_session)
 ):
-    sm = await svc.SalesMaterialService(session).update(sm_id, data)
+    sm = await SalesMaterialService(session).update(sm_id, data)
     return ok(sc.SalesMaterialOut.model_validate(sm))
 
 
@@ -168,7 +175,7 @@ async def update_sales_material(
 
 @router.get("/sales-materials/{sm_id}/bom", summary="当前生效 BOM")
 async def get_current_bom(sm_id: int, session: AsyncSession = Depends(get_session)):
-    bom_svc = svc.BomService(session)
+    bom_svc = BomService(session)
     cur = await bom_svc.current_version(sm_id)
     if not cur:
         return ok(None)
@@ -177,7 +184,7 @@ async def get_current_bom(sm_id: int, session: AsyncSession = Depends(get_sessio
 
 @router.get("/sales-materials/{sm_id}/bom/history", summary="BOM 版本历史（变更留痕）")
 async def get_bom_history(sm_id: int, session: AsyncSession = Depends(get_session)):
-    versions = await svc.BomService(session).history(sm_id)
+    versions = await BomService(session).history(sm_id)
     return ok(versions)
 
 
@@ -185,12 +192,12 @@ async def get_bom_history(sm_id: int, session: AsyncSession = Depends(get_sessio
 async def bind_bom(
     sm_id: int, data: sc.BomBind, session: AsyncSession = Depends(get_session)
 ):
-    return ok(await svc.BomService(session).bind(sm_id, data))
+    return ok(await BomService(session).bind(sm_id, data))
 
 
 @router.delete("/sales-materials/{sm_id}/bom", summary="解绑（影响面确认由上层做）")
 async def unbind_bom(sm_id: int, session: AsyncSession = Depends(get_session)):
-    await svc.BomService(session).unbind(sm_id)
+    await BomService(session).unbind(sm_id)
     return ok(None)
 
 
@@ -200,7 +207,7 @@ async def bom_candidates(
     limit: int = Query(default=10, ge=1, le=50),
     session: AsyncSession = Depends(get_session),
 ):
-    cands = await svc.BomService(session).suggest_candidates(sm_id, limit)
+    cands = await BomService(session).suggest_candidates(sm_id, limit)
     return ok(cands)
 
 
@@ -213,20 +220,20 @@ async def list_barcodes(
     barcode_type: int | None = Query(default=None, ge=1, le=9),
     session: AsyncSession = Depends(get_session),
 ):
-    bcs = await svc.BarcodeService(session).list_all(keyword, bm_id, barcode_type)
+    bcs = await BarcodeService(session).list_all(keyword, bm_id, barcode_type)
     return ok(bcs)
 
 
 @router.post("/barcodes", summary="登记条码（全局唯一，冲突提示归属物料）")
 async def create_barcode(data: sc.BarcodeCreate, session: AsyncSession = Depends(get_session)):
-    return ok(await svc.BarcodeService(session).create(data))
+    return ok(await BarcodeService(session).create(data))
 
 
 @router.put("/barcodes/{barcode_id}", summary="修改条码（类型/店铺/状态）")
 async def update_barcode(
     barcode_id: int, data: sc.BarcodeUpdate, session: AsyncSession = Depends(get_session)
 ):
-    return ok(await svc.BarcodeService(session).update(barcode_id, data))
+    return ok(await BarcodeService(session).update(barcode_id, data))
 
 
 @router.get("/barcodes/lookup", summary="条码反查（FR-04b：WMS回传/门店扫码/售后核销）")
@@ -234,4 +241,4 @@ async def lookup_barcode(
     barcode: str = Query(min_length=1, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    return ok(await svc.BarcodeService(session).lookup(barcode))
+    return ok(await BarcodeService(session).lookup(barcode))

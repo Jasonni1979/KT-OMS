@@ -214,8 +214,8 @@ class AbnormalActionService:
 
         流程：释放该订单的预占 → 订单重新投审（回审单池）→ 异常单闭环。
         """
-        from app.modules.m3_trade.service.audit_engine import AuditEngine
-        from app.modules.m4_fulfill.service.plan_executor import PlanExecutor
+        from app.modules.m3_trade.contract import AuditEngine
+        from app.modules.m4_fulfill.contract import PlanExecutor
 
         plan_svc = PlanExecutor(self.s, self.r)
         # ① 释放旧 plan 的预占（打回重审路径 FR-05d）
@@ -256,7 +256,7 @@ class AbnormalActionService:
         D03.08 的改单执行链路在 W8-3 落地，本期完成「复审单落库 + 关联」。
         """
         from app.models.audit import OrdRetrial
-        from app.modules.m3_trade.service.order_bn import OrderBnGenerator
+        from app.modules.m3_trade.contract import OrderBnGenerator
 
         # 发号器签名：next(prefix, shop_bn)
         bn = await OrderBnGenerator(self.s, self.r).next("RT", "")
@@ -308,7 +308,7 @@ class AbnormalActionService:
         释放该订单全部预占 + 订单置已取消 + 未闭环异常单收口（FR-02e）。
         """
         from app.models.order import OrdOrder
-        from app.modules.m4_fulfill.service.plan_executor import PlanExecutor
+        from app.modules.m4_fulfill.contract import PlanExecutor
 
         released = 0
         if row.order_id:
@@ -379,7 +379,7 @@ class AbnormalActionService:
 
         异常单 → 售后申请单（仅退款链路，理由取异常单的原因）。
         """
-        from app.modules.m6_aftersale.service.aftersale import TYPE_REFUND_ONLY, AftersaleService
+        from app.modules.m6_aftersale.contract import TYPE_REFUND_ONLY, AftersaleService
 
         svc = AftersaleService(self.s, self.r)
         detail = row.reason_detail if isinstance(row.reason_detail, dict) else {}
@@ -418,7 +418,7 @@ class AbnormalActionService:
         故落「待退款」并把平台回传标为待处理，**不伪造已退款**。
         """
         from app.models.aftersale import AftRefund
-        from app.modules.m6_aftersale.service.aftersale import CHANNEL_OFFLINE, REFUND_WAIT
+        from app.modules.m6_aftersale.contract import CHANNEL_OFFLINE, REFUND_WAIT
 
         order = None
         if row.order_id:

@@ -44,7 +44,7 @@ from app.models.fulfill import (
 )
 from app.models.order import OrdOrder, OrdOrderItem, OrdReceiver
 from app.models.stock import InvStockLedger
-from app.modules.m2_stock.service.stock_ledger import StockLedgerService
+from app.modules.m2_stock.contract import StockLedgerService
 
 logger = get_logger("dispatch")
 

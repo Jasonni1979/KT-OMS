@@ -34,7 +34,7 @@ from app.core.exceptions import NotFoundError, ValidationError
 from app.core.logging import get_logger
 from app.models.audit import OrdAuditReason, OrdFulfillPlan
 from app.models.order import OrdOrder
-from app.modules.m2_stock.service.freeze import FreezeService
+from app.modules.m2_stock.contract import FreezeService
 from app.schemas import stock as sc
 
 logger = get_logger("audit_exec")

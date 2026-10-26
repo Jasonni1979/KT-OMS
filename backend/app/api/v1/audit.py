@@ -22,12 +22,14 @@ from app.models.audit import (
     OrdFulfillPlan,
 )
 from app.models.order import OrdOrder
-from app.modules.m1_master.service.master import get_redis
-from app.modules.m3_trade.service.audit_engine import AuditEngine, register_audit_chain
-from app.modules.m3_trade.service.audit_plugins import register_audit_plugins
-from app.modules.m3_trade.service.audit_rule import AuditRuleService
-from app.modules.m4_fulfill.service.dispatch import DispatchService
-from app.modules.m4_fulfill.service.plan_executor import PlanExecutor
+from app.modules.m1_master.contract import get_redis
+from app.modules.m3_trade.contract import (
+    AuditEngine,
+    AuditRuleService,
+    register_audit_chain,
+    register_audit_plugins,
+)
+from app.modules.m4_fulfill.contract import DispatchService, PlanExecutor
 
 router = APIRouter()
 
@@ -124,7 +126,7 @@ async def dry_run_rule(
         raise NotFoundError(f"审单规则不存在: {rule_id}")
     engine = await _engine(session)
     ctx = await engine.load_context(order_id)
-    from app.modules.m3_trade.service.audit_rule import AuditRule
+    from app.modules.m3_trade.contract import AuditRule
 
     ar = AuditRule.from_row(rule)
     detail = ar.explain(ctx.dims)

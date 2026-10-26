@@ -89,6 +89,15 @@ from app.modules.m7_integration.service.writeback import (
     WB_SUCC,
     WritebackService,
 )
+from app.modules.m7_integration.service.writeback import (
+    BACKOFF_MINUTES as BACKOFF_MINUTES_writeback,
+)
+from app.modules.m7_integration.service.writeback import (
+    MAX_RETRY as MAX_RETRY_writeback,
+)
+from app.modules.m7_integration.service.writeback import (
+    WritebackResult as WritebackResult_writeback,
+)
 
 __all__ = [
     "ERR_LEVEL_MAP",
@@ -143,6 +152,7 @@ __all__ = [
     "EVENT_ORDER_SHIPPED",
     "WmsEventDispatcher",
     "ACTION_DELIVERY_SEND",
+    "BACKOFF_MINUTES_writeback",
     "BACK_NODE_PRINT",
     "BACK_NODE_SHIPPED",
     "BACK_NODE_VERIFY",
@@ -151,6 +161,7 @@ __all__ = [
     "LEVEL_MANUAL",
     "LEVEL_RATE_LIMITED",
     "LEVEL_RETRYABLE",
+    "MAX_RETRY_writeback",
     "PLATFORM_ERR_LEVEL",
     "SYNC_DELIVERY",
     "SYNC_STOCK",
@@ -159,5 +170,6 @@ __all__ = [
     "WB_RUNNING",
     "WB_SKIP",
     "WB_SUCC",
+    "WritebackResult_writeback",
     "WritebackService",
 ]

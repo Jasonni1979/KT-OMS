@@ -30,7 +30,7 @@ from app.models.gateway import (
     GwPullWatermark,
 )
 from app.models.shop import GwShop
-from app.modules.m2_stock.service.sku_mapping import LineMapping, SkuMappingService
+from app.modules.m2_stock.contract import LineMapping, SkuMappingService
 from app.modules.m7_integration.service.gateway import Gateway
 from app.schemas import canonical as cc
 
@@ -265,7 +265,7 @@ class PullService:
         - 幂等重复 → deliver_status=accepted（订单已存在）
         - 硬失败 → deliver_status=fail（保留缓冲等待人工/重投）
         """
-        from app.modules.m3_trade.service.order_create import OrderCreateService
+        from app.modules.m3_trade.contract import OrderCreateService
 
         oc = OrderCreateService(self.s, self.r, self.gw)
         res = await oc.create(order, source="platform", mapping=mapping)

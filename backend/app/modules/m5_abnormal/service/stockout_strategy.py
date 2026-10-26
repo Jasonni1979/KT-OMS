@@ -29,8 +29,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import NotFoundError, ValidationError
 from app.models.abnormal import OrdAbnormal, OrdStockout
 from app.models.order import OrdOrder
-from app.modules.m4_fulfill.service.dispatch_service import DispatchService
-from app.modules.m4_fulfill.service.plan_executor import PlanExecutor
+from app.modules.m4_fulfill.contract import DispatchService_dispatch_service as DispatchService
+from app.modules.m4_fulfill.contract import PlanExecutor
 from app.modules.m5_abnormal.service.abnormal import AbnormalService
 
 #: 换仓测算结果状态
@@ -75,7 +75,7 @@ class StockoutStrategyService:
                 "borrow_stock": {"enabled": False, "reason": "D04.05 额度服务未实现（P1）"},
             }
 
-        from app.modules.m2_stock.service.stock_ledger import StockLedgerService
+        from app.modules.m2_stock.contract import StockLedgerService
 
         ledger = StockLedgerService(self.s, self.r)
         current_branches = sorted({int(d.branch_id or 0) for d in details if d.branch_id})

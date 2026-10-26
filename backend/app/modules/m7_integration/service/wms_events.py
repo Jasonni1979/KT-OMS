@@ -27,16 +27,14 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
-from app.modules.m4_fulfill.service.delivery_service import (
+from app.modules.m4_fulfill.contract import (
     CMD_PUSH,
     CMD_PUSH_FAILED,
     CMD_RECALL,
     CMD_RECALL_FAIL,
     DeliveryService,
 )
-from app.modules.m5_abnormal.service.abnormal import (
-    EXC_WMS_PUSH_FAILED,
-)
+from app.modules.m5_abnormal.contract import EXC_WMS_PUSH_FAILED
 from app.modules.m7_integration.service.wms_channel import (
     EVENT_ACCEPTED,
     EVENT_CALLBACK,
@@ -97,7 +95,7 @@ class WmsEventDispatcher:
         """
         from app.models.fulfill import OrdDelivery
         from app.models.order import OrdOrder
-        from app.modules.m5_abnormal.service.abnormal import AbnormalService
+        from app.modules.m5_abnormal.contract import AbnormalService
 
         try:
             dlv = await self.s.scalar(

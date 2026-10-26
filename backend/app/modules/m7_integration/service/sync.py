@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.adapters.base import METHOD_ITEM_GET, METHOD_ITEM_UPDATE
 from app.models.material import InvSalesMaterial
 from app.models.stock import InvSyncLog
-from app.modules.m2_stock.service.sellable import SellableService
+from app.modules.m2_stock.contract import SellableService
 from app.modules.m7_integration.service.gateway import Gateway
 
 #: 回写触发类型（inv_sync_log.trigger_type）

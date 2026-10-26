@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
-from app.modules.m1_master.service.master import get_redis
-from app.modules.m2_stock.service import import_center as svc
+from app.modules.m1_master.contract import get_redis
+from app.modules.m2_stock.contract import ImportService, get_template
 from app.modules.m2_stock.service import importers  # noqa: F401  # 导入即注册模板与导入器
 
 router = APIRouter(tags=["import-导入导出"])
@@ -17,7 +17,7 @@ router = APIRouter(tags=["import-导入导出"])
 
 @router.get("/templates", summary="导入模板列表")
 async def list_templates(session: AsyncSession = Depends(get_session)):
-    templates = await svc.ImportService(session, await get_redis()).list_templates()
+    templates = await ImportService(session, await get_redis()).list_templates()
     return ok(
         [
             {
@@ -37,8 +37,8 @@ async def list_templates(session: AsyncSession = Depends(get_session)):
 async def download_template(
     template_code: str, session: AsyncSession = Depends(get_session)
 ):
-    content = svc.ImportService(session, await get_redis()).template_file(template_code)
-    spec = svc.get_template(template_code)
+    content = ImportService(session, await get_redis()).template_file(template_code)
+    spec = get_template(template_code)
     return StreamingResponse(
         iter([content]),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -56,7 +56,7 @@ async def create_task(
     session: AsyncSession = Depends(get_session),
 ):
     content = await file.read()
-    task = await svc.ImportService(session, await get_redis()).create_task(
+    task = await ImportService(session, await get_redis()).create_task(
         template_code, file.filename or "upload.xlsx", content, creator
     )
     return ok(
@@ -72,7 +72,7 @@ async def create_task(
 
 @router.post("/tasks/{task_id}/run", summary="执行导入任务（解析→校验→批次提交→报告）")
 async def run_task(task_id: int, session: AsyncSession = Depends(get_session)):
-    task = await svc.ImportService(session, await get_redis()).run_task(task_id)
+    task = await ImportService(session, await get_redis()).run_task(task_id)
     return ok(
         {
             "id": task.id,
@@ -92,7 +92,7 @@ async def list_tasks(
     limit: int = Query(default=50, ge=1, le=200),
     session: AsyncSession = Depends(get_session),
 ):
-    tasks = await svc.ImportService(session, await get_redis()).list_tasks(limit)
+    tasks = await ImportService(session, await get_redis()).list_tasks(limit)
     return ok(
         [
             {
@@ -115,7 +115,7 @@ async def list_tasks(
 
 @router.get("/tasks/{task_id}", summary="导入任务详情")
 async def get_task(task_id: int, session: AsyncSession = Depends(get_session)):
-    task = await svc.ImportService(session, await get_redis()).get_task(task_id)
+    task = await ImportService(session, await get_redis()).get_task(task_id)
     return ok(
         {
             "id": task.id,
@@ -138,7 +138,7 @@ async def get_task(task_id: int, session: AsyncSession = Depends(get_session)):
 
 @router.get("/tasks/{task_id}/errors", summary="导入错误明细（错误阶段/错误码/人读消息）")
 async def list_task_errors(task_id: int, session: AsyncSession = Depends(get_session)):
-    errors = await svc.ImportService(session, await get_redis()).list_errors(task_id)
+    errors = await ImportService(session, await get_redis()).list_errors(task_id)
     return ok(
         [
             {

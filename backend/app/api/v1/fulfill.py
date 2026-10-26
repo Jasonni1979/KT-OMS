@@ -15,10 +15,9 @@ from app.core.db import get_session
 from app.core.exceptions import ValidationError
 from app.core.response import ok
 from app.models.fulfill import OrdBranchDispatchRule
-from app.modules.m1_master.service.master import get_redis
-from app.modules.m4_fulfill.service.delivery_service import DeliveryService, allowed_commands
-from app.modules.m4_fulfill.service.dispatch_service import DispatchService
-from app.modules.m4_fulfill.service.split_service import SplitRuleService, SplitService
+from app.modules.m1_master.contract import get_redis
+from app.modules.m4_fulfill.contract import DeliveryService, SplitRuleService, SplitService, allowed_commands
+from app.modules.m4_fulfill.contract import DispatchService_dispatch_service as DispatchService
 
 router = APIRouter()
 
@@ -261,19 +260,22 @@ async def list_deliveries(
 @router.get("/delivery/states", summary="状态机字典（状态 + 允许指令）")
 async def delivery_states():
     """状态枚举与各状态允许指令（前端渲染按钮用）"""
-    from app.modules.m4_fulfill.service import delivery_service as ds
+    from app.modules.m4_fulfill.contract import FINAL_STATES, TRANSITIONS
 
-    states = [
-        v
-        for k, v in vars(ds).items()
-        if k.startswith("ST_") and isinstance(v, str)
-    ]
+    # ⚠ 原本用 `vars(ds)` 动态枚举模块里的 ST_* 常量 —— P2 收口后不再持有
+    #   service 模块对象（跨模块只能走 contract.py）→ 改用契约里的流转表推导：
+    #   全部状态 = 流转表出现的 from/to 状态 ∪ 终态集合
+    states = sorted(
+        {t.from_status for t in TRANSITIONS}
+        | {t.to_status for t in TRANSITIONS}
+        | set(FINAL_STATES)
+    )
     return ok(
         {
             "states": sorted(set(states)),
-            "commands": sorted({t.command for t in ds.TRANSITIONS}),
+            "commands": sorted({t.command for t in TRANSITIONS}),
             "allowed": {s: allowed_commands(s) for s in sorted(set(states))},
-            "final_states": sorted(ds.FINAL_STATES),
+            "final_states": sorted(FINAL_STATES),
         }
     )
 

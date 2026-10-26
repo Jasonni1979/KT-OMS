@@ -40,7 +40,7 @@ from app.core.exceptions import NotFoundError, ValidationError
 from app.core.logging import get_logger
 from app.models.fulfill import OrdSplitRule, OrdSplitTrace
 from app.models.order import OrdOrder, OrdOrderItem
-from app.modules.m2_stock.service.stock_ledger import StockLedgerService
+from app.modules.m2_stock.contract import StockLedgerService
 
 logger = get_logger("split")
 

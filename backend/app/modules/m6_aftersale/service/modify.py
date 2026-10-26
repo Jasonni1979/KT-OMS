@@ -219,7 +219,7 @@ class ModifyService:
         self, row: OrdOrderModify, deliveries: list[OrdDelivery], *, operator: str
     ) -> dict[str, Any]:
         """发起叫回（W7 链路复用）"""
-        from app.modules.m7_integration.service.wms_channel import OutboundCommandService
+        from app.modules.m7_integration.contract import OutboundCommandService
 
         svc = OutboundCommandService(self.s, self.r)
         results = []
@@ -275,7 +275,7 @@ class ModifyService:
         self, row: OrdOrderModify, failed: list[dict[str, Any]]
     ) -> None:
         """叫回失败 → 落异常单（FR-06c：改单挂起 + 告警 + 客服决策）"""
-        from app.modules.m5_abnormal.service.abnormal import AbnormalService
+        from app.modules.m5_abnormal.contract import AbnormalService
 
         try:
             svc = AbnormalService(self.s, self.r)

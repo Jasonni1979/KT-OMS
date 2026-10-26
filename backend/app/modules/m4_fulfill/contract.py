@@ -71,6 +71,12 @@ from app.modules.m4_fulfill.service.dispatch_service import (
     BranchCandidate,
     period_match,
 )
+from app.modules.m4_fulfill.service.dispatch_service import (
+    DispatchResult as DispatchResult_dispatch_service,
+)
+from app.modules.m4_fulfill.service.dispatch_service import (
+    DispatchService as DispatchService_dispatch_service,
+)
 from app.modules.m4_fulfill.service.plan_executor import (
     FREEZE_OBJ_TYPE_ORDER,
     ExecResult,
@@ -144,6 +150,8 @@ __all__ = [
     "Member",
     "SLA_HOURS",
     "BranchCandidate",
+    "DispatchResult_dispatch_service",
+    "DispatchService_dispatch_service",
     "FAIL_FULL_LACK",
     "FAIL_NO_CANDIDATE_BRANCH",
     "FAIL_PARTIAL_LACK",

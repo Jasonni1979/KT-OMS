@@ -26,7 +26,7 @@ class BatchAggregateIn(BaseModel):
 @router.post("/abnormal/batch/aggregate", summary="超卖单聚合为应急批次（FR-05b）")
 async def aggregate_batch(body: BatchAggregateIn, session: AsyncSession = Depends(get_session)):
     """同店铺同 SKU 的超卖单聚合为应急批次（批次级统一决策）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     row = await svc.aggregate_oversold_batch(
@@ -53,7 +53,7 @@ async def advance_batch(
     session: AsyncSession = Depends(get_session),
 ):
     """按 §5.1 阶段顺序推进（不可跳阶段、不可回退）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     row = await svc.advance_batch(batch_id, to_stage, operator=operator)
@@ -63,7 +63,7 @@ async def advance_batch(
 @router.get("/abnormal/batch/{batch_id}/sla", summary="批次 SLA 状态（FR-05c）")
 async def batch_sla(batch_id: int, session: AsyncSession = Depends(get_session)):
     """分级 SLA：各阶段到达时间 / 截止 / 剩余小时 / 是否超期"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     return ok(await svc.batch_sla_status(batch_id))
@@ -77,7 +77,7 @@ async def set_promo(
     session: AsyncSession = Depends(get_session),
 ):
     """大促模式：SLA 收紧（T+4h→T+2h）+ 告警升级"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     row = await svc.set_promo_mode(batch_id, promo=promo, operator=operator)
@@ -91,7 +91,7 @@ async def register_compensation(
     session: AsyncSession = Depends(get_session),
 ):
     """赔付登记（平台罚金 / 补偿券 / 运费）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     row = await svc.register_compensation(
@@ -108,7 +108,7 @@ async def register_compensation(
 @router.post("/abnormal/batch/{batch_id}/close", summary="批次关闭复盘（FR-05e）")
 async def close_batch(batch_id: int, session: AsyncSession = Depends(get_session)):
     """生成复盘摘要：单量 / 解决路径分布 / 平均解决时长 / 赔付金额"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     return ok(await svc.close_batch_review(batch_id))
@@ -124,7 +124,7 @@ async def pause_order(
     session: AsyncSession = Depends(get_session),
 ):
     """订单暂停：逐发货单分布式动作（WMS 侧暂停报文待实现 → pending）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     return ok(
@@ -144,7 +144,7 @@ async def resume_order(
     session: AsyncSession = Depends(get_session),
 ):
     """订单恢复：任一发货单失败 → 保持暂停（不半恢复）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     return ok(await svc.resume_order(order_id, operator=operator))
@@ -153,7 +153,7 @@ async def resume_order(
 @router.get("/abnormal/order/{order_id}/pause-logs", summary="暂停命令日志")
 async def pause_logs(order_id: int, session: AsyncSession = Depends(get_session)):
     """逐发货单的暂停/恢复命令留痕"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     items = await svc.list_pause_logs(order_id)
@@ -181,7 +181,7 @@ class RiskListIn(BaseModel):
 @router.post("/abnormal/risk-list", summary="加入名单（FR-07b）")
 async def add_risk_list(body: RiskListIn, session: AsyncSession = Depends(get_session)):
     """加入名单（加/移黑名单必须带 OA 审批单号）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     row = await svc.add_to_list(
@@ -207,7 +207,7 @@ async def remove_risk_list(
     session: AsyncSession = Depends(get_session),
 ):
     """移出名单（移出黑名单同样须 OA 审批）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     await svc.remove_from_list(list_id, oa_approval_id=oa_approval_id, operator=operator)
@@ -223,7 +223,7 @@ async def list_risk_list(
     session: AsyncSession = Depends(get_session),
 ):
     """名单维护视图"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     items = await svc.list_entries(
@@ -241,7 +241,7 @@ async def match_risk_list(
     session: AsyncSession = Depends(get_session),
 ):
     """命中判定：私有优先（货主 > 租户 > 全局）；返回命中动作"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     return ok(
@@ -260,7 +260,7 @@ async def match_risk_list(
 @router.get("/abnormal/alerts/scan", summary="异常单告警扫描（FR-08c）")
 async def scan_alerts(session: AsyncSession = Depends(get_session)):
     """类型级超期 + 数量突增 → 告警待发清单（企微推送 D01.07 未实现 → pending）"""
-    from app.modules.m5_abnormal.service.abnormal_ext import AbnormalExtService
+    from app.modules.m5_abnormal.contract import AbnormalExtService
 
     svc = AbnormalExtService(session, None)
     return ok(await svc.scan_alerts())

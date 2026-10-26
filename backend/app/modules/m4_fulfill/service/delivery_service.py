@@ -600,7 +600,7 @@ class DeliveryService:
         通道**基础设施不可用**（连接异常等）→ 降级为本地占位，不阻断推仓状态流转。
         """
         from app.core.exceptions import NotFoundError as _NotFound
-        from app.modules.m7_integration.service.wms_channel import OutboundCommandService
+        from app.modules.m7_integration.contract import OutboundCommandService
 
         try:
             svc = OutboundCommandService(self.s, self.r)

@@ -8,8 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
 from app.core.response import ok
-from app.modules.m1_master.service import branch_owner as bo_svc
-from app.modules.m1_master.service import master as svc
+from app.modules.m1_master.contract import (
+    BranchOwnerService,
+    BranchService,
+    OrgService,
+    OwnerService,
+    ShopService,
+    get_redis,
+)
 from app.schemas import master as sc
 
 router = APIRouter(tags=["master-档案"])
@@ -22,7 +28,7 @@ async def list_org_nodes(
     parent_id: int = Query(0, ge=0),
     session: AsyncSession = Depends(get_session),
 ):
-    nodes = await svc.OrgService(session).children(parent_id)
+    nodes = await OrgService(session).children(parent_id)
     return ok([sc.OrgNodeOut.model_validate(n) for n in nodes])
 
 
@@ -31,7 +37,7 @@ async def search_org_nodes(
     keyword: str = Query(min_length=1, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    nodes = await svc.OrgService(session).search(keyword)
+    nodes = await OrgService(session).search(keyword)
     return ok([sc.OrgNodeOut.model_validate(n) for n in nodes])
 
 
@@ -40,7 +46,7 @@ async def create_org_node(
     data: sc.OrgNodeCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    node = await svc.OrgService(session).create_node(data)
+    node = await OrgService(session).create_node(data)
     return ok(sc.OrgNodeOut.model_validate(node))
 
 
@@ -50,13 +56,13 @@ async def update_org_node(
     data: sc.OrgNodeUpdate,
     session: AsyncSession = Depends(get_session),
 ):
-    node = await svc.OrgService(session).update_node(node_id, data)
+    node = await OrgService(session).update_node(node_id, data)
     return ok(sc.OrgNodeOut.model_validate(node))
 
 
 @router.delete("/org-nodes/{node_id}", summary="软删节点（仅无关联停用节点）")
 async def delete_org_node(node_id: int, session: AsyncSession = Depends(get_session)):
-    await svc.OrgService(session).delete_node(node_id)
+    await OrgService(session).delete_node(node_id)
     return ok(None)
 
 
@@ -67,13 +73,13 @@ async def list_owners(
     keyword: str | None = Query(default=None, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    owners = await svc.OwnerService(session).list(keyword)
+    owners = await OwnerService(session).list(keyword)
     return ok([sc.OwnerOut.model_validate(o) for o in owners])
 
 
 @router.post("/owners", summary="新建货主（类型创建后不可改）")
 async def create_owner(data: sc.OwnerCreate, session: AsyncSession = Depends(get_session)):
-    owner = await svc.OwnerService(session).create(data)
+    owner = await OwnerService(session).create(data)
     return ok(sc.OwnerOut.model_validate(owner))
 
 
@@ -83,7 +89,7 @@ async def update_owner(
     data: sc.OwnerUpdate,
     session: AsyncSession = Depends(get_session),
 ):
-    owner = await svc.OwnerService(session).update(owner_id, data)
+    owner = await OwnerService(session).update(owner_id, data)
     return ok(sc.OwnerOut.model_validate(owner))
 
 
@@ -94,8 +100,8 @@ async def list_shops(
     keyword: str | None = Query(default=None, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    redis = await svc.get_redis()
-    shops = await svc.ShopService(session, redis).list(keyword)
+    redis = await get_redis()
+    shops = await ShopService(session, redis).list(keyword)
     return ok([sc.ShopOut.model_validate(s) for s in shops])
 
 
@@ -105,8 +111,8 @@ async def create_shop(
     parent_node_id: int = Query(gt=0, description="挂载的 brand/owner_co 组织节点"),
     session: AsyncSession = Depends(get_session),
 ):
-    redis = await svc.get_redis()
-    shop = await svc.ShopService(session, redis).create(data, parent_node_id)
+    redis = await get_redis()
+    shop = await ShopService(session, redis).create(data, parent_node_id)
     return ok(sc.ShopOut.model_validate(shop))
 
 
@@ -116,8 +122,8 @@ async def update_shop(
     data: sc.ShopUpdate,
     session: AsyncSession = Depends(get_session),
 ):
-    redis = await svc.get_redis()
-    shop = await svc.ShopService(session, redis).update(shop_id, data)
+    redis = await get_redis()
+    shop = await ShopService(session, redis).update(shop_id, data)
     return ok(sc.ShopOut.model_validate(shop))
 
 
@@ -128,15 +134,15 @@ async def list_branches(
     keyword: str | None = Query(default=None, max_length=64),
     session: AsyncSession = Depends(get_session),
 ):
-    redis = await svc.get_redis()
-    branches = await svc.BranchService(session, redis).list(keyword)
+    redis = await get_redis()
+    branches = await BranchService(session, redis).list(keyword)
     return ok([sc.BranchOut.model_validate(b) for b in branches])
 
 
 @router.post("/branches", summary="新建仓库（联动挂组织树 warehouse 节点，直属根）")
 async def create_branch(data: sc.BranchCreate, session: AsyncSession = Depends(get_session)):
-    redis = await svc.get_redis()
-    branch = await svc.BranchService(session, redis).create(data)
+    redis = await get_redis()
+    branch = await BranchService(session, redis).create(data)
     return ok(sc.BranchOut.model_validate(branch))
 
 
@@ -146,8 +152,8 @@ async def update_branch(
     data: sc.BranchUpdate,
     session: AsyncSession = Depends(get_session),
 ):
-    redis = await svc.get_redis()
-    branch = await svc.BranchService(session, redis).update(branch_id, data)
+    redis = await get_redis()
+    branch = await BranchService(session, redis).update(branch_id, data)
     return ok(sc.BranchOut.model_validate(branch))
 
 
@@ -158,7 +164,7 @@ async def list_branch_owners(
     branch_id: int,
     session: AsyncSession = Depends(get_session),
 ):
-    rels = await bo_svc.BranchOwnerService(session).list_by_branch(branch_id)
+    rels = await BranchOwnerService(session).list_by_branch(branch_id)
     return ok(rels)
 
 
@@ -168,7 +174,7 @@ async def bind_branch_owners(
     data: sc.BranchOwnerBind,
     session: AsyncSession = Depends(get_session),
 ):
-    rels = await bo_svc.BranchOwnerService(session).bind(branch_id, data)
+    rels = await BranchOwnerService(session).bind(branch_id, data)
     return ok(rels)
 
 
@@ -177,11 +183,11 @@ async def list_owner_branches(
     owner_id: int,
     session: AsyncSession = Depends(get_session),
 ):
-    rels = await bo_svc.BranchOwnerService(session).list_by_owner(owner_id)
+    rels = await BranchOwnerService(session).list_by_owner(owner_id)
     return ok(rels)
 
 
 @router.delete("/branch-owner-rels/{rel_id}", summary="解绑可服务货主（关系置停用）")
 async def unbind_branch_owner(rel_id: int, session: AsyncSession = Depends(get_session)):
-    await bo_svc.BranchOwnerService(session).unbind(rel_id)
+    await BranchOwnerService(session).unbind(rel_id)
     return ok(None)

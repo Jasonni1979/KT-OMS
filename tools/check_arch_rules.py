@@ -46,6 +46,12 @@ LOW_LAYERS = (1, 2)
 MAX_SERVICE_LINES = 500
 MAX_MODULE_FILES = 12
 
+#: R2 白名单：`文件 → {说明}`
+#:   仅用于**无法走 contract 的副作用导入**（导入即注册模板/导入器）
+R2_ALLOW: dict[str, str] = {
+    "app/api/v1/import_center.py": "importers 导入即注册模板与导入器（副作用导入）",
+}
+
 #: 多写者白名单表（事件基础设施，非业务数据）
 SHARED_TABLES = {"oms_base.bas_event_outbox"}
 
@@ -100,8 +106,14 @@ def load_write_tables() -> dict[str, set[str]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--strict", action="store_true", help="有问题即失败")
+    ap.add_argument("--strict", action="store_true", help="全部规则有问题即失败")
+    ap.add_argument(
+        "--fail-on",
+        default="R1,R2,R3",
+        help="哪些规则的违规算失败（逗号分隔）；R4 上下文体积待 P3 拆分后再纳入",
+    )
     args = ap.parse_args()
+    fail_on = {x.strip().upper() for x in args.fail_on.split(",") if x.strip()}
 
     print("===== 架构门禁（P1 · 4 条边界规则）=====\n")
     violations: dict[str, list[str]] = {"R1": [], "R2": [], "R3": [], "R4": []}
@@ -140,6 +152,8 @@ def main() -> int:
             if parts[3:4] == ["contract"]:
                 continue  # 走公开面 → 合法
             kind = "service" if parts[3:4] == ["service"] else "其它"
+            if str(rel) in R2_ALLOW:
+                continue  # 已登记的白名单（副作用导入）
             violations["R2"].append(
                 f"{rel} → {mod}（跨模块直接 import 对方的 {kind}/，应走 contract.py）"
             )
@@ -196,17 +210,18 @@ def main() -> int:
             print(f"    ... 另有 {len(items) - 12} 处")
 
     total = sum(len(v) for v in violations.values())
+    blocking = sum(len(violations[r]) for r in fail_on if r in violations)
     print("\n" + "=" * 50)
-    print(f"合计违规 {total} 处")
+    print(f"合计违规 {total} 处（阻断规则 {sorted(fail_on)}：{blocking} 处）")
+    if blocking:
+        print(f"\n❌ 架构门禁未通过：{sorted(fail_on)} 有违规")
+        return 1
     if total:
         print(
-            "\n⚠ 当前为 **warn 模式**（P1 先观察 2 周再转 fail）。"
-            "\n  R2 的违规是 **P2 跨模块收口** 的工作量清单。"
+            "\n⚠ 非阻断规则的违规（P3 待处理）："
+            f"{ {r: len(v) for r, v in violations.items() if r not in fail_on} }"
         )
-        if args.strict:
-            return 1
-    else:
-        print("\n✓ 架构门禁通过")
+    print("\n✓ 架构门禁通过")
     return 0
 
 

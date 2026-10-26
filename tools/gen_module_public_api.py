@@ -62,15 +62,24 @@ def main() -> int:
         by_file: dict[str, list[str]] = {}
         seen: set[str] = set()
         conflicts: list[str] = []
+        # ⚠ **同名冲突必须用别名导出**（`<Name>_<stem>`）——
+        #   跨模块调用方要的是**具体某个 service 的**那个符号，
+        #   若 contract 只导出「第一个同名符号」→ 调用方拿到**错的类**（行为静默改变）。
+        #   实测：M4 的 DispatchService（dispatch.py / dispatch_service.py 各一个）、
+        #        M7 的 MAX_RETRY（wms_channel=5 / writeback=10，值都不同！）
+        alias: dict[str, str] = {}  # (stem, 原名) → 别名
         for f in sorted(svc_dir.glob("*.py")):
             if f.name == "__init__.py":
                 continue
             for sym in public_symbols(f):
                 if sym in seen:
                     conflicts.append(sym)
+                    ali = f"{sym}_{f.stem}"
+                    alias[(f.stem, sym)] = ali
+                    by_file.setdefault(f.stem, []).append((sym, ali))
                     continue
                 seen.add(sym)
-                by_file.setdefault(f.stem, []).append(sym)
+                by_file.setdefault(f.stem, []).append((sym, sym))
         if not by_file:
             continue
         title = TITLES.get(mod_dir.name, mod_dir.name)
@@ -88,14 +97,15 @@ def main() -> int:
         ]
         for stem, syms in by_file.items():
             lines.append(f"from app.modules.{mod_dir.name}.service.{stem} import (")
-            for s in sorted(syms):
-                lines.append(f"    {s},")
+            for orig, exported in sorted(syms):
+                # ⚠ 别名必须写成 `import X as X_stem`（源模块里没有 X_stem 这个名字）
+                lines.append(f"    {orig} as {exported}," if orig != exported else f"    {orig},")
             lines.append(")")
             lines.append("")
         lines.append("__all__ = [")
         for syms in by_file.values():
-            for s in sorted(syms):
-                lines.append(f'    "{s}",')
+            for _orig, exported in sorted(syms):
+                lines.append(f'    "{exported}",')
         lines.append("]")
         lines.append("")
         (mod_dir / "contract.py").write_text("\n".join(lines), encoding="utf-8")
@@ -113,6 +123,32 @@ def main() -> int:
         )
         print(f"✓ ruff --fix：{(r.stdout or '').strip().splitlines()[-1] if r.stdout.strip() else 'OK'}")
     print(f"✓ 共生成 {total} 个 contract.py")
+    # 输出符号来源映射（供 P2 改写脚本精确对应，避免拿到错的同名符号）
+    import json
+
+    mapping = {}
+    for mod_dir in sorted(MODULES_DIR.iterdir()):
+        if not mod_dir.is_dir() or not mod_dir.name.startswith("m"):
+            continue
+        svc_dir = mod_dir / "service"
+        if not svc_dir.exists():
+            continue
+        entry: dict[str, dict[str, str]] = {}
+        used: set[str] = set()
+        for f in sorted(svc_dir.glob("*.py")):
+            if f.name == "__init__.py":
+                continue
+            for sym in public_symbols(f):
+                if sym in used:
+                    entry[f"{f.stem}.{sym}"] = f"{sym}_{f.stem}"
+                else:
+                    entry[f"{f.stem}.{sym}"] = sym
+                used.add(sym)
+        mapping[mod_dir.name] = entry
+    (ROOT / "tools" / "_module_symbol_map.json").write_text(
+        json.dumps(mapping, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    print("✓ 符号来源映射 → tools/_module_symbol_map.json")
     return 0
 
 

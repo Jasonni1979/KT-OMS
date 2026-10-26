@@ -259,7 +259,7 @@ class BranchSelectPlugin(BasePlugin):
     ORDER = 10
 
     async def process(self, ctx: RuleContext) -> PluginResult:
-        from app.modules.m4_fulfill.service.dispatch_service import DispatchService
+        from app.modules.m4_fulfill.contract import DispatchService_dispatch_service as DispatchService
 
         order_id = int(ctx.get("order_id", 0) or 0)
         session = ctx.meta.get("session")
@@ -369,7 +369,7 @@ class SplitPlugin(BasePlugin):
         # 有拆单规则 → 走真实引擎
         rule_id = int(ctx.get("split_rule_id", 0) or 0)
         if rule_id and order_id and session is not None and redis is not None:
-            from app.modules.m4_fulfill.service.split_service import SplitService
+            from app.modules.m4_fulfill.contract import SplitService
 
             svc = SplitService(session, redis)
             context: dict[str, Any] = {
@@ -448,7 +448,7 @@ class StockCheckPlugin(BasePlugin):
 
     async def process(self, ctx: RuleContext) -> PluginResult:
         from app.core.exceptions import NotFoundError
-        from app.modules.m2_stock.service.stock_ledger import StockLedgerService
+        from app.modules.m2_stock.contract import StockLedgerService
 
         groups: list[dict[str, Any]] = ctx.decision.get("split_groups", [])
         if not groups:

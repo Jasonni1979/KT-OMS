@@ -14,9 +14,8 @@ from app.core.pipl import mask_mobile, mask_name
 from app.core.response import ok
 from app.models.gateway import GwApiLog, GwOrderBuffer
 from app.models.order import OrdOrder, OrdOrderFail, OrdOrderItem, OrdOrderPmt, OrdReceiver
-from app.modules.m1_master.service.master import get_redis
-from app.modules.m7_integration.service.gateway import get_gateway
-from app.modules.m7_integration.service.pull import PullService
+from app.modules.m1_master.contract import get_redis
+from app.modules.m7_integration.contract import PullService, get_gateway
 from app.schemas import order as sc
 
 router = APIRouter()

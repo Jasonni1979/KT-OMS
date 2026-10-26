@@ -498,7 +498,7 @@ class AuditEngine:
         self, order_id: int, reasons: list[Reason]
     ) -> int:
         """按结构化原因落异常单（FR-03a）"""
-        from app.modules.m5_abnormal.service.abnormal import AbnormalService
+        from app.modules.m5_abnormal.contract import AbnormalService
 
         svc = AbnormalService(self.s, self.r)
         raised = 0
