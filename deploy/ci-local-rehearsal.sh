@@ -226,6 +226,30 @@ else
   echo "  ⚠ 跳过 W7 平台回传端到端（mock-platform 未启动）"
 fi
 
+echo "=== Job 9/9: W10 端到端内测（批量造单 100 单 + 售后场景 + 压测复跑）==="
+# 复用 Job 8 起的 mock-platform（9000）—— 必须复用**标准端口**：
+#   OMS 侧的平台地址来自数据库配置，指向 9000（另起随机端口 → 打的不是同一个）
+if [ "$MOCK_PLATFORM_UP" = "1" ]; then
+  (cd "$ROOT/backend" && "$PY" -m app.scripts.batch_load_e2e --with-mock --total 100 --json var/batch_load.json >/tmp/ci_batchload.log 2>&1) \
+    && ok "批量造单全链路（$(grep -oE '"created": [0-9]+' /tmp/ci_batchload.log | tail -1)）" \
+    || { bad "批量造单全链路"; tail -25 /tmp/ci_batchload.log; }
+assert_min /tmp/ci_batchload.log 23 "批量造单全链路"
+else
+  echo "  ⚠ 跳过批量造单全链路（mock-platform 未启动）"
+fi
+
+# 售后场景（仅退款 / 退货退款 / 幂等 / 审核拒绝）
+(cd "$ROOT/backend" && "$PY" -m app.scripts.aftersale_scenario_e2e >/tmp/ci_aftersale.log 2>&1) \
+  && ok "售后场景端到端（$(grep -oE '断言合计：[0-9]+' /tmp/ci_aftersale.log | tail -1)）" \
+  || { bad "售后场景端到端"; tail -20 /tmp/ci_aftersale.log; }
+assert_min /tmp/ci_aftersale.log 14 "售后场景端到端"
+
+# 压测复跑（零超卖是硬不变量 → 每轮 CI 都要验）
+(cd "$ROOT/backend" && "$PY" -m app.scripts.load_test --json var/loadtest.json >/tmp/ci_loadtest.log 2>&1) \
+  && ok "压测复跑（$(grep -oE '断言：通过 [0-9]+ / 失败 [0-9]+' /tmp/ci_loadtest.log | tail -1)）" \
+  || { bad "压测复跑"; tail -20 /tmp/ci_loadtest.log; }
+assert_min /tmp/ci_loadtest.log 24 "压测复跑"
+
 echo "=== Job 4/4: Frontend (type-check + build) ==="
 (cd "$ROOT/frontend" && ./node_modules/.bin/vue-tsc --noEmit >/tmp/ci_tsc.log 2>&1) \
   && ok "type-check" || { bad "type-check"; tail -8 /tmp/ci_tsc.log; }

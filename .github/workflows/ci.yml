@@ -322,6 +322,24 @@ jobs:
           KTOMS_MYSQL_PORT: "3306"
           KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
         run: uv run python -m app.scripts.cross_domain_e2e
+      - name: W10 批量造单全链路（100 单场景矩阵）
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.batch_load_e2e --with-mock --total 100
+      - name: W10 售后场景端到端（仅退款/退货退款/幂等/审核拒绝）
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.aftersale_scenario_e2e
+      - name: W10 压测复跑（零超卖硬不变量）
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: uv run python -m app.scripts.load_test
 
   frontend:
     name: Frontend (type-check + build)
