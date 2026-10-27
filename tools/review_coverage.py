@@ -104,6 +104,7 @@ PREFIX_TO_SRS: dict[str, list[str]] = {
     "AFTPULL": ["D05.01"],         # 平台售后报文自动同步（D05.01 FR-01a）
     "CLOSURE": ["D03.09", "D10.03"],  # 闭环联动 + 权限上下文
     "RULE": ["D01.03"],           # 规则引擎框架（条件求值/插件链/字典）
+    "ACCEXT": ["D10.02"],         # 租户账户补充（隔离/组织节点/IdP 预留）
 }
 
 FR_RE = re.compile(r"\bFR-(\d{1,2}[a-z]?)\b")
