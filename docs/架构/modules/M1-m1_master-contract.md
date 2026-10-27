@@ -1,6 +1,6 @@
 # M1 基础主数据
 
-**目录** `backend/app/modules/m1_master/` · **代码行** 1,197 · **service** 4 个
+**目录** `backend/app/modules/m1_master/` · **代码行** 1,203 · **service** 4 个
 
 **职责**：组织树 / 货主 / 店铺 / 账号 / 角色 / 数据权限范围 / 字典与规则 / 事件字典
 
