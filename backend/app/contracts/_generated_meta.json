@@ -6247,7 +6247,9 @@
     "fulfilling": "履约中",
     "partial_shipped": "部分发货",
     "shipped": "已发货",
-    "finished": "完成"
+    "finished": "完成",
+    "paused": "暂停编排",
+    "aftersale": "售后中"
    }
   },
   {

@@ -18,6 +18,8 @@ from app.modules.m7_integration.service.gateway import (
     get_gateway,
 )
 from app.modules.m7_integration.service.pull import (
+    DEADLOCK_BACKOFF,
+    DEADLOCK_MAX_RETRY,
     DEFAULT_PAGE_SIZE,
     MAX_WINDOW,
     PullService,
@@ -111,6 +113,8 @@ __all__ = [
     "_LUA_DIR",
     "gateway_driver",
     "get_gateway",
+    "DEADLOCK_BACKOFF",
+    "DEADLOCK_MAX_RETRY",
     "DEFAULT_PAGE_SIZE",
     "MAX_WINDOW",
     "PullService",

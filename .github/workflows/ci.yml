@@ -334,6 +334,22 @@ jobs:
           KTOMS_MYSQL_PORT: "3306"
           KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
         run: uv run python -m app.scripts.aftersale_scenario_e2e
+      - name: 平台售后报文自动同步（D05.01 FR-01a · G1 缺口）
+        env:
+          KTOMS_MYSQL_HOST: 127.0.0.1
+          KTOMS_MYSQL_PORT: "3306"
+          KTOMS_REDIS_URL: redis://127.0.0.1:6379/0
+        run: |
+          set -o pipefail
+          uv run python -m app.scripts.aftersale_pull_e2e --with-mock 2>&1 | tee /tmp/aftersale_pull.log
+          # 断言条数下限校验：E2E 可能因数据前置条件不满足而「静默不跑」
+          n=$(grep -oE '\[PASS\]' /tmp/aftersale_pull.log | wc -l | tr -d ' ' || true)
+          echo "售后报文自动同步断言数：$n"
+          if [ "${n:-0}" -lt 40 ]; then
+            echo "::error::售后报文自动同步断言数 $n < 40（有断言被静默跳过）"
+            tail -30 /tmp/aftersale_pull.log
+            exit 1
+          fi
       - name: W10 压测复跑（零超卖硬不变量）
         env:
           KTOMS_MYSQL_HOST: 127.0.0.1

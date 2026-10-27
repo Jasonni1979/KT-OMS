@@ -30,10 +30,19 @@ class AdapterResult:
     msg_id: str = ""
     raw: dict = field(default_factory=dict)
 
+    def items(self, key: str = "trades") -> list[dict]:
+        """取报文中的数组字段（trade.sold.get → trades / refund.list.get → refunds）"""
+        return (self.data or {}).get(key, []) if isinstance(self.data, dict) else []
+
     @property
     def trades(self) -> list[dict]:
         """平台单列表（trade.sold.get 的 trades 数组）"""
-        return (self.data or {}).get("trades", []) if isinstance(self.data, dict) else []
+        return self.items("trades")
+
+    @property
+    def refunds(self) -> list[dict]:
+        """平台售后单列表（refund.list.get 的 refunds 数组）"""
+        return self.items("refunds")
 
     @property
     def total_results(self) -> int:
@@ -152,6 +161,17 @@ class AdapterInterface(Protocol):
 
     async def item_get(
         self, *, shop_id: int, platform_item_id: str, primary_bn: str = ""
+    ) -> AdapterResult: ...
+
+    async def refund_list_get(
+        self,
+        *,
+        shop_id: int,
+        start_modified: Any,
+        end_modified: Any,
+        page_no: int = 1,
+        page_size: int = 50,
+        primary_bn: str = "",
     ) -> AdapterResult: ...
 
 

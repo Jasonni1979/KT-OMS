@@ -244,6 +244,15 @@ fi
   || { bad "售后场景端到端"; tail -20 /tmp/ci_aftersale.log; }
 assert_min /tmp/ci_aftersale.log 14 "售后场景端到端"
 
+# 平台售后报文自动同步（D05.01 FR-01a · G1 缺口）
+# 53 项断言：3 类平台售后场景（仅退款/退货退款/质检不良）× 类型+金额+原因码+
+# 货物状态+订单关联+申请行归属，外加每场景幂等复拉不新增申请单。
+# ⚠ 自起 mock-platform（随机端口）—— 场景数据从零开始，可重复执行
+(cd "$ROOT/backend" && "$PY" -m app.scripts.aftersale_pull_e2e --with-mock >/tmp/ci_aftersalepull.log 2>&1) \
+  && ok "售后报文自动同步（$(grep -oE '断言合计：[0-9]+' /tmp/ci_aftersalepull.log | tail -1)）" \
+  || { bad "售后报文自动同步"; tail -25 /tmp/ci_aftersalepull.log; }
+assert_min /tmp/ci_aftersalepull.log 40 "售后报文自动同步"
+
 # 压测复跑（零超卖是硬不变量 → 每轮 CI 都要验）
 (cd "$ROOT/backend" && "$PY" -m app.scripts.load_test --json var/loadtest.json >/tmp/ci_loadtest.log 2>&1) \
   && ok "压测复跑（$(grep -oE '断言：通过 [0-9]+ / 失败 [0-9]+' /tmp/ci_loadtest.log | tail -1)）" \

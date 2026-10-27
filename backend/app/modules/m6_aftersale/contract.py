@@ -55,6 +55,15 @@ from app.modules.m6_aftersale.service.aftersale_codes import (
     TYPE_RESHIPMENT,
     TYPE_RETURN_REFUND,
 )
+from app.modules.m6_aftersale.service.aftersale_pull import (
+    DEFAULT_PAGE_SIZE,
+    MAX_PAGES,
+    REASON_FALLBACK,
+    REASON_KEYWORDS,
+    REFUND_TYPE_MAP,
+    SHIP_STATUS_MAP,
+    AftersalePullService,
+)
 from app.modules.m6_aftersale.service.modify import (
     ModifyService,
 )
@@ -114,6 +123,13 @@ __all__ = [
     "TYPE_REFUND_ONLY",
     "TYPE_RESHIPMENT",
     "TYPE_RETURN_REFUND",
+    "AftersalePullService",
+    "DEFAULT_PAGE_SIZE",
+    "MAX_PAGES",
+    "REASON_FALLBACK",
+    "REASON_KEYWORDS",
+    "REFUND_TYPE_MAP",
+    "SHIP_STATUS_MAP",
     "ModifyService",
     "MODIFY_ADDRESS",
     "MODIFY_OPEN_STATUSES",

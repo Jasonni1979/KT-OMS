@@ -13,6 +13,7 @@
 商品映射与未知商品建档 → 幂等路由 → 缓冲落库 → 投递 D03.01。
 """
 
+import asyncio
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -40,6 +41,33 @@ logger = get_logger("pull")
 MAX_WINDOW = timedelta(hours=2)
 #: 单页条数
 DEFAULT_PAGE_SIZE = 50
+
+#: MySQL 死锁重试次数（错误码 1213）
+#:
+#: **为什么需要**：批量内测实测 —— 并发拉单必然死锁（并发 3 → 死锁 3/20、
+#: 并发 10 → 死锁 7/20）。根因是缓冲落库「先查后插」在 REPEATABLE READ 下
+#: 对唯一索引加 next-key 间隙锁，两个事务互相等 → 1213 Deadlock。
+#: InnoDB 检测到死锁会**回滚整个事务**（不是只回滚一条语句）→
+#: 死锁的订单**没进 OMS** = 丢单。
+#:
+#: **修法**：① 死锁重试（InnoDB 官方推荐做法，幂等键保证重试安全）
+#: ② 根治加锁顺序需要改缓冲落库的事务结构，风险较高 → 放 M4-1 评估。
+DEADLOCK_MAX_RETRY = 3
+#: 死锁重试退避（秒）—— 错开峰值，避免重试再死锁
+DEADLOCK_BACKOFF = (0.05, 0.15, 0.4)
+
+
+def _is_deadlock(exc: BaseException) -> bool:
+    """判定是否为 MySQL 死锁（1213）
+
+    ⚠ 只认 1213 —— 其他 OperationalError（唯一键冲突、连接断开等）
+    **不该重试**，重试只会掩盖真问题。
+    """
+    orig = getattr(exc, "orig", None)
+    args = getattr(orig, "args", ())
+    if args and args[0] == 1213:
+        return True
+    return "Deadlock found" in str(exc)
 
 
 class PullService:
@@ -189,7 +217,49 @@ class PullService:
     async def pull_single(
         self, shop_id: int, platform_order_bn: str, reason: str = "manual"
     ) -> dict[str, Any]:
-        """单拉补偿：拉全量详情并按幂等路由落库"""
+        """单拉补偿：拉全量详情并按幂等路由落库
+
+        ⚠ **带死锁重试**（G7）：并发拉单会触发 MySQL 1213（缓冲落库的
+        「先查后插」在 RR 隔离级别下拿间隙锁）→ InnoDB 回滚整个事务 →
+        订单没进 OMS = 丢单。重试是安全的：`platform_order_bn` 幂等键保证
+        重跑不会产生重复订单。
+        """
+        last_exc: BaseException | None = None
+        for attempt in range(DEADLOCK_MAX_RETRY + 1):
+            try:
+                return await self._pull_single_once(shop_id, platform_order_bn, reason)
+            except Exception as exc:  # noqa: BLE001 —— 下面按类型分流
+                if not _is_deadlock(exc):
+                    raise
+                last_exc = exc
+                if attempt >= DEADLOCK_MAX_RETRY:
+                    break
+                backoff = DEADLOCK_BACKOFF[min(attempt, len(DEADLOCK_BACKOFF) - 1)]
+                logger.warning(
+                    "拉单死锁，重试中: shop=%s tid=%s attempt=%s",
+                    shop_id, platform_order_bn, attempt + 1,
+                )
+                # 死锁时 InnoDB 已回滚事务，但 session 事务状态仍是「失败」→
+                # 必须显式 rollback，否则后续操作报 "transaction has been rolled back"
+                await self.s.rollback()
+                await asyncio.sleep(backoff)
+        # 重试用尽仍死锁 → 明确失败（**不静默吞**，交由调用方记失败单）
+        logger.error(
+            "拉单死锁重试耗尽: shop=%s tid=%s retries=%s",
+            shop_id, platform_order_bn, DEADLOCK_MAX_RETRY,
+        )
+        return {
+            "ok": False,
+            "outcome": "errors",
+            "reason": reason,
+            "err_code": "DEADLOCK",
+            "err_msg": f"并发拉单死锁，重试 {DEADLOCK_MAX_RETRY} 次仍失败: {last_exc}",
+        }
+
+    async def _pull_single_once(
+        self, shop_id: int, platform_order_bn: str, reason: str
+    ) -> dict[str, Any]:
+        """单拉补偿的单次执行（死锁重试的内部实现）"""
         shop = await self.s.scalar(
             select(GwShop).where(GwShop.id == shop_id, GwShop.is_deleted == 0)
         )

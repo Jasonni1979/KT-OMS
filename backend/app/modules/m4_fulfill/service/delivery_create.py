@@ -23,6 +23,7 @@ from app.models.fulfill import (
 )
 from app.models.order import OrdOrder, OrdOrderItem
 from app.modules.m4_fulfill.service.delivery_states import (
+    ORDER_FULFILL_IN_AFTERSALE,
     ST_DRAFT,
     SYNC_INIT,
     SYNC_NONE,
@@ -59,6 +60,24 @@ class DeliveryCreateMixin:
         )
         if not order:
             raise NotFoundError(f"订单不存在: {order_id}")
+
+        # ⚠ **未发货仅退款 → 发货拦截**（G8 / D05.01 FR-05a 联动）
+        #   订单有在途售后时，M6 已把 `ord_order.fulfill_status` 标记为 `aftersale`
+        #   （见 M6 `aftersale_refund.py::_mark_order_in_aftersale`）。
+        #   此时**禁止再创建发货单** —— 否则已退款的货还会发出去 → 资金与履约差错。
+        #
+        #   为什么读订单字段而不查 M6：M4 契约明文「不得 import M5 / M6 / M8 的任何符号」
+        #   （门禁 R2）→ 只能读订单上的**已落库标记**（M4 本就只读 ord_order）。
+        #
+        #   已发货的订单不拦：货已经出去了，退货属于逆向流程，不阻断正向发货。
+        if str(order.fulfill_status or "") == ORDER_FULFILL_IN_AFTERSALE:
+            if str(order.ship_status or "") != "shipped":
+                raise ConflictError(
+                    f"订单 {order_id} 存在在途售后（履约状态=售后中），禁止发货",
+                    code="ORDER_IN_AFTERSALE",
+                    data={"order_id": order_id, "fulfill_status": order.fulfill_status},
+                )
+
         item_rows = list(
             await self.s.scalars(
                 select(OrdOrderItem)

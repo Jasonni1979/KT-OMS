@@ -1,6 +1,6 @@
 # M7 外部集成
 
-**目录** `backend/app/modules/m7_integration/` · **代码行** 3,000 · **service** 11 个
+**目录** `backend/app/modules/m7_integration/` · **代码行** 3,093 · **service** 11 个
 
 **职责**：平台拉单 / 平台回传 / WMS 指令通道 / 导入中心
 
@@ -22,6 +22,7 @@
 | 接口 | 说明 |
 |---|---|
 | `gateway.call` | 调平台 OpenAPI（统一入口） |
+| `gateway.refund_list_get` | 拉平台售后报文（D05.01 FR-01a） |
 | `pull.get_watermark` | 拉单水位 |
 | `sync.sync_status` | 库存同步状态 |
 | `wms_channel.query_order` | 查 WMS 侧订单状态 |

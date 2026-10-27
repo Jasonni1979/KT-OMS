@@ -31,7 +31,7 @@ CREATE TABLE ord_order (
   special_tags        VARCHAR(128) NULL COMMENT '特殊单型多标签（逗号分隔：presale,groupon,luckybag,virtual；D03.10 detect写入）',
   order_status        VARCHAR(16)  NOT NULL DEFAULT 'processing' COMMENT '总开关：processing进行中/finished已完成/cancelled已取消（取消/完成时四套状态冻结现值）',
   audit_status        VARCHAR(16)  NOT NULL DEFAULT 'pending' COMMENT '审核状态：pending待审核/passed已审核/rejected驳回/retrial复审中（SRS-D03.01 §4.1契约）',
-  fulfill_status      VARCHAR(16)  NOT NULL DEFAULT 'pending' COMMENT '履约状态：pending待履约/fulfilling履约中/partial_shipped部分发货/shipped已发货/finished完成',
+  fulfill_status      VARCHAR(16)  NOT NULL DEFAULT 'pending' COMMENT '履约状态：pending待履约/fulfilling履约中/partial_shipped部分发货/shipped已发货/finished完成/paused暂停编排/aftersale售后中',
   pay_status          VARCHAR(16)  NOT NULL DEFAULT 'unpaid' COMMENT '支付状态：unpaid未支付/partial部分支付(预售定金)/paid已支付/refunding退款中/partial_refund部分退款/full_refund全额退款',
   ship_status         VARCHAR(16)  NOT NULL DEFAULT 'unshipped' COMMENT '发货状态：unshipped未发货/partial部分发货/shipped已发货/partial_return部分退货/returned已退货',
   list_amount         DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT '原价合计（双口径恒等式：paid=list-shop_discount-platform_subsidy+freight）',

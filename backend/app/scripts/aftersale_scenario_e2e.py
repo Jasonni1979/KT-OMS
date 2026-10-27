@@ -31,8 +31,12 @@ from typing import Any
 from sqlalchemy import select, text
 
 from app.core.db import AuthContext, SessionFactory, engine, set_auth_context
+from app.core.exceptions import ConflictError
 from app.models.aftersale import AftRefund, AftReturnApply
 from app.models.order import OrdOrder
+
+# ⚠ 跨模块 import 只走 contract.py（门禁 R2）
+from app.modules.m4_fulfill.contract import DeliveryService
 from app.modules.m6_aftersale.service.aftersale import AftersaleService
 from app.modules.m6_aftersale.service.aftersale_codes import (
     GOODS_SHIPPED,
@@ -411,6 +415,79 @@ async def _scenario_audit_reject(ck: Checker) -> None:
         await _clean([oid])
 
 
+
+async def _scenario_block_delivery(ck: Checker) -> None:
+    """场景 5：未发货仅退款 → 履约侧禁止建发货单（G8 联动）
+
+    链路：M6 建在途售后单 → 订单履约状态标记「售后中」→ M4 建发货单被拒。
+    """
+    ck.section("场景 5：未发货仅退款 → 发货拦截（履约侧拒建发货单）")
+    oid, item_id = await _mk_order(paid=60.0)
+    try:
+        # ① 建在途售后单（M6 会把订单标记为「售后中」）
+        async with SessionFactory() as s:
+            aft = AftersaleService(s, None)
+            apply, _ = await aft.create_apply(
+                aftersale_type=TYPE_REFUND_ONLY,
+                platform="taobao",
+                shop_id=0,
+                platform_aftersale_bn=f"{PREFIX}BLK{_uid()}",
+                order_id=oid,
+                items=_items(item_id, 60.0),
+                apply_amount_customer=60.0,
+                source="platform",
+                goods_status=GOODS_UNSHIPPED,
+            )
+            apply_id = int(apply.id)
+        async with SessionFactory() as s:
+            order = await s.scalar(select(OrdOrder).where(OrdOrder.id == oid))
+        ck.check(
+            "发货拦截：在途售后把订单履约状态标记为售后中",
+            order is not None and order.fulfill_status == "aftersale",
+            f"fulfill_status={getattr(order, 'fulfill_status', None)}",
+        )
+
+        # ② 履约侧建发货单 → 必须被拒（错误码 ORDER_IN_AFTERSALE）
+        blocked = False
+        code = ""
+        async with SessionFactory() as s:
+            # ⚠ DeliveryService 的 redis 参数类型是 Redis，但本场景走不到任何
+            #   Redis 操作（拦截发生在最前面）→ 显式传 None 并忽略类型检查。
+            dlv = DeliveryService(s, None)  # type: ignore[arg-type]
+            try:
+                await dlv.create_from_plan(oid, [])
+            except ConflictError as exc:
+                blocked = True
+                code = str(exc.code or "")
+            except Exception as exc:  # noqa: BLE001 —— 其它异常算「没被正确拦截」
+                code = f"{type(exc).__name__}: {exc}"
+        ck.check(
+            "发货拦截：在途售后订单建发货单被拒",
+            blocked,
+            f"code={code}",
+        )
+        ck.check(
+            "发货拦截：错误码为 ORDER_IN_AFTERSALE",
+            code == "ORDER_IN_AFTERSALE",
+            f"code={code}",
+        )
+
+        # ③ 售后闭环后（拒绝 → 不在途）→ 不应再被拦截
+        async with SessionFactory() as s:
+            aft = AftersaleService(s, None)
+            await aft.audit(
+                apply_id, agree=False, operator="xde", reject_reason_code="TEST_CLOSE"
+            )
+            order2 = await s.scalar(select(OrdOrder).where(OrdOrder.id == oid))
+        ck.check(
+            "发货拦截：售后拒绝闭环后订单恢复待履约",
+            order2 is not None and order2.fulfill_status == "pending",
+            f"fulfill_status={getattr(order2, 'fulfill_status', None)}",
+        )
+    finally:
+        await _clean([oid])
+
+
 async def main() -> int:
     # ⚠ 数据权限中间件 fail-closed：无 AuthContext 的 ORM 查询会被拒绝
     #   （PermissionError: AuthContext 缺失）→ E2E 需显式声明超管上下文
@@ -420,6 +497,7 @@ async def main() -> int:
     await _scenario_return_refund(ck)
     await _scenario_idempotent(ck)
     await _scenario_audit_reject(ck)
+    await _scenario_block_delivery(ck)
     print(ck.render())
     print(f"\n断言合计：{ck.total}（通过 {ck.passed} / 失败 {ck.failed}）")
     if ck.failed:

@@ -21,6 +21,7 @@ import httpx
 
 from app.adapters.base import (
     METHOD_ITEM_GET,
+    METHOD_REFUND_LIST_GET,
     METHOD_TRADE_DETAIL_GET,
     METHOD_TRADE_SOLD_GET,
     AdapterResult,
@@ -266,6 +267,28 @@ class TaobaoAdapter:
             primary_bn=primary_bn,
         )
 
+    async def refund_list_get(
+        self,
+        *,
+        shop_id: int,
+        start_modified: Any,
+        end_modified: Any,
+        page_no: int = 1,
+        page_size: int = 50,
+        primary_bn: str = "",
+    ) -> AdapterResult:
+        """售后增量列表拉取（D05.01 FR-01a：平台售后报文自动同步）
+
+        ⚠ **模拟器忽略分页参数**（一次返回窗口内全部售后报文）；
+          真实淘系按 page_no/page_size 分页 → 调用方须按 `total_results` 收敛。
+        """
+        return await self.call(
+            METHOD_REFUND_LIST_GET,
+            refund_list_params(start_modified, end_modified, page_no, page_size),
+            shop_id=shop_id,
+            primary_bn=primary_bn,
+        )
+
     async def close(self) -> None:
         await self.transport.close()
 
@@ -275,6 +298,21 @@ def _fmt_ts(value: Any) -> str:
     if isinstance(value, datetime):
         return value.strftime("%Y-%m-%d %H:%M:%S")
     return str(value or "")
+
+
+def refund_list_params(
+    start_modified: Any,
+    end_modified: Any,
+    page_no: int = 1,
+    page_size: int = 50,
+) -> dict[str, Any]:
+    """`taobao.refund.list.get` 请求参数（适配器与网关共用 → 参数口径唯一）"""
+    return {
+        "start_modified": _fmt_ts(start_modified),
+        "end_modified": _fmt_ts(end_modified),
+        "page_no": page_no,
+        "page_size": page_size,
+    }
 
 
 def to_canonical(

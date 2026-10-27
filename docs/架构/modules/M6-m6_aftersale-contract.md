@@ -1,6 +1,6 @@
 # M6 售后与改单
 
-**目录** `backend/app/modules/m6_aftersale/` · **代码行** 1,804 · **service** 9 个
+**目录** `backend/app/modules/m6_aftersale/` · **代码行** 2,214 · **service** 10 个
 
 **职责**：售后申请 / 审核 / 退款单 / 改地址（快照 + 差异对比 + 叫回联动）
 
@@ -35,6 +35,7 @@
 | `aftersale.audit` | 审核（同意 / 拒绝） |
 | `aftersale.create_refund` | 生成退款单 |
 | `aftersale.refund_transit` | 退款单状态推进 |
+| `aftersale_pull.pull_refunds` | 拉平台售后报文并落售后申请单（D05.01 FR-01a） |
 | `modify.create_address_modify` | 发起改地址改单 |
 | `modify.complete_recall_and_effective` | 叫回成功后生效 |
 | `modify.cancel_recall_modify` | 撤销改单恢复现场 |

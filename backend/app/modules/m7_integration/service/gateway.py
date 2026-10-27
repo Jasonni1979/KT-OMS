@@ -15,8 +15,8 @@ from typing import Any
 
 from redis.asyncio import Redis
 
-from app.adapters.base import AdapterResult
-from app.adapters.taobao import TaobaoAdapter
+from app.adapters.base import METHOD_REFUND_LIST_GET, AdapterResult
+from app.adapters.taobao import TaobaoAdapter, refund_list_params
 from app.core.config import settings
 from app.models.gateway import GwApiLog
 
@@ -202,6 +202,29 @@ class Gateway:
         )
         return res
 
+
+    async def refund_list_get(
+        self,
+        *,
+        shop_id: int,
+        start_modified: Any,
+        end_modified: Any,
+        page_no: int = 1,
+        page_size: int = 50,
+        primary_bn: str = "",
+    ) -> AdapterResult:
+        """售后增量列表拉取（D05.01 FR-01a）
+
+        **必须走 Gateway.call**（而非直接调适配器）—— 否则绕过限流与 api_log，
+        平台调用失败将无留痕（售后丢单是隐蔽故障）。
+        """
+        return await self.call(
+            METHOD_REFUND_LIST_GET,
+            refund_list_params(start_modified, end_modified, page_no, page_size),
+            shop_id=shop_id,
+            primary_bn=primary_bn,
+            source="aftersale_pull",
+        )
 
     async def walk_list(
         self,

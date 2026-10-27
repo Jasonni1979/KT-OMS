@@ -9,6 +9,13 @@ from app.models.fulfill import (
     OrdDelivery,
 )
 
+#: 订单履约状态「售后中」
+#:
+#: ⚠ **权威来源 = DDL COMMENT**（`oms_order.ord_order.fulfill_status`），
+#:   枚举值 `aftersale` 由 M6 在建在途售后单时写入（D05.01 FR-05a）。
+#:   履约侧读它做「未发货仅退款 → 禁止发货」拦截（G8）。
+ORDER_FULFILL_IN_AFTERSALE = "aftersale"
+
 ST_DRAFT = "draft"
 
 ST_PUSHED = "pushed"

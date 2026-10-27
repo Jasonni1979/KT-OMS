@@ -4082,9 +4082,11 @@ ORD_ORDER_AUDIT_STATUS: Final[dict[str, str]] = {
 ORD_ORDER_AUDIT_STATUS_VALUES: Final[frozenset[str]] = frozenset(ORD_ORDER_AUDIT_STATUS)
 
 ORD_ORDER_FULFILL_STATUS: Final[dict[str, str]] = {
+    'aftersale': '售后中',
     'finished': '完成',
     'fulfilling': '履约中',
     'partial_shipped': '部分发货',
+    'paused': '暂停编排',
     'pending': '待履约',
     'shipped': '已发货',
 }
