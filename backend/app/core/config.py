@@ -26,6 +26,16 @@ class Settings(BaseSettings):
 
     # Redis（库存预占 Lua / 缓存 / 分布式锁）
     redis_url: str = "redis://127.0.0.1:6380/0"
+    #: Redis 连接池上限
+    #:
+    #: ⚠ **redis-py 8.x 默认只有 100** → 业务侧 >100 并发打 Redis 会抛
+    #:   `MaxConnectionsError: Too many connections`（W10 压测实测触发）。
+    #:   库存预占是高频写路径，100 偏紧。
+    #:
+    #:   **容量校准**：连接数 ≈ max_connections × worker 数，
+    #:   须 < Redis 服务端 `maxclients`（默认 10000）。
+    #:   512 × 10 worker = 5120 ✓ 安全；再调大前先确认服务端 maxclients。
+    redis_max_connections: int = 512
 
     # RabbitMQ（outbox 投递 / 事件消费）
     rabbitmq_url: str = "amqp://ktoms:ktoms_dev_2026@127.0.0.1:5673/"

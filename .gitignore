@@ -46,3 +46,6 @@ runtime/
 *.log
 _research/
 tmp/
+
+# 手工改动前的脚本备份（不入库）
+*.bak-*

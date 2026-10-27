@@ -446,6 +446,12 @@ async def get_redis() -> Redis:
     if _redis is None or _redis_loop is not loop:
         if _redis is not None:
             await _redis.aclose()
-        _redis = Redis.from_url(settings.redis_url, decode_responses=True)
+        _redis = Redis.from_url(
+            settings.redis_url,
+            decode_responses=True,
+            # ⚠ redis-py 8.x 默认 100 → >100 并发直接 MaxConnectionsError
+            #   （W10 压测实测触发，见 config.redis_max_connections 注释）
+            max_connections=settings.redis_max_connections,
+        )
         _redis_loop = loop
     return _redis
